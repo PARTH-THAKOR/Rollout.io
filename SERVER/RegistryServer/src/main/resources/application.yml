@@ -1,0 +1,17 @@
+server:
+  port: 4999
+
+spring:
+  application:
+    name: RegistryServer
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:4999/eureka/
+  server:
+    enable-self-preservation: false
