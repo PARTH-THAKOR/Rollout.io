@@ -1,0 +1,28 @@
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+
+  swagger-ui:
+    enabled: true
+
+server:
+  port: 5001
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+    prometheus:
+      enabled: true
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+spring:
+  profiles:
+    active: dev-authservice

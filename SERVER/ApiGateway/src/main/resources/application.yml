@@ -1,0 +1,69 @@
+server:
+  port: 5000
+
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      default-filters:
+        - PreserveHostHeader
+
+      routes:
+        - id: auth-service
+          uri: lb://authservice
+          predicates:
+            - Path=/auth/**
+
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@userKeyResolver}"
+
+            - name: CircuitBreaker
+              args:
+                name: featureServiceCircuit
+                fallbackUri: forward:/fallback/features
+  profiles:
+    active: dev-apigateway
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      featureServiceCircuit:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+  endpoint:
+    prometheus:
+      enabled: true
+
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+    urls:
+      - name: auth-service
+        url: /authservice/v3/api-docs

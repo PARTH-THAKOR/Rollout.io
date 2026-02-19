@@ -4,6 +4,7 @@ server:
 eureka:
   instance:
     health-check-url-path: /actuator/health
+    hostname: localhost
   client:
     register-with-eureka: false
     fetch-registry: false
@@ -18,5 +19,7 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
-
+spring:
+  profiles:
+    active: dev-registryserver
 

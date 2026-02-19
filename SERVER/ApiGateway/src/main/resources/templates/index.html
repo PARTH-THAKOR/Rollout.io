@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rollout.io - Remote Config</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+
+            background: radial-gradient(circle at 25% 30%, rgba(180, 0, 0, 0.2), transparent 55%),
+            radial-gradient(circle at 75% 70%, rgba(0, 60, 200, 0.2), transparent 55%),
+            #050509;
+        }
+
+        /* STAR BACKGROUND */
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            background-repeat: repeat;
+            animation: starScroll linear infinite;
+            z-index: -1;
+        }
+
+        .stars.small {
+            background-image: url("data:image/svg+xml,\
+<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800'>\
+<circle cx='10' cy='20' r='1' fill='white'/>\
+<circle cx='200' cy='300' r='1' fill='white'/>\
+<circle cx='400' cy='100' r='1' fill='white'/>\
+<circle cx='600' cy='500' r='1' fill='white'/>\
+<circle cx='700' cy='200' r='1' fill='white'/>\
+<circle cx='150' cy='600' r='1' fill='white'/>\
+<circle cx='350' cy='700' r='1' fill='white'/>\
+</svg>");
+            animation-duration: 40s;
+            opacity: 0.9;
+        }
+
+        .stars.medium {
+            background-image: url("data:image/svg+xml,\
+<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800'>\
+<circle cx='100' cy='200' r='2' fill='white'/>\
+<circle cx='500' cy='600' r='2' fill='white'/>\
+<circle cx='700' cy='300' r='2' fill='white'/>\
+<circle cx='300' cy='100' r='2' fill='white'/>\
+</svg>");
+            animation-duration: 80s;
+            opacity: 0.6;
+        }
+
+        .stars.large {
+            background-image: url("data:image/svg+xml,\
+<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800'>\
+<circle cx='200' cy='400' r='3' fill='white'/>\
+<circle cx='600' cy='150' r='3' fill='white'/>\
+</svg>");
+            animation-duration: 120s;
+            opacity: 0.4;
+        }
+
+        @keyframes starScroll {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 0 -800px;
+            }
+        }
+
+        /* CONTENT */
+
+        .content {
+            max-width: 900px;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 50px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .enter-btn {
+            margin-top: 35px;
+            margin-right: 5px;
+            margin-left: 5px;
+            padding: 15px 45px;
+            border-radius: 8px;
+            border: none;
+            background: white;
+            color: black;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .enter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 255, 255, 0.4);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                overflow-y: auto;
+            }
+        }
+
+        p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #9ca3af;
+            margin-bottom: 20px;
+            margin-left: 100px;
+            margin-right: 100px;
+
+            text-align: justify;
+            text-align-last: center;
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+<div class="stars small"></div>
+<div class="stars medium"></div>
+<div class="stars large"></div>
+
+<div class="content">
+    <h1>Rollout.io</h1>
+        <p style="color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 35px;
+            text-transform: uppercase;">FEATURE FLAG AND CONFIGURATION MANAGEMENT PLATFORM</p>
+
+    <p>Rollout.io – Remote Config is a centralized feature flag and configuration management system that allows applications to change behavior dynamically at runtime without redeployment. It supports controlled feature rollouts, instant rollback, and centralized configuration management, improving reliability and operational safety in production systems.</p>
+    <button class="enter-btn"
+            onclick="window.location.href='/webjars/swagger-ui/index.html'">
+        API Documentation
+    </button>
+    <button class="enter-btn"
+            onclick="window.open('https://github.com/TechParaglide/Rollout.io', '_blank')">
+        GitHub Repository
+    </button>
+</div>
+
+
+<div class="footer">
+    MIT License • Rollout.io © 2026
+</div>
+
+</body>
+</html>

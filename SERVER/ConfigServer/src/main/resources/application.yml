@@ -1,0 +1,16 @@
+server:
+  port: 4998
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,encrypt,decrypt,busrefresh,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  profiles:
+    active: dev-configserver
+

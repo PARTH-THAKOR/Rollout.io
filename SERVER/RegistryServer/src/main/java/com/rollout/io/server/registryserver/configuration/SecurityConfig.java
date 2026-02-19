@@ -19,19 +19,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${secret.security.user.name}")
+    private String adminUsername;
+
+    @org.springframework.beans.factory.annotation.Value("${secret.security.user.password}")
+    private String adminPassword;
+
+    @org.springframework.beans.factory.annotation.Value("${secret.security.user.role}")
+    private String adminRole;
+
+    @org.springframework.beans.factory.annotation.Value("${secret.security.prometheus.name}")
+    private String prometheusUsername;
+
+    @org.springframework.beans.factory.annotation.Value("${secret.security.prometheus.password}")
+    private String prometheusPassword;
+
+    @org.springframework.beans.factory.annotation.Value("${secret.security.prometheus.role}")
+    private String prometheusRole;
+
     @Bean
     public UserDetailsService userDetailsService() {
 
         UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("admin123"))
-                .roles("ADMIN")
+                .username(adminUsername)
+                .password(passwordEncoder().encode(adminPassword))
+                .roles(adminRole)
                 .build();
 
         UserDetails prometheus = User.builder()
-                .username("prometheus")
-                .password(passwordEncoder().encode("prom123"))
-                .roles("PROMETHEUS")
+                .username(prometheusUsername)
+                .password(passwordEncoder().encode(prometheusPassword))
+                .roles(prometheusRole)
                 .build();
 
         return new InMemoryUserDetailsManager(admin, prometheus);
@@ -60,4 +78,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }
