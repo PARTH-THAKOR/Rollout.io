@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service interface outlining the business logic for managing Core Feature Flags.
+ * Defines operations for creating, mutating, toggling, and safely deleting independent flags.
+ */
 @Service
 public interface CoreFlagService {
 

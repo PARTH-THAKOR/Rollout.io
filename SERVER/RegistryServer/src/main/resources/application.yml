@@ -1,25 +1,49 @@
+# ===================================================================
+# REGISTRY SERVER CONFIGURATION (application.yml)
+# ===================================================================
+
+# ===================================================================
+# Server Settings
+# ===================================================================
 server:
   port: 4999
 
+# ===================================================================
+# Spring Settings
+# ===================================================================
+spring:
+  profiles:
+    active: dev-registryserver
+  application:
+    name: RegistryServer
+
+# ===================================================================
+# Eureka Server/Client Configuration
+# ===================================================================
 eureka:
   instance:
+    # Use environment variable EUREKA_HOSTNAME if deployed via Docker networking
+    hostname: ${EUREKA_HOSTNAME:localhost}
     health-check-url-path: /actuator/health
-    hostname: localhost
   client:
+    # A Registry Server does not need to register with itself
     register-with-eureka: false
+    # Does not need to pull the registry locally
     fetch-registry: false
     service-url:
-      defaultZone: http://localhost:4999/eureka/
+      # Inject Docker specific EUREKA_URI or fallback to localhost
+      defaultZone: ${EUREKA_URI:http://localhost:4999/eureka/}
   server:
+    # Keeps nodes in registry even if they drop connection temporarily
     enable-self-preservation: true
+    # Interval to evict disconnected instances (in ms)
     eviction-interval-timer-in-ms: 60000
 
+# ===================================================================
+# Management & Actuator Endpoints Configuration
+# ===================================================================
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
-spring:
-  profiles:
-    active: dev-registryserver
-

@@ -4,6 +4,12 @@ import lombok.Getter;
 
 import java.time.Instant;
 
+/**
+ * Centralized generic payload wrapper enforcing a consistent JSON structure for REST Responses.
+ * Ensures the Frontend SDK logic can seamlessly parse timestamp, status, and payload data.
+ *
+ * @param <T> the underlying body type represented by this model
+ */
 @Getter
 public class ApiResponse<T> {
 

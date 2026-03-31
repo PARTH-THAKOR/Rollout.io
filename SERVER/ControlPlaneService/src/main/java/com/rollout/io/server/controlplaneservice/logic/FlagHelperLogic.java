@@ -5,16 +5,143 @@ import com.rollout.io.server.controlplaneservice.entity.FlagType;
 import com.rollout.io.server.controlplaneservice.exceptions.RolloutError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rollout.io.server.controlplaneservice.helpers.JwtHelper;
+import com.rollout.io.server.controlplaneservice.repository.FlagRepository;
+import com.rollout.io.server.controlplaneservice.service.EnvironmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import com.rollout.io.server.controlplaneservice.entity.TargetingRule;
+import com.rollout.io.server.controlplaneservice.entity.TargetOperator;
+import java.util.List;
+
+/**
+ * Centralized utility/logic class containing robust shared validation algorithms.
+ * Handles strict type validations for boolean, JSON, string flags, and parses targeting rules formatting.
+ */
 @Component
 @RequiredArgsConstructor
 public class FlagHelperLogic {
 
     private final ObjectMapper objectMapper;
+    private final FlagRepository flagRepository;
+    private final EnvironmentService environmentService;
 
+    /**
+     * Validates a new flag's structure, checks for key/name uniqueness, enforces type constraints,
+     * and sets defaults (version, timestamps, createdByUid) before persistence.
+     *
+     * @param jwt the authenticated JWT token
+     * @param environmentId the target environment scope
+     * @param flag the flag entity to validate and enrich
+     */
+    public void validateAndPrepareForCreation(Jwt jwt, String environmentId, Flag flag) {
+        environmentService.getEnvironmentById(jwt, environmentId);
+
+        if (flag == null || flag.getKey() == null || flag.getKey().trim().isEmpty()) {
+            throw new RolloutError("Flag key is required", HttpStatus.BAD_REQUEST);
+        }
+
+        if (flagRepository.findByEnvironmentIdAndKey(environmentId, flag.getKey()).isPresent()) {
+            throw new RolloutError("Flag with this key already exists in the environment", HttpStatus.CONFLICT);
+        }
+
+        if (flag.getDisplayName() != null && flagRepository.findByEnvironmentIdAndDisplayName(environmentId, flag.getDisplayName()).isPresent()) {
+            throw new RolloutError("Flag with this name already exists in the environment", HttpStatus.CONFLICT);
+        }
+
+        validateFlagValue(flag);
+        validateRolloutPercentage(flag.getRolloutPercentage());
+        validateTargetingRules(flag.getTargetingRules());
+
+        flag.setEnvironmentId(environmentId);
+        flag.setVersion(1);
+        flag.setCreatedAt(java.time.Instant.now());
+        flag.setUpdatedAt(java.time.Instant.now());
+        flag.setCreatedByUid(JwtHelper.getUidFromJwt(jwt));
+
+        if (flag.getEnabled() == null) {
+            flag.setEnabled(false);
+        }
+    }
+
+    /**
+     * Validates and merges an incoming update request into the existing flag entity.
+     * Ensures immutable fields (key, type) are not changed, and checks for name conflicts.
+     *
+     * @param existingFlag the currently persisted flag state
+     * @param updateRequest the partial update payload from the client
+     * @return true if the flag's value was changed (triggers version bump)
+     */
+    public boolean validateAndApplyUpdate(Flag existingFlag, Flag updateRequest) {
+        if (updateRequest.getKey() != null && !updateRequest.getKey().equals(existingFlag.getKey())) {
+             throw new RolloutError("Flag key is immutable and cannot be changed", HttpStatus.BAD_REQUEST);
+        }
+
+        if (updateRequest.getDisplayName() != null && !updateRequest.getDisplayName().equals(existingFlag.getDisplayName())) {
+            if (flagRepository.findByEnvironmentIdAndDisplayName(existingFlag.getEnvironmentId(), updateRequest.getDisplayName()).isPresent()) {
+                throw new RolloutError("Flag with this name already exists", HttpStatus.CONFLICT);
+            }
+            existingFlag.setDisplayName(updateRequest.getDisplayName());
+        }
+
+        if (updateRequest.getDescription() != null) {
+            existingFlag.setDescription(updateRequest.getDescription());
+        }
+
+        // Rollout percentage update
+        if (updateRequest.getRolloutPercentage() != null) {
+            validateRolloutPercentage(updateRequest.getRolloutPercentage());
+            existingFlag.setRolloutPercentage(updateRequest.getRolloutPercentage());
+        }
+
+        // Targeting rules update
+        if (updateRequest.getTargetingRules() != null) {
+            validateTargetingRules(updateRequest.getTargetingRules());
+            existingFlag.setTargetingRules(updateRequest.getTargetingRules());
+        }
+
+        boolean valueChanged = false;
+        
+        if (updateRequest.getType() != null && updateRequest.getType() != existingFlag.getType()) {
+             throw new RolloutError("Flag type is immutable and cannot be changed", HttpStatus.BAD_REQUEST);
+        }
+
+        if (updateRequest.getValue() != null && !java.util.Objects.equals(updateRequest.getValue(), existingFlag.getValue())) {
+            existingFlag.setValue(updateRequest.getValue());
+            valueChanged = true;
+        }
+
+        if (updateRequest.getEnabled() != null && !updateRequest.getEnabled().equals(existingFlag.getEnabled())) {
+            throw new RolloutError("Flag 'enabled' status cannot be updated via this endpoint. Use the toggle endpoint instead.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (valueChanged) {
+            validateFlagValue(existingFlag);
+        }
+        return valueChanged;
+    }
+
+    /**
+     * Inverts the flag's enabled state and increments the version counter.
+     *
+     * @param flag the flag entity to toggle
+     */
+    public void applyToggle(Flag flag) {
+        flag.setEnabled(!Boolean.TRUE.equals(flag.getEnabled()));
+        int currentVersion = flag.getVersion() == null ? 1 : flag.getVersion();
+        flag.setVersion(currentVersion + 1);
+        flag.setUpdatedAt(java.time.Instant.now());
+    }
+
+    /**
+     * Validates the flag's value strictly against its declared type (BOOLEAN, INTEGER, DOUBLE, STRING, JSON).
+     * Coerces compatible input types and throws on type mismatches.
+     *
+     * @param flag the flag entity containing type and value to validate
+     */
     public void validateFlagValue(Flag flag) {
         FlagType type = flag.getType();
         Object value = flag.getValue();
@@ -87,5 +214,34 @@ public class FlagHelperLogic {
             throw new RolloutError("Invalid value for flag type " + type, HttpStatus.BAD_REQUEST);
         }
         
+    }
+
+    private void validateRolloutPercentage(Integer rolloutPercentage) {
+        if (rolloutPercentage != null && (rolloutPercentage < 0 || rolloutPercentage > 100)) {
+            throw new RolloutError("Rollout percentage must be between 0 and 100", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateTargetingRules(List<TargetingRule> rules) {
+        if (rules == null || rules.isEmpty()) return;
+
+        for (TargetingRule rule : rules) {
+            if (rule.getAttribute() == null || rule.getAttribute().isBlank()) {
+                throw new RolloutError("Targeting rule attribute cannot be empty", HttpStatus.BAD_REQUEST);
+            }
+            if (rule.getOperator() == null) {
+                throw new RolloutError("Targeting rule operator is required for attribute: " + rule.getAttribute(), HttpStatus.BAD_REQUEST);
+            }
+            // IN / NOT_IN operators need values list
+            if ((rule.getOperator() == TargetOperator.IN || rule.getOperator() == TargetOperator.NOT_IN)
+                    && (rule.getValues() == null || rule.getValues().isEmpty())) {
+                throw new RolloutError("Targeting rule with IN/NOT_IN operator requires 'values' list for attribute: " + rule.getAttribute(), HttpStatus.BAD_REQUEST);
+            }
+            // All other operators need single value
+            if (rule.getOperator() != TargetOperator.IN && rule.getOperator() != TargetOperator.NOT_IN
+                    && rule.getValue() == null) {
+                throw new RolloutError("Targeting rule requires 'value' for attribute: " + rule.getAttribute(), HttpStatus.BAD_REQUEST);
+            }
+        }
     }
 }

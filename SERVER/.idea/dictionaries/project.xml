@@ -4,6 +4,8 @@
       <w>busrefresh</w>
       <w>circuitbreaker</w>
       <w>controlplaneservice</w>
+      <w>grafana</w>
+      <w>sdkservice</w>
       <w>urls</w>
     </words>
   </dictionary>

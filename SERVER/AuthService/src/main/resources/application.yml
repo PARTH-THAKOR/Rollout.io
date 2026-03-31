@@ -1,28 +1,43 @@
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-
-  swagger-ui:
-    enabled: true
-
+# ===================================================================
+# Base Application Configuration
+# ===================================================================
 server:
   port: 5001
 
+spring:
+  application:
+    name: AuthService
+  profiles:
+    active: dev-authservice
 
+# ===================================================================
+# Swagger / OpenAPI Documentation
+# ===================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+
+# ===================================================================
+# Actuator & Prometheus Monitoring
+# ===================================================================
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
-
   endpoint:
     prometheus:
       enabled: true
-
   prometheus:
     metrics:
       export:
         enabled: true
-spring:
-  profiles:
-    active: dev-authservice
+
+# ===================================================================
+# Eureka Discovery Client
+# ===================================================================
+eureka:
+  instance:
+    prefer-ip-address: true

@@ -7,6 +7,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * Represents a logical Workspace / Project within the Control Plane.
+ * Groups environments and flags together with a distinct name and description.
+ */
 @Document(collection = "projects")
 @Data
 @CompoundIndex(

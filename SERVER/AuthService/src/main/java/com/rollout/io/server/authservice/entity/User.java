@@ -10,6 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 import java.util.Set;
 
+/**
+ * Represents a developer identity authenticated via Firebase Auth.
+ * Acts as the centralized User profile model persisted in MongoDB.
+ */
 @Document(collection = "users")
 @Getter
 @Setter
@@ -36,7 +40,6 @@ public class User {
 
     private boolean emailVerified;
 
-    private Set<String> projectIds;
 
     private Instant createdAt;
 

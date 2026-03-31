@@ -14,6 +14,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * Configures the Spring Security filter chain for the AuthService.
+ * Establishes CORS mappings, exception handlers, and the JWT Resource Server.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -21,14 +25,42 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final ObjectMapper objectMapper;
 
+    private final String[] publicEndpoints = {
+            "/public/**",
+            "/api/v1/auth/**",
+            "/actuator/health",
+            "/actuator/prometheus",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html"
+    };
+
+    /**
+     * Integrates CORS mappings, defining origins, methods, and headers permitted.
+     * This method resolves client options pre-flight checks locally.
+     *
+     * @param registry the CORS registry configurer
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
     }
 
+    /**
+     * Secures HTTP requests by evaluating JWT tokens against the Firebase Public Keys.
+     *
+     * @param http the HttpSecurity component to modify
+     * @return the resolved Security Filter Chain
+     * @throws Exception if an error occurs configuring OAuth2 resources
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable).cors(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth.requestMatchers("/public/**", "/actuator/health", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll().anyRequest().authenticated()).exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+        http.csrf(AbstractHttpConfigurer::disable)
+            .cors(Customizer.withDefaults())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(publicEndpoints).permitAll()
+                .anyRequest().authenticated()
+            ).exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
 
             ApiResponse<Object> apiResponse = new ApiResponse<>("ACCESS DENIED [AUTHENTICATION REQUIRED]", false, "Please ensure you have the necessary permissions to access. For any help contact helpdesk@rollout-io.com");
 

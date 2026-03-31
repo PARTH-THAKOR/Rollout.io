@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service interface outlining the business logic for managing Projects.
+ * Defines operations for workspace creation, retrieval, searching, and configuration updates.
+ */
 @Service
 public interface ProjectService {
 

@@ -1,24 +1,43 @@
+# ===================================================================
+# Base Application Configuration
+# ===================================================================
+server:
+  port: 5002
+
+spring:
+  application:
+    name: ControlPlaneService
+  profiles:
+    active: dev-controlplaneservice
+
+# ===================================================================
+# Swagger / OpenAPI Documentation
+# ===================================================================
 springdoc:
   api-docs:
     path: /v3/api-docs
-
   swagger-ui:
     enabled: true
 
+# ===================================================================
+# Actuator & Prometheus Monitoring
+# ===================================================================
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
-
   endpoint:
     prometheus:
       enabled: true
-
   prometheus:
     metrics:
       export:
         enabled: true
-spring:
-  profiles:
-    active: dev-controlplaneservice
+
+# ===================================================================
+# Eureka Discovery Client
+# ===================================================================
+eureka:
+  instance:
+    prefer-ip-address: true

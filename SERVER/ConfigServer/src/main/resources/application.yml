@@ -1,6 +1,25 @@
+# ===================================================================
+# CONFIG SERVER CONFIGURATION (application.yml)
+# ===================================================================
+
+# ===================================================================
+# Server Settings
+# ===================================================================
 server:
   port: 4998
 
+# ===================================================================
+# Spring Application Profiles
+# ===================================================================
+spring:
+  application:
+    name: ConfigServer
+  profiles:
+    active: dev-configserver
+
+# ===================================================================
+# Actuator Endpoints Configuration
+# ===================================================================
 management:
   endpoints:
     web:
@@ -9,8 +28,3 @@ management:
   endpoint:
     health:
       show-details: always
-
-spring:
-  profiles:
-    active: dev-configserver
-

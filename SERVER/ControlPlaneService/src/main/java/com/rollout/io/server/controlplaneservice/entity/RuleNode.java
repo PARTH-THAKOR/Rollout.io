@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Represents a vertex within the prerequisite rule dependency graph.
+ * Nodes resolve structurally into either logical combiners (AND/OR operators applying to children)
+ * or concrete prerequisite evaluations (strict dependencies on another target flag state).
+ */
 @Data
 @Builder
 @NoArgsConstructor
