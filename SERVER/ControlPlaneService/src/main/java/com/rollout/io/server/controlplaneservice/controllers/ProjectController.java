@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST Controller for managing hierarchical Projects within the Control Plane.
+ * Exposes securely authenticated endpoints for creating, searching, and mutating individual developer workspaces.
+ */
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor

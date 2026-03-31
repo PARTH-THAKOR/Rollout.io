@@ -10,7 +10,13 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 
+/**
+ * Represents a Feature Flag entity active within a designated Environment.
+ * Acts as the centralized model for both standalone CORE flags and complex DEPENDENT flags.
+ * Tracks audience targeting profiles, percentage rollouts, and hierarchical prerequisites.
+ */
 @Document(collection = "flags")
 @CompoundIndex(
         name = "env_flag_unique",
@@ -42,6 +48,12 @@ public class Flag {
     private Boolean enabled;
 
     private Object value;
+
+    // Percentage rollout (0-100). null means 100% (fully rolled out to all users)
+    private Integer rolloutPercentage;
+
+    // Targeting rules — ALL must match (AND logic). null/empty = no targeting (everyone)
+    private List<TargetingRule> targetingRules;
 
     // Only used if category = DEPENDENT
     private RuleNode dependency;

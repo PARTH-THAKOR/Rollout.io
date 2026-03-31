@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST Controller governing fundamental independent Core Feature Flags.
+ * Core flags act as standalone base variables (boolean, text, strictly structured JSON) evaluated directly.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor

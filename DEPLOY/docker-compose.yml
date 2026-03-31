@@ -1,0 +1,127 @@
+name: 'rollout-v4-preview'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+  registry-server:
+    image: parththakor/registry-server:0.0.1
+    container_name: registry-server
+    entrypoint: [ "sh", "-c", "sleep 10 && java -jar app.jar" ]
+    ports:
+      - "4999:4999"
+    depends_on:
+      - prometheus
+    environment:
+      - EUREKA_HOSTNAME=registry-server
+
+  config-server:
+    image: parththakor/config-server:0.0.1
+    container_name: config-server
+    entrypoint: [ "sh", "-c", "sleep 25 && java -jar app.jar" ]
+    ports:
+      - "4998:4998"
+    depends_on:
+      - registry-server
+      - rabbitmq
+      - prometheus
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+
+  api-gateway:
+    image: parththakor/api-gateway:0.0.1
+    container_name: api-gateway
+    entrypoint: [ "sh", "-c", "sleep 60 && java -jar app.jar" ]
+    ports:
+      - "5000:5000"
+    depends_on:
+      - config-server
+      - registry-server
+      - redis
+      - auth-service
+      - controlplane-service
+      - sdk-service
+    environment:
+      - REDIS_HOST=redis
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=api-gateway
+
+  auth-service:
+    image: parththakor/auth-service:0.0.1
+    container_name: auth-service
+    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
+    ports:
+      - "5001:5001"
+    depends_on:
+      - config-server
+      - registry-server
+    environment:
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=auth-service
+
+  controlplane-service:
+    image: parththakor/controlplane-service:0.0.1
+    container_name: controlplane-service
+    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
+    ports:
+      - "5002:5002"
+    depends_on:
+      - config-server
+      - registry-server
+    environment:
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=controlplane-service
+
+  sdk-service:
+    image: parththakor/sdk-service:0.0.1
+    container_name: sdk-service
+    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
+    ports:
+      - "5003:5003"
+    depends_on:
+      - config-server
+      - registry-server
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=sdk-service

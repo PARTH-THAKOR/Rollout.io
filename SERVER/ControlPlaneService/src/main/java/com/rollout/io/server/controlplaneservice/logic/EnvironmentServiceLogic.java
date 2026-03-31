@@ -16,6 +16,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Concrete implementation of the EnvironmentService interface.
+ * Enforces hierarchical association of Environments within Projects and ensures SDK keys are safely generated and validated.
+ */
 @Service
 @RequiredArgsConstructor
 public class EnvironmentServiceLogic implements EnvironmentService {
@@ -86,6 +90,10 @@ public class EnvironmentServiceLogic implements EnvironmentService {
     @Override
     public Environment updateEnvironmentName(Jwt jwt, String environmentId, String newName) {
         Environment environment = getEnvironmentById(jwt, environmentId); // Reuses the access check
+
+        if (environment.getName().equals(newName)) {
+            return environment; // Name hasn't changed, return immediately
+        }
 
         // Check if new name already exists in the same project
         if (environmentRepository.findByProjectIdAndName(environment.getProjectId(), newName).isPresent()) {

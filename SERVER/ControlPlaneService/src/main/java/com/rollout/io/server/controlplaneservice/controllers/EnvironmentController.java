@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST Controller for managing logical Environments scoped under explicit Projects.
+ * Handles environment boundaries, SDK Key lifecycle generations, and isolation settings.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor

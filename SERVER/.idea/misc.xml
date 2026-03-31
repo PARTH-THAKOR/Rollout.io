@@ -9,6 +9,7 @@
         <option value="$PROJECT_DIR$/ApiGateway/pom.xml" />
         <option value="$PROJECT_DIR$/AuthService/pom.xml" />
         <option value="$PROJECT_DIR$/ControlPlaneService/pom.xml" />
+        <option value="$PROJECT_DIR$/SdkService/pom.xml" />
       </list>
     </option>
   </component>

@@ -13,6 +13,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Global centralized Exception Handler to intercept and format Controller level exceptions.
+ * Converts validation errors, unauthorized access faults, and unhandled Server traces
+ * gracefully into standardized 'ApiResponse' JSON payloads.
+ */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -20,6 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleRolloutError(
             RolloutError ex
     ) {
+        log.warn("RolloutError triggered: Status {} | Message: {}", ex.getStatus(), ex.getMessage());
         return ApiResponseBuilder.out(
                 ex.getStatus(),
                 ex.getMessage(),
@@ -31,13 +40,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleValidation(
             MethodArgumentNotValidException ex
     ) {
-
         String message = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .findFirst()
                 .map(error -> error.getField() + " " + error.getDefaultMessage())
                 .orElse("Validation failed");
+
+        log.warn("Validation failed: {}", message);
 
         return ApiResponseBuilder.out(
                 HttpStatus.BAD_REQUEST,
@@ -110,10 +120,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleGenericException(
             Exception ex
     ) {
-
+        log.error("Internal server error encountered: ", ex);
         return ApiResponseBuilder.out(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal server error"+ex.getMessage(),
+                "Internal server error: " + ex.getMessage(),
                 null
         );
     }

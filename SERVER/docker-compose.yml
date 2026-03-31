@@ -1,0 +1,175 @@
+name: 'rollout-v4-preview'
+
+services:
+  # ==========================================
+  # Infrastructure Services
+  # ==========================================
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ protocol port
+      - "15672:15672" # Management UI port
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # ==========================================
+  # Monitoring Services
+  # ==========================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # Map the unified prometheus configuration into the container
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+  # ==========================================
+  # Microservices
+  # ==========================================
+  registry-server:
+    build:
+      context: ./RegistryServer
+      dockerfile: Dockerfile
+    image: parththakor/registry-server:0.0.1
+    container_name: registry-server
+    # Staggered boot: wait 10 seconds for Redis/RabbitMQ to start
+    entrypoint: [ "sh", "-c", "sleep 10 && java -jar app.jar" ]
+    ports:
+      - "4999:4999"
+    depends_on:
+      - prometheus
+    environment:
+      # Inject Docker specific network hostname for Eureka
+      - EUREKA_HOSTNAME=registry-server
+
+  config-server:
+    build:
+      context: ./ConfigServer
+      dockerfile: Dockerfile
+    image: parththakor/config-server:0.0.1
+    container_name: config-server
+    # Staggered boot: wait 25 seconds for Registry Server to start
+    entrypoint: [ "sh", "-c", "sleep 25 && java -jar app.jar" ]
+    ports:
+      - "4998:4998"
+    depends_on:
+      - registry-server
+      - rabbitmq
+      - prometheus
+    environment:
+      # Connect to the local Docker RabbitMQ instance
+      - RABBITMQ_HOST=rabbitmq
+      # Connect to the local Docker Registry Server instance
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+
+  api-gateway:
+    build:
+      context: ./ApiGateway
+      dockerfile: Dockerfile
+    image: parththakor/api-gateway:0.0.1
+    container_name: api-gateway
+    # Staggered boot: wait 60 seconds for all backend services to stabilize
+    entrypoint: [ "sh", "-c", "sleep 60 && java -jar app.jar" ]
+    ports:
+      - "5000:5000"
+    depends_on:
+      - config-server
+      - registry-server
+      - redis
+      - auth-service
+      - controlplane-service
+      - sdk-service
+    environment:
+      # Inject Docker specific REDIS_HOST instance 
+      - REDIS_HOST=redis
+      # Inject Configuration Server URL
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      # Inject Eureka connection for Docker network (Matches with GitHub Configs)
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=api-gateway
+
+  auth-service:
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    image: parththakor/auth-service:0.0.1
+    container_name: auth-service
+    # Staggered boot: wait 35 seconds for Config Server & Registry to start
+    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
+    ports:
+      - "5001:5001"
+    depends_on:
+      - config-server
+      - registry-server
+    environment:
+      # Inject Configuration Server URL
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      # Inject Eureka connection for Docker network (Matches with GitHub Configs)
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=auth-service
+
+  controlplane-service:
+    build:
+      context: ./ControlPlaneService
+      dockerfile: Dockerfile
+    image: parththakor/controlplane-service:0.0.1
+    container_name: controlplane-service
+    # Staggered boot: wait 35 seconds for Config Server & Registry to start
+    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
+    ports:
+      - "5002:5002"
+    depends_on:
+      - config-server
+      - registry-server
+    environment:
+      # Inject Configuration Server URL
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      # Inject Eureka connection for Docker network (Matches with GitHub Configs)
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=controlplane-service
+
+  sdk-service:
+    build:
+      context: ./SdkService
+      dockerfile: Dockerfile
+    image: parththakor/sdk-service:0.0.1
+    container_name: sdk-service
+    # Staggered boot: wait 35 seconds for Config Server & Registry to start
+    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
+    ports:
+      - "5003:5003"
+    depends_on:
+      - config-server
+      - registry-server
+      - redis
+    environment:
+      # Inject Docker specific REDIS_HOST instance 
+      - REDIS_HOST=redis
+      # Inject Configuration Server URL
+      - CONFIG_SERVER_URI=http://config:pass@config-server:4998
+      # Inject Eureka connection for Docker network (Matches with GitHub Configs)
+      - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
+      - EUREKA_HOSTNAME=sdk-service
+

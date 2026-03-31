@@ -1,71 +1,119 @@
+# ===================================================================
+# API GATEWAY CONFIGURATION (application.yml)
+# ===================================================================
+
+# ===================================================================
+# Server Settings
+# ===================================================================
 server:
   port: 5000
 
-
+# ===================================================================
+# Spring Application Profiles & Redis
+# ===================================================================
 spring:
+  application:
+    name: ApiGateway
+  profiles:
+    active: dev-apigateway
   redis:
-    host: localhost
+    # Inject Docker specific REDIS_HOST or fallback to localhost
+    host: ${REDIS_HOST:localhost}
     port: 6379
 
+# ===================================================================
+# Spring Cloud Gateway Routing & Filtering
+# ===================================================================
   cloud:
     gateway:
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
-
       default-filters:
         - PreserveHostHeader
-
       routes:
         - id: auth-service
           uri: lb://authservice
           predicates:
-            - Path=/auth/**
-
+            - Path=/authservice/**
           filters:
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
                 redis-rate-limiter.burstCapacity: 10
                 key-resolver: "#{@userKeyResolver}"
-
             - name: CircuitBreaker
               args:
-                name: featureServiceCircuit
-                fallbackUri: forward:/fallback/features
-  profiles:
-    active: dev-apigateway
+                name: authServiceCircuit
+                fallbackUri: forward:/fallback/auth
 
+        - id: controlplane-service
+          uri: lb://controlplaneservice
+          predicates:
+            - Path=/controlplaneservice/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: controlPlaneServiceCircuit
+                fallbackUri: forward:/fallback/controlplane
+
+        - id: sdk-service
+          uri: lb://sdkservice
+          predicates:
+            - Path=/sdkservice/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: sdkServiceCircuit
+                fallbackUri: forward:/fallback/sdk
+
+# ===================================================================
+# Resilience4J Circuit Breaker Configuration
+# ===================================================================
 resilience4j:
   circuitbreaker:
     instances:
-      featureServiceCircuit:
+      authServiceCircuit:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+      controlPlaneServiceCircuit:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+      sdkServiceCircuit:
         slidingWindowSize: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
 
+# ===================================================================
+# Actuator Endpoints Configuration
+# ===================================================================
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
-
   endpoint:
+    health:
+      show-details: always
     prometheus:
       enabled: true
-
   metrics:
     export:
       prometheus:
         enabled: true
-
-springdoc:
-  swagger-ui:
-    persistAuthorization: true
-    urls:
-      - name: Auth Service
-        url: /authservice/v3/api-docs
-      - name: Control Plane Service
-        url: /controlplaneservice/v3/api-docs

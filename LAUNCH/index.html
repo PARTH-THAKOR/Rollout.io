@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rollout.io - Distributed Feature Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="description"
+        content="A centralized feature flag and configuration management system built for scalable microservices architectures.">
+</head>
+
+<body>
+    <div id="cursor-glow"></div>
+    <!-- Background Stars -->
+    <div class="stars small"></div>
+    <div class="stars medium"></div>
+    <div class="stars large"></div>
+
+    <div class="scroll-progress-container">
+        <div class="scroll-progress-bar" id="myBar"></div>
+    </div>
+
+    <nav>
+        <div class="nav-brand-container" style="display: flex; align-items: center; gap: 20px;">
+            <a href="#hero" class="logo" style="margin-bottom: 0;">Rollout<span class="dot">.</span>io</a>
+            <div class="desktop-only"
+                style="display: flex; align-items: center; border-left: 1px solid rgba(255,255,255,0.15); padding-left: 20px; height: 24px; cursor: default;">
+                <span
+                    style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 13px; color: rgba(255, 255, 255, 0.45); letter-spacing: 0.5px;">TechParaglide.inc</span>
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="#overview">Overview</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#features">Capabilities</a>
+            <a href="#integration">Integration</a>
+        </div>
+
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="hero-section wrapper">
+        <div class="hero-content">
+            <div class="badge">Open Source Project • Built by TechParaglide</div>
+            <div class="animated-brand-title">Rollout.io</div>
+            <h1 class="hero-title">
+                The Architecture of <br>
+                <span class="gradient-text red-to-blue">Instant Change.</span>
+            </h1>
+            <p class="hero-description">
+                A centralized, ultra-low latency feature flag and configuration management system.
+                Designed for complex distributed microservices architectures dealing with dynamic rendering and runtime
+                execution layers.
+            </p>
+            <div class="hero-actions">
+                <a href="#architecture" class="btn btn-outline glow-effect">Explore the Architecture</a>
+            </div>
+        </div>
+
+        <div class="terminal-mockup effect-3d">
+            <div class="terminal-header">
+                <div class="dots">
+                    <div class="dot r"></div>
+                    <div class="dot y"></div>
+                    <div class="dot g"></div>
+                </div>
+                <div class="title">apigateway ~ rollout-cli</div>
+            </div>
+            <div class="terminal-body" id="typing-terminal">
+                <p>Welcome to Rollout.io CLI</p>
+                <p>> rollout init --gateway "eureka-primary"</p>
+                <p class="success">[OK] Bound to Spring Cloud Gateway</p>
+                <p>> rollout status</p>
+                <p>[INFO] Identifying Microservices...</p>
+                <p>[INFO] UserService: <span class="success">ONLINE</span></p>
+                <p>[INFO] AuthService: <span class="success">ONLINE</span></p>
+                <p>> rollout flag toggle --id 901 --state true</p>
+                <p class="warning">[WARN] Pushing configuration to 4,000 Edge Nodes...</p>
+                <p class="success">[OK] Distributed Flag Update Complete (L: 21ms)</p>
+                <span class="cursor">_</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- OVERVIEW SECTION -->
+    <section id="overview" class="wrapper fade-in section-divider">
+        <div class="section-badge">Stateless & Secure</div>
+        <h2 class="section-title">Zero Downtime. Maximum Control.</h2>
+        <p class="section-subtitle">
+            Rollout.io removes the risk from continuous deployment by separating code releases from feature releases.
+            Safely manage your flag lifecycles with deterministic scale, free of any internal dependencies.
+        </p>
+
+        <div class="grid-3">
+            <div class="glass-card effect-3d">
+                <div class="icon-box red-glow">🌋</div>
+                <h3>Stateless Evaluation</h3>
+                <p>Rollout's evaluation engine is completely stateless. We do not store any user tracking data in the
+                    database, ensuring you are 100% GDPR compliant and immune to any PII database bloat even at 50M+
+                    users.</p>
+            </div>
+            <div class="glass-card effect-3d">
+                <div class="icon-box blue-glow">⚡</div>
+                <h3>Backend-Side Math</h3>
+                <p>Unlike fragile SDK evaluation, context processing happens safely server-side guaranteeing maximum
+                    performance. It prevents configurations from bloating heavily on the client and strictly secures
+                    evaluating algorithms.</p>
+            </div>
+            <div class="glass-card effect-3d">
+                <div class="icon-box purple-glow">🛡️</div>
+                <h3>SaaS Machine Auth</h3>
+                <p>SDK and Admin authentications are cleanly separated. Your applications use robust hashed API project
+                    secrets while humans authenticate securely via JWTs, following an enterprise-grade dual-auth system.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CAPABILITIES SECTION -->
+    <section id="architecture" class="wrapper fade-in section-divider">
+        <div class="flex-split">
+            <div class="split-content">
+                <div class="section-badge">Core Engine</div>
+                <h2 class="section-title">Advanced Targeting & Control</h2>
+                <p class="section-content">
+                    Rollout goes beyond basic boolean toggles. It provides a complete mathematical rules engine combined
+                    with robust lifecycle management for flags.
+                </p>
+
+                <ul class="feature-list">
+                    <li>
+                        <strong>Context-Aware Targeting Rules</strong>
+                        <span>Evaluate feature variants based on deeply parsed request headers. Target users by custom
+                            attributes (e.g., role, plan, country) to enable segmented launches securely.</span>
+                    </li>
+                    <li>
+                        <strong>Dynamic Scheduling & Expiry</strong>
+                        <span>Automate your releases. Schedule flags to turn on exactly on launch day and set them to
+                            expire automatically after a limited-time event.</span>
+                    </li>
+                    <li>
+                        <strong>Versioning and Instant Rollbacks</strong>
+                        <span>Every configuration modification is version-controlled. If a metric plunges
+                            post-deployment, isolate the issue and perform an instant rollback to a previous version
+                            globally.</span>
+                    </li>
+                    <li>
+                        <strong>JSON & Schema Validation</strong>
+                        <span>Beyond booleans, deliver complex configurations as JSON payloads. Every payload is
+                            strictly validated against custom JSON-schema rules to prevent catastrophic errors from
+                            malformed data reaching production apps.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="architecture-diagram effect-3d">
+                <div class="arch-container">
+                    <div
+                        style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 30px; border-radius: 12px; font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.8; color: #a6accd; width: 100%;">
+                        <span style="color: #676e95;">// Flag Evaluation Lifecycle</span><br>
+                        <span style="color: #c792ea;">function</span> <span
+                            style="color: #82aaff;">evaluateFlag</span>(flag, user) {<br>
+                        &nbsp;&nbsp;<span style="color: #c792ea;">if</span> (<span
+                            style="color: #f07178;">!</span>checkDependencies(flag)) <span
+                            style="color: #c792ea;">return</span> <span style="color: #ffbd2e;">false</span>;<br>
+                        &nbsp;&nbsp;<span style="color: #c792ea;">if</span> (<span
+                            style="color: #f07178;">!</span>checkSchedule(flag)) <span
+                            style="color: #c792ea;">return</span> <span style="color: #ffbd2e;">false</span>;<br>
+                        &nbsp;&nbsp;<span style="color: #c792ea;">if</span> (evaluateTargeting(flag, user)) <span
+                            style="color: #c792ea;">return</span> serveVariant;<br>
+                        &nbsp;&nbsp;<span style="color: #c792ea;">if</span> (mathHash(user.id <span
+                            style="color: #89ddff;">+</span> flag.key) <span style="color: #89ddff;">% 100 &lt;</span>
+                        flag.rollout) <span style="color: #c792ea;">return</span> <span
+                            style="color: #ffbd2e;">true</span>;<br>
+                        &nbsp;&nbsp;<span style="color: #c792ea;">return</span> flag.default;<br>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DEEP DIVE FEATURES SECTION -->
+    <section id="features" class="wrapper fade-in section-divider">
+        <div class="section-badge">Platform Capabilities</div>
+        <h2 class="section-title">Enterprise-Grade Feature Management</h2>
+        <p class="section-subtitle">
+            Rollout.io is engineered to provide absolute safety in continuous deployments with advanced mathematical
+            rollouts and strict environment isolation.
+        </p>
+
+        <div class="bento-grid">
+            <div class="bento-item span-2 effect-3d">
+                <div class="bento-content">
+                    <h3>Deterministic Percentage Rollouts</h3>
+                    <p>Execute highly stable Canary releases and A/B tests through pure stateless evaluation. We utilize
+                        stable hash functions (SHA-256 / MurmurHash) on a combination of UserID and FlagKey. This
+                        guarantees that users seamlessly land in the same percentage buckets (e.g., the first 20%)
+                        deterministically without storing any personally identifiable information (PII liability) in the
+                        database.</p>
+                </div>
+                <div class="bento-visual json-mockup">
+                    <pre><code>{
+  "flagKey": "new_checkout",
+  "rolloutPercentage": 20,
+  "evaluation": "hash(uId + flagKey) % 100",
+  "isStoredInDB": false
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="bento-item effect-3d">
+                <div class="bento-content">
+                    <h3>Multi-Environment Isolation</h3>
+                    <p>Treat your configurations professionally. Manage completely isolated states across Development,
+                        Staging, and Production environments safely mapped via environment-specific SDK keys preventing
+                        cross-deployment accidental leakage.</p>
+                </div>
+            </div>
+
+            <div class="bento-item effect-3d">
+                <div class="bento-content">
+                    <h3>Real-Time WebSocket Sync</h3>
+                    <p>Achieve instant flag state propagation via MongoDB Change Streams bridged through our distributed
+                        WebSocket layer. No heavy polling. App instances adjust instantly to live traffic adjustments.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bento-item span-2 effect-3d">
+                <div class="bento-visual">
+                    <!-- Graph Mockup for Dependencies -->
+                    <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+                        <div
+                            style="background:#003cc8; padding:5px 15px; border-radius:5px; font-size:10px; color:white;">
+                            Core: new_ui_enabled</div>
+                        <div style="color:var(--text-secondary);">↓</div>
+                        <div
+                            style="background:#7800c8; padding:5px 15px; border-radius:5px; font-size:10px; color:white;">
+                            Dependant: layout_config</div>
+                    </div>
+                </div>
+                <div class="bento-content">
+                    <h3>Directed Acyclic Dependency Graphs</h3>
+                    <p>Build complex runtime restrictions by chaining flags together. Create "Dependent Flags" that only
+                        activate conditionally when their parent "Core Flags" evaluate to true. Rollout mathematically
+                        locks this into a strict DAG (Directed Acyclic Graph) engine, rendering infinite evaluation
+                        loops completely impossible and keeping evaluation pipelines infinitely scalable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section id="workflow" class="wrapper fade-in section-divider" style="text-align:center;">
+        <div class="section-badge">Deployment Workflow</div>
+        <h2 class="section-title">Ship faster, with zero anxiety.</h2>
+        <p class="section-subtitle" style="margin: 0 auto 60px auto;">
+            From creation to global deployment in milliseconds. Rollout seamlessly integrates into your existing CI/CD
+            pipelines.
+        </p>
+
+        <div class="workflow-steps">
+            <div class="step-card effect-3d">
+                <div class="step-num">01</div>
+                <h3>Create & Target</h3>
+                <p>Define your flag, set targeting rules using custom user attributes, and configure complex evaluation
+                    logic directly in the Web Dashboard.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card effect-3d">
+                <div class="step-num">02</div>
+                <h3>Integrate SDK</h3>
+                <p>Initialize the lightweight SDK in your application. The SDK establishes a secure connection and syncs
+                    with the distributed memory store instantly.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card effect-3d">
+                <div class="step-num">03</div>
+                <h3>Launch & Monitor</h3>
+                <p>Gradually roll out the feature via percentage dialing. Monitor metrics live and utilize the instant
+                    kill switch globally if anomalies are detected.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- USE CASES SECTION -->
+    <section id="use-cases" class="wrapper fade-in section-divider">
+        <div class="flex-split">
+            <div class="split-content">
+                <div class="section-badge">Scenarios</div>
+                <h2 class="section-title">Powering Modern Development.</h2>
+                <p class="section-content">
+                    Whether you are releasing a risky backend database migration or rolling out a new frontend UI,
+                    Rollout provides an exact execution strategy.
+                </p>
+                <div class="use-case-list">
+                    <div class="uc-item">
+                        <div class="uc-icon">🚀</div>
+                        <div>
+                            <h4>Canary Releases</h4>
+                            <p>Test in production safely. Rollout to 1% of internal users, monitor logs, and slowly ramp
+                                up to 100%.</p>
+                        </div>
+                    </div>
+                    <div class="uc-item">
+                        <div class="uc-icon">⚖️</div>
+                        <div>
+                            <h4>Targeted A/B Testing</h4>
+                            <p>Serve different variants to specific subsets of users deterministically and analyze the
+                                winning experience.</p>
+                        </div>
+                    </div>
+                    <div class="uc-item">
+                        <div class="uc-icon">🔒</div>
+                        <div>
+                            <h4>Subscription Tiering</h4>
+                            <p>Gate premium features based on user account attributes evaluated on the fly without
+                                database queries.</p>
+                        </div>
+                    </div>
+                    <div class="uc-item">
+                        <div class="uc-icon">🛑</div>
+                        <div>
+                            <h4>Instant Kill Switches</h4>
+                            <p>Stop catastrophic failures instantly. Disable a broken feature globally in microseconds
+                                without a code redeploy.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="use-case-visual effect-3d">
+                <div class="metric-grid">
+                    <div class="metric-box">
+                        <div class="metric-value gradient-text red-to-blue">15ms</div>
+                        <div class="metric-label">Global Edge Latency</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">100%</div>
+                        <div class="metric-label">Stateless Execution</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value gradient-text red-to-blue">0</div>
+                        <div class="metric-label">Database Bottlenecks</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" style="font-size: 50px;">∞</div>
+                        <div class="metric-label">Scalability Limit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECURITY & SCALE SECTION -->
+    <section id="security" class="wrapper fade-in section-divider">
+        <div class="section-badge">Infrastructure</div>
+        <h2 class="section-title">Built for Enterprise Scale.</h2>
+        <p class="section-subtitle">
+            Rollout.io is designed from the ground up to securely manage configuration for thousands of globally
+            distributed microservices.
+        </p>
+
+        <div class="grid-3">
+            <div class="glass-card effect-3d">
+                <div class="icon-box purple-glow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h3>100% GDPR Compliant</h3>
+                <p>Because Rollout utilizes stateless, deterministic evaluation algorithms, your users' Personally
+                    Identifiable Information (PII) never touches our servers. No tracking, no user databases, zero
+                    liability.</p>
+            </div>
+
+            <div class="glass-card effect-3d">
+                <div class="icon-box red-glow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    </svg>
+                </div>
+                <h3>Redis Edge Caching</h3>
+                <p>Flags and configuration states are incredibly heavily cached via Redis Memory Stores. Achieve
+                    microseconds internal response times for high-volume gateway polling without risking database
+                    degradation.</p>
+            </div>
+
+            <div class="glass-card effect-3d">
+                <div class="icon-box blue-glow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+                        <path d="M14 3v5h5M16 13H8M16 17H8M10 9H8"></path>
+                    </svg>
+                </div>
+                <h3>RBAC & Audit Logging</h3>
+                <p>Enforce strict Role-Based Access Controls across teams. Every single flag modification, target rule
+                    append, and kill switch trigger is immutably logged for total transparency.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTEGRATION / CODE SHOWCASE -->
+    <section id="integration" class="wrapper fade-in section-divider">
+        <div class="flex-split reverse">
+            <div class="split-content">
+                <div class="section-badge">Developer Experience</div>
+                <h2 class="section-title">Integrate in Minutes.</h2>
+                <p class="section-content">
+                    Rollout.io provides clean, strongly-typed initialization patterns and stateless evaluation calls.
+                    Configure your client once and immediately gain granular feature management power.
+                </p>
+                <div class="feature-pill">Simple API Key Auth</div>
+                <div class="feature-pill">Environment Hashed Tokens</div>
+                <div class="feature-pill">Fallback Safe Execution</div>
+            </div>
+
+            <div class="code-editor effect-3d desktop-only">
+                <div class="editor-header">
+                    <div class="dots">
+                        <div class="dot r"></div>
+                        <div class="dot y"></div>
+                        <div class="dot g"></div>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" data-target="tab-init"
+                            onclick="document.querySelectorAll('.editor-code').forEach(e => e.style.display='none'); document.getElementById('tab-init').style.display='block'; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); this.classList.add('active');"
+                            style="cursor:pointer; z-index:100; position:relative;">ClientInit.js</div>
+                        <div class="tab" data-target="tab-evaluate"
+                            onclick="document.querySelectorAll('.editor-code').forEach(e => e.style.display='none'); document.getElementById('tab-evaluate').style.display='block'; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); this.classList.add('active');"
+                            style="cursor:pointer; z-index:100; position:relative;">FlagEvaluation.js</div>
+                        <div class="tab" data-target="tab-websocket"
+                            onclick="document.querySelectorAll('.editor-code').forEach(e => e.style.display='none'); document.getElementById('tab-websocket').style.display='block'; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); this.classList.add('active');"
+                            style="cursor:pointer; z-index:100; position:relative;">LiveStream.js</div>
+                    </div>
+                </div>
+                <!-- INIT TAB -->
+                <div class="editor-code" id="tab-init">
+                    <pre><span class="comment">// 1. Initialize strictly with an API Key and Context</span>
+<span class="keyword">await</span> Rollout.init({
+  <span class="property">sdkKey</span>: <span class="string">"sk_prod_a98b..."</span>,
+  <span class="property">user</span>: {
+    <span class="property">id</span>: <span class="string">"user_12345"</span>,  <span class="comment">// Used globally for math-hash bucket</span>
+    <span class="property">attributes</span>: {
+      <span class="property">country</span>: <span class="string">"IN"</span>,
+      <span class="property">plan</span>: <span class="string">"premium"</span>
+    }
+  },
+  <span class="property">options</span>: {
+    <span class="property">enableRealtime</span>: <span class="keyword">true</span>, 
+    <span class="property">cacheTTLSeconds</span>: <span class="string">300</span>
+  }
+});
+</pre>
+                </div>
+
+                <!-- EVALUATE TAB -->
+                <div class="editor-code" id="tab-evaluate" style="display:none;">
+                    <pre><span class="comment">// 2. Start evaluating flags deterministically</span>
+<span class="keyword">const</span> showNewDashboard = Rollout.getFlag(<span class="string">"premium_dashboard"</span>, <span class="keyword">false</span>);
+
+<span class="keyword">if</span> (showNewDashboard) {
+  <span class="keyword">return</span> &lt;V2Dashboard /&gt;;
+} <span class="keyword">else</span> {
+  <span class="keyword">return</span> &lt;V1Dashboard /&gt;;
+}
+
+<span class="comment">// Get JSON payload configuration</span>
+<span class="keyword">const</span> layoutConfig = Rollout.getJsonFlag(<span class="string">"layout_config"</span>);
+<span class="property">console</span>.log(layoutConfig.theme); <span class="comment">// Expected: "Dark Mode"</span>
+</pre>
+                </div>
+
+                <!-- WEBSOCKET TAB -->
+                <div class="editor-code" id="tab-websocket" style="display:none;">
+                    <pre><span class="comment">// 3. Subscribe to live configuration changes seamlessly</span>
+Rollout.on(<span class="string">'flagUpdate'</span>, (updatedKeys) => {
+  <span class="property">console</span>.log(<span class="string">'Flags updated via Change Streams:'</span>, updatedKeys);
+  
+  <span class="keyword">if</span> (updatedKeys.includes(<span class="string">'kill_switch'</span>)) {
+    <span class="comment">// Automatically adapt application behavior </span>
+    <span class="property">App</span>.forceFallbackMode();
+  }
+});</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="wrapper fade-in section-divider" style="max-width: 900px;">
+        <div class="section-badge" style="display:block; width:fit-content; margin: 0 auto 20px auto;">Tech Specs</div>
+        <h2 class="section-title" style="text-align:center;">Frequently Asked Questions</h2>
+        <p class="section-subtitle" style="text-align:center; margin: 0 auto 50px auto;">
+            Deep dive into the engineering decisions behind Rollout.io
+        </p>
+
+        <div class="faq-container">
+            <div class="faq-item effect-3d">
+                <h4>Is Rollout.io suitable for frontend or backend?</h4>
+                <p>Both. The architecture supports lightweight frontend clients via secure REST/WebSockets combinations,
+                    and high-performance backend SDKs utilizing server-side hash evaluation directly inside your
+                    microservices.</p>
+            </div>
+            <div class="faq-item effect-3d">
+                <h4>How does the deterministic math hashing work?</h4>
+                <p>We use algorithms like MurmurHash3 or SHA-256 on a concatenated string of `flagKey + userId`. The
+                    resulting hash is converted to a large integer and modulo 100 is applied to place the user in a
+                    completely stable 1-100 bucketing pool.</p>
+            </div>
+            <div class="faq-item effect-3d">
+                <h4>What happens if the internal service goes down?</h4>
+                <p>SDKs are designed with aggressive local caching and fallback mechanisms. If the Rollout gateway is
+                    completely unreachable, the SDK gracefully serves the predefined default values hardcoded as
+                    fallbacks in your application preventing any disruption.</p>
+            </div>
+            <div class="faq-item effect-3d">
+                <h4>How is user privacy and data security maintained?</h4>
+                <p>Because the bucketing math happens on the application side or via stateless gateway streaming, we
+                    never need to store your users' IDs, IPs, or properties in our database. This effectively eliminates
+                    PII liabilities and guarantees GDPR compliance automatically.</p>
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <!-- TEAM & PROJECT SECTION -->
+    <section id="team" class="wrapper fade-in section-divider" style="text-align:center;">
+        <div class="section-badge" style="display:block; width:fit-content; margin: 0 auto 20px auto;">Academic Project
+        </div>
+        <h2 class="section-title">Built by TechParaglide</h2>
+        <p class="section-subtitle" style="margin: 0 auto 60px auto;">
+            Rollout.io is a Final Year (8th Semester) Internship Project developed by the students of <strong>Government
+                Engineering College (GEC), Gandhinagar (IT Branch)</strong>.
+        </p>
+
+        <div class="team-grid">
+            <div class="team-card effect-3d">
+                <div class="team-avatar">PT</div>
+                <div class="team-info">
+                    <h3>Parthsinh Thakor</h3>
+                    <p>Group Member</p>
+                </div>
+            </div>
+
+            <div class="team-card effect-3d">
+                <div class="team-avatar">DA</div>
+                <div class="team-info">
+                    <h3>Dharmik Asalaliya</h3>
+                    <p>Group Member</p>
+                </div>
+            </div>
+
+            <div class="team-card effect-3d">
+                <div class="team-avatar">MP</div>
+                <div class="team-info">
+                    <h3>Meet Parmar</h3>
+                    <p>Group Member</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA / GITHUB -->
+    <section class="wrapper fade-in section-divider" style="text-align:center; padding-bottom: 150px;">
+        <h2
+            style="font-size: 5vw; font-family:'Outfit',sans-serif; font-weight:900; line-height:1; margin-bottom: 40px; background: linear-gradient(to right, #fff, #9ca3af); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">
+            Ready to change the way <br> you route?
+        </h2>
+        <a href="https://github.com/TechParaglide/Rollout.io" target="_blank" class="btn btn-primary"
+            style="padding: 24px 50px; font-size:20px; text-transform:uppercase; letter-spacing: 2px;">
+            <span class="desktop-only">Dive into the Source</span>
+            <span class="mobile-only">View Source</span>
+        </a>
+    </section>
+
+    <footer>
+        <div class="footer-grid wrapper" style="padding-top: 60px; padding-bottom: 40px;">
+            <div class="footer-col">
+                <div class="logo">Rollout<span class="dot">.</span>io</div>
+                <p>An Open Source Configuration & Feature Flag Engineering Platform. Built for developers pushing
+                    limits.</p>
+                <div class="social-links">
+                    <a href="https://github.com/TechParaglide/Rollout.io" target="_blank">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="#features">Feature Flags</a></li>
+                    <li><a href="#features">Stateless Evaluation</a></li>
+                    <li><a href="#features">Real-Time WebSocket</a></li>
+                    <li><a href="#features">A/B Testing Math</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Developers</h4>
+                <ul>
+                    <li><a href="#integration">Documentation API</a></li>
+                    <li><a href="#integration">SDK Reference</a></li>
+                    <li><a href="#architecture">Architecture Diagram</a></li>
+                    <li><a href="https://github.com/TechParaglide/Rollout.io" target="_blank">Open Source Hub</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">TechParaglide Blog</a></li>
+                    <li><a href="#">Security & GDPR</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>MIT License • © 2026 TechParaglide.</div>
+            <div class="footer-legal">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>

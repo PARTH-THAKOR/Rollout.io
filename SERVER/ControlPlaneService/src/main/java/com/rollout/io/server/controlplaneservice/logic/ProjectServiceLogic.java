@@ -14,6 +14,10 @@ import com.rollout.io.server.controlplaneservice.helpers.JwtHelper;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Concrete implementation of the ProjectService interface.
+ * Handles exact data manipulation logic, JWT token ownership validation, and Database interactions for Projects.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceLogic implements ProjectService {
@@ -53,6 +57,10 @@ public class ProjectServiceLogic implements ProjectService {
         Project existingProject = projectRepository.findByIdAndCreatedByUid(projectId, uid)
                 .orElseThrow(() -> new RolloutError("Project not found", HttpStatus.NOT_FOUND));
         
+        if (existingProject.getName().equals(newName)) {
+            return existingProject; // Name hasn't changed, return immediately
+        }
+
         if (projectRepository.findByName(newName).isPresent()) {
             throw new RolloutError("Project name already exists", HttpStatus.CONFLICT);
         }

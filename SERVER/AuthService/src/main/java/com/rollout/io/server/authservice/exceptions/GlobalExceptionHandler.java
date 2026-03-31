@@ -12,9 +12,19 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Global centralized Exception Handler to intercept and format Controller level exceptions.
+ * Always resolves to a clean JSON API Response object instead of default ugly server traces.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles custom defined RolloutError exceptions.
+     *
+     * @param ex the intercepted RolloutError object
+     * @return the formatted JSON API Response mapping
+     */
     @ExceptionHandler(RolloutError.class)
     public ResponseEntity<ApiResponse<Object>> handleRolloutError(
             RolloutError ex
@@ -26,6 +36,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Intercepts validation issues mapping bad payload arguments.
+     *
+     * @param ex the intercepted argument validation fault
+     * @return BAD_REQUEST mappings detailing missing/invalid fields
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidation(
             MethodArgumentNotValidException ex
@@ -45,6 +61,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Intercepts missing required request parameter errors.
+     *
+     * @param ex the missing parameter exception
+     * @return BAD_REQUEST identifying the missing parameter name
+     */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse<Object>> handleMissingParam(
             MissingServletRequestParameterException ex
@@ -57,6 +79,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Intercepts method argument type mismatch parsing errors.
+     *
+     * @param ex the type mismatch exception
+     * @return BAD_REQUEST identifying the invalid property
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex
@@ -69,6 +97,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Intercepts malformed JSON parsing errors during deserialization.
+     *
+     * @param ex JSON stream invalid format exception
+     * @return BAD_REQUEST syntax parsing fault
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidJson(
             HttpMessageNotReadableException ex
@@ -81,6 +115,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Intercepts authentication or invalid credential token accesses.
+     *
+     * @param ex the bad credentials exception wrapper
+     * @return UNAUTHORIZED message with reasons outlined
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Object>> handleBadCredentials(
             BadCredentialsException ex
@@ -93,6 +133,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * Intercepts users who don't have privileges or scope context.
+     *
+     * @param ex Access Denied permission trace context
+     * @return FORBIDDEN message rejecting explicit access
+     */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Object>> handleAccessDenied(
             AccessDeniedException ex
@@ -105,6 +151,12 @@ public class GlobalExceptionHandler {
         );
     }
 
+    /**
+     * The primary fallback runtime issue interceptor to catch everything else properly.
+     *
+     * @param ex the exception stack trace
+     * @return INTERNAL_SERVER_ERROR stack fault context
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(
             Exception ex

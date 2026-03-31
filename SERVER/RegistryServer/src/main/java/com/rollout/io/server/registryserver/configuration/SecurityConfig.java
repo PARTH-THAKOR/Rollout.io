@@ -1,5 +1,6 @@
 package com.rollout.io.server.registryserver.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,31 +16,53 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security configuration for the Registry Server.
+ * Handles authentication, authorization rules, and protects the application endpoints.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @org.springframework.beans.factory.annotation.Value("${secret.security.user.name}")
+    @Value("${secret.security.user.name}")
     private String adminUsername;
 
-    @org.springframework.beans.factory.annotation.Value("${secret.security.user.password}")
+    @Value("${secret.security.user.password}")
     private String adminPassword;
 
-    @org.springframework.beans.factory.annotation.Value("${secret.security.user.role}")
+    @Value("${secret.security.user.role}")
     private String adminRole;
 
-    @org.springframework.beans.factory.annotation.Value("${secret.security.prometheus.name}")
+    @Value("${secret.security.prometheus.name}")
     private String prometheusUsername;
 
-    @org.springframework.beans.factory.annotation.Value("${secret.security.prometheus.password}")
+    @Value("${secret.security.prometheus.password}")
     private String prometheusPassword;
 
-    @org.springframework.beans.factory.annotation.Value("${secret.security.prometheus.role}")
+    @Value("${secret.security.prometheus.role}")
     private String prometheusRole;
 
+    /**
+     * Endpoints restricted to PROMETHEUS role only (metrics scraping).
+     */
+    private static final String[] PROMETHEUS_ENDPOINTS = {
+            "/actuator/prometheus"
+    };
+
+    /**
+     * Endpoints restricted to ADMIN role only (dashboard & actuator management).
+     */
+    private static final String[] ADMIN_ENDPOINTS = {
+            "/actuator/**"
+    };
+
+    /**
+     * Configures in-memory users for administrative and metrics access.
+     * 
+     * @return UserDetailsService with predefined users
+     */
     @Bean
     public UserDetailsService userDetailsService() {
-
         UserDetails admin = User.builder()
                 .username(adminUsername)
                 .password(passwordEncoder().encode(adminPassword))
@@ -55,26 +78,38 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager(admin, prometheus);
     }
 
+    /**
+     * Provides the password encoder used for securely checking user passwords.
+     * 
+     * @return PasswordEncoder instance using Bcrypt algorithm
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configures the security filter chain, defining endpoint protection, login views, and CSRF settings.
+     * 
+     * @param http the HttpSecurity component to modify
+     * @return the newly constructed SecurityFilterChain
+     * @throws Exception if an error occurs during configuration setup
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/prometheus").hasRole("PROMETHEUS")
-                .requestMatchers("/actuator/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            ).formLogin(form -> form
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PROMETHEUS_ENDPOINTS).hasRole("PROMETHEUS")
+                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        .anyRequest().authenticated()
+                ).formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
                 )
                 .logout(LogoutConfigurer::permitAll)
-            .httpBasic(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable);
+                .httpBasic(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

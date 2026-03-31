@@ -6,6 +6,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service interface outlining the business logic for managing Environments.
+ * Defines operations for scoping environments under projects, and managing SDK keys.
+ */
 @Service
 public interface EnvironmentService {
 
