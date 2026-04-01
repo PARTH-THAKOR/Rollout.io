@@ -12,6 +12,8 @@ import java.util.Optional;
 @Repository
 public interface FlagRepository extends MongoRepository<Flag, String> {
 
+    List<Flag> findAllByEnvironmentId(String environmentId);
+
     List<Flag> findAllByEnvironmentIdAndCategory(String environmentId, FlagCategory category);
 
     List<Flag> findAllByEnvironmentIdAndCategoryAndType(String environmentId, FlagCategory category, FlagType type);
