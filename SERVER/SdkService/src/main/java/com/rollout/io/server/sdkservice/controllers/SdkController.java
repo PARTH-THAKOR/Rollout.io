@@ -1,9 +1,7 @@
 package com.rollout.io.server.sdkservice.controllers;
 
-import com.rollout.io.server.sdkservice.objects.ApiResponse;
+import com.rollout.io.server.sdkservice.objects.*;
 import com.rollout.io.server.sdkservice.helpers.ApiResponseBuilder;
-import com.rollout.io.server.sdkservice.objects.SdkConfig;
-import com.rollout.io.server.sdkservice.objects.SdkProxyResponse;
 import com.rollout.io.server.sdkservice.service.SdkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,30 +10,48 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
- * Primary edge controller for evaluating feature flags at runtime.
- * Provides public endpoints to frontend client SDKs allowing them to dynamically resolve flags for single users.
+ * Public high-performance controller for client SDK initialization.
+ * Hosts evaluation and unified merged reporting endpoints.
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/sdk")
+@RequestMapping("/apiSdk/v1/sdk")
 @RequiredArgsConstructor
-@Tag(name = "SDK Proxy Management", description = "Endpoints for SDK clients to fetch definitions")
+@Tag(name = "SDK Public Access", description = "Public endpoints for client SDK initialization and reporting")
 public class SdkController {
 
     private final SdkService sdkService;
 
+    /**
+     * Handles complex platform requests dynamically evaluating explicitly targeted flag components synchronously.
+     *
+     * @param sdkConfig validation mapping block containing explicit client request telemetry paths
+     * @return fully formatted boolean and literal matrix matching the requested mapped environments
+     */
     @PostMapping("/flags")
-    @Operation(summary = "Get SDK Flags", description = "SDK init endpoint. Accepts SdkConfig with sdkKey, userId, and optional attributes. Returns evaluated flags with deterministic percentage rollout per user.")
+    @Operation(summary = "Init Flags", description = "Fetches and evaluates flags for a user init.")
     public ResponseEntity<ApiResponse<SdkProxyResponse>> fetchFlagsForInit(
             @RequestBody @Valid SdkConfig sdkConfig) {
-        log.info("SDK init request. Key: {}, UserId: {}", sdkConfig.getSdkKey(), sdkConfig.getUserId());
+        log.info("PUBLIC: SDK Init request for key: {}", sdkConfig.getSdkKey());
         SdkProxyResponse response = sdkService.getFlagsForSdk(sdkConfig);
-        return ApiResponseBuilder.out(HttpStatus.OK, "SDK Flags fetched successfully", response);
+        return ApiResponseBuilder.out(HttpStatus.OK, "Flags fetched successfully", response);
     }
+
+    /**
+     * Intercepts and parses usage telemetry generating absolute sequence counting hashes seamlessly.
+     *
+     * @param report explicitly typed boundary reporting exact feature subset hit limits
+     * @return explicitly structured HTTP response signaling background processing acceptance 
+     */
+    @PostMapping("/report")
+    @Operation(summary = "Merged Analytics Report", description = "Unified endpoint for usage and simplified diagnostics. Incremental +1 tracking.")
+    public ResponseEntity<ApiResponse<Void>> recordUnifiedReport(
+            @RequestBody @Valid SdkReport report) {
+        sdkService.recordUnifiedReport(report);
+        return ApiResponseBuilder.out(HttpStatus.ACCEPTED, "Report recorded", null);
+    }
+
 }

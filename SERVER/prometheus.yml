@@ -3,58 +3,44 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  # Registry Server Scrape Configuration
   - job_name: 'registry-server'
+    honor_labels: true
     metrics_path: '/actuator/prometheus'
     basic_auth:
       username: 'prometheus'
       password: 'prom123'
     static_configs:
       - targets: ['registry-server:4999']
-        labels:
-          application: 'RegistryServer'
 
-  # Config Server Scrape Configuration
   - job_name: 'config-server'
+    honor_labels: true
     metrics_path: '/actuator/prometheus'
     basic_auth:
       username: 'config'
       password: 'pass'
     static_configs:
       - targets: ['config-server:4998']
-        labels:
-          application: 'ConfigServer'
 
-  # API Gateway Scrape Configuration
   - job_name: 'api-gateway'
+    honor_labels: true
     metrics_path: '/actuator/prometheus'
-    # No basic_auth since the gateway uses JWT but prometheus endpoint is permittedAll
     static_configs:
       - targets: ['api-gateway:5000']
-        labels:
-          application: 'ApiGateway'
 
-  # Auth Service Scrape Configuration
   - job_name: 'auth-service'
+    honor_labels: true
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['auth-service:5001']
-        labels:
-          application: 'AuthService'
 
-  # Control Plane Service Scrape Configuration
   - job_name: 'controlplane-service'
+    honor_labels: true
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['controlplane-service:5002']
-        labels:
-          application: 'ControlPlaneService'
 
-  # SDK Service Scrape Configuration
   - job_name: 'sdk-service'
+    honor_labels: true
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['sdk-service:5003']
-        labels:
-          application: 'SdkService'
-

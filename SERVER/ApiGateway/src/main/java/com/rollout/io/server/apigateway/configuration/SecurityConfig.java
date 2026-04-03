@@ -34,20 +34,13 @@ public class SecurityConfig implements WebFluxConfigurer {
      * Organized by category for maintainability.
      */
     private static final String[] PUBLIC_ENDPOINTS = {
-            // Public & Landing
             "/public/**",
             "/",
             "/login",
-
-            // Downstream Microservice Public Endpoints
-            "/authservice/api/v1/auth/**",
-            "/sdkservice/api/v1/sdk/**",
-
-            // Actuator & Monitoring
+            "/sdkservice/apiSdk/v1/sdk/**",
+            "/apiSdk/v1/sdk/**",
             "/actuator/health",
             "/actuator/prometheus",
-
-            // Swagger / OpenAPI Documentation (per-service)
             "/authservice/v3/api-docs/**",
             "/controlplaneservice/v3/api-docs/**",
             "/sdkservice/v3/api-docs/**",

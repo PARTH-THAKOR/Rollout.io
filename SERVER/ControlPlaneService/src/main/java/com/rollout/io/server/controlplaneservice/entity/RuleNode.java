@@ -19,11 +19,10 @@ import java.util.List;
 public class RuleNode {
 
     private LogicalOperator operator; 
-    // If this is a group node (AND/OR)
 
     private List<RuleNode> children;
-    // Nested rule groups
 
     private DependencyCondition condition; 
-    // If this is a leaf node
+
 }
+

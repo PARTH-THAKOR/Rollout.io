@@ -10,31 +10,41 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configures the OpenAPI documentation for the Control Plane Service.
+ * Defines metadata, security schemes, and server configurations for Swagger UI.
+ */
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Initializes the OpenAPI definition with customized branding and security requirements.
+     *
+     * @return the configured OpenAPI instance
+     */
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("/controlplaneservice").description("Default Server URL"))
-                .info(new Info().title("Rollout.io").version("1.0.0")
+                .addServersItem(new Server().url("").description("PREFIX DIFFERENTIATOR"))
+                .addServersItem(new Server().url("/controlplaneservice").description("SERVICE DIFFERENTIATOR"))
+                .info(new Info().title("Rollout.io").version("v5.0.1")
                         .description("<h3>Rollout.io Control Plane API</h3>" +
-                                "<p>Welcome to the core administrative APIs for the <b>Rollout.io</b> platform.</p>" +
+                                "<p>The core administrative brain of Rollout.io, responsible for standardizing feature flag governance and real-time state synchronization.</p>" +
                                 "<h4>Service Capabilities:</h4>" +
                                 "<ul>" +
-                                "  <li><b>Resource Management:</b> Create, update, and manage Projects and Environments programmatically.</li>" +
-                                "  <li><b>Feature Flags Governance:</b> Administer flag states, percentage rollouts, and multi-variate evaluations.</li>" +
-                                "  <li><b>Targeting Rules:</b> Configure advanced audience segmentations and context-based strategies.</li>" +
-                                "  <li><b>Dependency Processing:</b> Interlink flags securely ensuring hierarchical rules execution.</li>" +
+                                "  <li><b>Multi-Tenant Scoping:</b> Manage isolated Workspaces, Projects, and Environments securely.</li>" +
+                                "  <li><b>Feature Flag Governance:</b> Administer deeply nested cascading dependencies enforcing Core vs Dependent flag topological constraints.</li>" +
+                                "  <li><b>Real-Time Event Engine:</b> Broadcasts state mutations instantly to active WebSocket clients for live dashboard updates.</li>" +
                                 "</ul>" +
-                                "<p><i>These APIs are strictly protected via Role-Based Access Control (RBAC). A valid platform JWT must be supplied for authorization.</i></p>")
+                                "<p><i>Platform administration requires a deeply validated OAuth 2 JWT token with appropriate clearance levels.</i></p>")
                         .contact(new Contact().name("Parthsinh Thakor").email("admin@rollout.io")))
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .components(new Components().addSecuritySchemes("bearerAuth", new SecurityScheme()
-                        .name("bearerAuth").type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
-                        .description("<div style='font-size: 15px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; color: #e1e4e8; line-height: 1.6;'>" +
-                                "<h2 style='color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-bottom: 20px;'>Control Plane Authorization</h2>" +
-                                "<p style='color: #c9d1d9; font-size: 14px;'>Ensure you supply a valid Firebase JWT linked to a privileged developer account.</p></div>")));
+                .addSecurityItem(new SecurityRequirement().addList("Google OAuth2 TokenAuth"))
+                .components(new Components().addSecuritySchemes("Google OAuth2 TokenAuth", new SecurityScheme()
+                        .name("Google OAuth2 TokenAuth")
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .description("Please provide a valid OAuth 2 Bearer token to authorize administrative requests. Ensure your token is active and contains the necessary clearance scopes. To acquire a new token or request elevated platform access, please contact your environment administrator at admin@rollout.io.")));
     }
 
 }

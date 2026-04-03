@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
+/**
+ * Configuration payload structured for initializing an external runtime SDK Client.
+ * Carries the primary validation tokens alongside custom mapped identifiers.
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,12 +24,12 @@ public class SdkConfig {
     @NotBlank(message = "User ID is required")
     private String userId;
 
-    // Future: user attributes for targeted rollout (e.g. country, plan, etc.)
+    private String platform;
+
     private Map<String, Object> attributes;
 
-    // Optional: SDK can override base URL
     private String baseUrl;
 
-    // Optional: polling interval in seconds (default handled by SDK client)
     private Integer refreshInterval;
+
 }

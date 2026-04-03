@@ -1,0 +1,9 @@
+${AnsiColor.BRIGHT_CYAN}
+ ____       _ _             _     _       
+|  _ \ ___ | | | ___  _   _| |_  (_) ___  
+| |_) / _ | | | |/ _ | | | | __| | |/ _ \ 
+|  _ < (_) | | | (_) | |_| | |_ _| | (_) |
+|_| \_\___/|_|_|\___/ \__,_|\__(_)_|\___/ 
+                                          
+${AnsiColor.BRIGHT_YELLOW}:: Rollout.io Microservice Ecosystem :: ${AnsiColor.BRIGHT_WHITE}(v5.0.1 stable)
+${AnsiColor.DEFAULT}

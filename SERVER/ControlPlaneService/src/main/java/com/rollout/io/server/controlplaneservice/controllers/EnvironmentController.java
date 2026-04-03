@@ -18,67 +18,92 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST Controller for managing logical Environments scoped under explicit Projects.
- * Handles environment boundaries, SDK Key lifecycle generations, and isolation settings.
+ * REST controller for managing logical environments scoped under projects.
+ * Handles environment lifecycle, SDK key rotations, and project-based isolation.
  */
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/apiControl/v1")
 @RequiredArgsConstructor
-@Tag(name = "Environment Management", description = "Endpoints for managing environments within projects")
+@Tag(name = "Environment Management", description = "Endpoints for managing environment lifecycle within project scopes")
 @Validated
 public class EnvironmentController {
 
     private final EnvironmentService environmentService;
 
-    // --- GET METHODS ---
-
+    /**
+     * Lists all environments associated with a specific project.
+     *
+     * @param jwt       the authenticated principal
+     * @param projectId the ID of the parent project
+     * @return a list of associated environments
+     */
     @GetMapping("/projects/{projectId}/environments")
-    @Operation(summary = "Get Environments by Project", description = "Retrieves all environments belonging to a specific project.")
+    @Operation(summary = "Get Environments by Project", description = "Retrieves all environments belonging to the specified project.")
     public ResponseEntity<ApiResponse<List<Environment>>> getEnvironmentsByProject(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable @NotBlank String projectId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Environments fetched successfully", environmentService.getEnvironmentsByProjectId(jwt, projectId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Environments retrieved successfully", environmentService.getEnvironmentsByProjectId(jwt, projectId));
     }
 
+    /**
+     * Retrieves a specific environment using its unique identifier.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the target environment
+     * @return the environment details
+     */
     @GetMapping("/environments/{environmentId}")
-    @Operation(summary = "Get Environment by ID", description = "Retrieves a specific environment by its ID.")
+    @Operation(summary = "Get Environment by ID", description = "Retrieves a specific environment by its unique ID.")
     public ResponseEntity<ApiResponse<Environment>> getEnvironment(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable @NotBlank String environmentId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Environment fetched successfully", environmentService.getEnvironmentById(jwt, environmentId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Environment retrieved successfully", environmentService.getEnvironmentById(jwt, environmentId));
     }
 
+    /**
+     * Locates an environment scoped by a valid SDK key.
+     *
+     * @param sdkKey the platform-generated SDK key from headers
+     * @return the resolved environment document
+     */
     @GetMapping("/environments/by-sdk-key")
-    @Operation(summary = "Get Environment by SDK Key", description = "Retrieves a specific environment by its SDK Key.")
+    @Operation(summary = "Get Environment by SDK Key", description = "Retrieves an environment using its associated SDK Key.")
     public ResponseEntity<ApiResponse<Environment>> getEnvironmentBySdkKey(
             @RequestHeader("x-sdk-key") @NotBlank String sdkKey
     ) {
-        // This endpoint might be used by SDKs or internal services, so JWT might not be present or required depending on security policy.
-        // For now, allowing it without explicit USER JWT requirement in the signature, but if the controller is secured globally, it needs adjustment.
-        // Assuming it's for admin lookup for now.
-        return ApiResponseBuilder.out(HttpStatus.OK, "Environment fetched successfully", environmentService.getEnvironmentBySdkKey(sdkKey));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Environment resolved successfully", environmentService.getEnvironmentBySdkKey(sdkKey));
     }
 
-    // --- POST METHODS ---
-
+    /**
+     * Initializes a new environment within the specified project scope.
+     *
+     * @param jwt         the authenticated principal
+     * @param projectId   the ID of the parent project
+     * @param environment the environment configuration to persist
+     * @return the saved environment document
+     */
     @PostMapping("/projects/{projectId}/environments")
-    @Operation(summary = "Create Environment", description = "Creates a new environment within a specific project.")
+    @Operation(summary = "Create Environment", description = "Creates a new environment isolated within a specific project.")
     public ResponseEntity<ApiResponse<Environment>> createEnvironment(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable @NotBlank String projectId,
             @RequestBody Environment environment
     ) {
-        // Ensure the environment is associated with the correct project from the path
-        environment.setProjectId(projectId);
-        return ApiResponseBuilder.out(HttpStatus.CREATED, "Environment created successfully", environmentService.createEnvironment(jwt, environment));
+        return ApiResponseBuilder.out(HttpStatus.CREATED, "Environment initialized successfully", environmentService.createEnvironment(jwt, projectId, environment));
     }
 
-    // --- PATCH METHODS ---
-
+    /**
+     * Updates the logical display name of an existing environment.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the environment to update
+     * @param newName       the new logical name
+     * @return the updated environment document
+     */
     @PatchMapping("/environments/{environmentId}/name")
-    @Operation(summary = "Update Environment Name", description = "Updates the name of a specific environment.")
+    @Operation(summary = "Update Environment Name", description = "Updates the display name of a specific environment.")
     public ResponseEntity<ApiResponse<Environment>> updateEnvironmentName(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable @NotBlank String environmentId,
@@ -87,8 +112,15 @@ public class EnvironmentController {
         return ApiResponseBuilder.out(HttpStatus.OK, "Environment name updated successfully", environmentService.updateEnvironmentName(jwt, environmentId, newName));
     }
 
-    @PatchMapping("/environments/{environmentId}/rotate-key")
-    @Operation(summary = "Rotate SDK Key", description = "Generates a new SDK key for the specified environment.")
+    /**
+     * Invalidates the current SDK key and generates a fresh identifier.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the environment for rotation
+     * @return the updated environment document with a new SDK key
+     */
+    @PatchMapping("/environments/{environmentId}/rotate-sdk-key")
+    @Operation(summary = "Rotate SDK Key", description = "Invalidates the existing SDK Key and generates a fresh platform identifier.")
     public ResponseEntity<ApiResponse<Environment>> rotateSdkKey(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable @NotBlank String environmentId
@@ -96,16 +128,21 @@ public class EnvironmentController {
         return ApiResponseBuilder.out(HttpStatus.OK, "SDK Key rotated successfully", environmentService.rotateSdkKey(jwt, environmentId));
     }
 
-    // --- DELETE METHODS ---
-
+    /**
+     * Permanently removes an environment and its associated resource maps.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the environment to terminate
+     * @return a success response wrapper
+     */
     @DeleteMapping("/environments/{environmentId}")
-    @Operation(summary = "Delete Environment", description = "Permanently deletes an environment.")
+    @Operation(summary = "Delete Environment", description = "Permanently removes an environment and its flag configurations.")
     public ResponseEntity<ApiResponse<Void>> deleteEnvironment(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable @NotBlank String environmentId
     ) {
         environmentService.deleteEnvironment(jwt, environmentId);
-        return ApiResponseBuilder.out(HttpStatus.OK, "Environment deleted successfully", null);
+        return ApiResponseBuilder.out(HttpStatus.OK, "Environment terminated successfully", null);
     }
 
 }

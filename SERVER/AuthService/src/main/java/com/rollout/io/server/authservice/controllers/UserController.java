@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * the current developer's platform identity.
  */
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/apiAuth/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "User Management", description = "Endpoints for managing user profile and settings")
 public class UserController {

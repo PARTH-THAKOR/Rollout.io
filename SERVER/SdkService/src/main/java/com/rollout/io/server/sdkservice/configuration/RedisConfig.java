@@ -19,32 +19,34 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 @Configuration
 public class RedisConfig {
 
+    /**
+     * Instantiates a fully configured asynchronous template defining binary caching structures cleanly.
+     *
+     * @param connectionFactory pre-validated reactive binding bridging connections dynamically
+     * @return structurally typed RedisTemplate mapping objects efficiently
+     */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         
-        // Use String serialization for keys
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         
-        // Configure ObjectMapper for Java 8 date/time support
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         
-        // polymorphic type handling for GenericJackson2JsonRedisSerializer
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, 
                 ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
         GenericJackson2JsonRedisSerializer jacksonSerializer = new GenericJackson2JsonRedisSerializer(mapper);
 
-        // Use Jackson for value serialization
         template.setValueSerializer(jacksonSerializer);
         template.setHashValueSerializer(jacksonSerializer);
         
         template.afterPropertiesSet();
         return template;
     }
-    
+
 }

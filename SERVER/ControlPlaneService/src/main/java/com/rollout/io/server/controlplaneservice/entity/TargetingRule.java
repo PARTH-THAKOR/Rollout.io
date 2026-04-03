@@ -18,11 +18,13 @@ import java.util.List;
 @AllArgsConstructor
 public class TargetingRule {
 
-    private String attribute;         // e.g. "country", "device", "plan"
+    private String attribute;
 
-    private TargetOperator operator;  // EQUALS, IN, CONTAINS, GT, etc.
+    private TargetOperator operator;
 
-    private Object value;             // single value (for EQUALS, NOT_EQUALS, CONTAINS, GT, etc.)
+    private Object value;
 
-    private List<Object> values;      // multi-value (for IN, NOT_IN operators)
+    private List<Object> values;
+
 }
+

@@ -2,7 +2,10 @@ package com.rollout.io.server.controlplaneservice.logic;
 
 import com.rollout.io.server.controlplaneservice.entity.*;
 import com.rollout.io.server.controlplaneservice.exceptions.RolloutError;
+import com.rollout.io.server.controlplaneservice.helpers.JwtHelper;
+import com.rollout.io.server.controlplaneservice.objects.*;
 import com.rollout.io.server.controlplaneservice.repository.FlagRepository;
+import com.rollout.io.server.controlplaneservice.service.AuditLogService;
 import com.rollout.io.server.controlplaneservice.service.DependentFlagService;
 import com.rollout.io.server.controlplaneservice.service.EnvironmentService;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +28,7 @@ public class DependentFlagServiceLogic implements DependentFlagService {
     private final FlagRepository flagRepository;
     private final EnvironmentService environmentService;
     private final FlagHelperLogic flagHelperLogic;
-    private final com.rollout.io.server.controlplaneservice.service.AuditLogService auditLogService;
+    private final AuditLogService auditLogService;
 
     /**
      * Creates a new dependent flag with a validated dependency rule tree.
@@ -50,16 +51,30 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         validateRuleNode(environmentId, null, flag.getDependency());
 
         Flag saved = flagRepository.save(flag);
-        auditLogService.logActivity(environmentId, "CREATE_FLAG", saved.getId(), "FLAG", com.rollout.io.server.controlplaneservice.helpers.JwtHelper.getUidFromJwt(jwt), flag.getKey());
+        auditLogService.logActivity(environmentId, "CREATE_FLAG", saved.getId(), "FLAG", JwtHelper.getUidFromJwt(jwt), flag.getKey());
         return saved;
     }
 
+    /**
+     * Gathers every existing dependency categorized feature flag under the given environment.
+     *
+     * @param jwt the verified authorization JWT of the caller
+     * @param environmentId boundary constraint mapping query namespace
+     * @return fully mapped collection containing complex tree flags
+     */
     @Override
     public List<Flag> getDependentFlags(Jwt jwt, String environmentId) {
         environmentService.getEnvironmentById(jwt, environmentId);
         return flagRepository.findAllByEnvironmentIdAndCategory(environmentId, FlagCategory.DEPENDENT);
     }
 
+    /**
+     * Resolves exactly one dependent flag checking standard authorization ownership traces.
+     *
+     * @param jwt the verified authorization JWT of the caller
+     * @param flagId distinct object identifier sequence
+     * @return explicitly fetched instance mapping topological properties
+     */
     @Override
     public Flag getDependentFlag(Jwt jwt, String flagId) {
         Flag flag = flagRepository.findById(flagId)
@@ -69,15 +84,22 @@ public class DependentFlagServiceLogic implements DependentFlagService {
              throw new RolloutError("This flag is not a dependent flag", HttpStatus.BAD_REQUEST);
         }
 
-        // Validate access
         environmentService.getEnvironmentById(jwt, flag.getEnvironmentId());
 
         return flag;
     }
 
+    /**
+     * Applies delta payload configuration modifying constraints or dependency edges for a dependent flag.
+     *
+     * @param jwt the verified authorization JWT of the caller
+     * @param flagId explicitly targeted topological feature element
+     * @param updateRequest configuration blueprint containing delta updates
+     * @return resulting object precisely stored successfully inside Mongo
+     */
     @Override
     public Flag updateDependentFlag(Jwt jwt, String flagId, Flag updateRequest) {
-        Flag existingFlag = getDependentFlag(jwt, flagId); // Handles access check
+        Flag existingFlag = getDependentFlag(jwt, flagId);
 
         boolean valueChanged = flagHelperLogic.validateAndApplyUpdate(existingFlag, updateRequest);
 
@@ -90,52 +112,72 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         
         if (valueChanged || ruleChanged) {
             int currentVersion = existingFlag.getVersion() == null ? 1 : existingFlag.getVersion();
-            existingFlag.setVersion(currentVersion + 1); // Increment version on structural/value changes
+            existingFlag.setVersion(currentVersion + 1);
         }
 
         existingFlag.setUpdatedAt(Instant.now());
         Flag saved = flagRepository.save(existingFlag);
         if (valueChanged || ruleChanged) {
             String changeDesc = valueChanged && ruleChanged ? "Value and Rules modified" : (ruleChanged ? "Rules modified" : "Value modified");
-            auditLogService.logActivity(existingFlag.getEnvironmentId(), "UPDATE_FLAG", saved.getId(), "FLAG", com.rollout.io.server.controlplaneservice.helpers.JwtHelper.getUidFromJwt(jwt), changeDesc);
+            auditLogService.logActivity(existingFlag.getEnvironmentId(), "UPDATE_FLAG", saved.getId(), "FLAG", JwtHelper.getUidFromJwt(jwt), changeDesc);
         } else {
-            auditLogService.logActivity(existingFlag.getEnvironmentId(), "UPDATE_FLAG", saved.getId(), "FLAG", com.rollout.io.server.controlplaneservice.helpers.JwtHelper.getUidFromJwt(jwt), "Metadata modified");
+            auditLogService.logActivity(existingFlag.getEnvironmentId(), "UPDATE_FLAG", saved.getId(), "FLAG", JwtHelper.getUidFromJwt(jwt), "Metadata modified");
         }
         return saved;
     }
 
+    /**
+     * Systematically drops a mapped dependent flag configuration.
+     *
+     * @param jwt the verified authorization JWT of the caller
+     * @param flagId unique document mapping identifying deletion target
+     */
     @Override
     public void deleteDependentFlag(Jwt jwt, String flagId) {
-        Flag flag = getDependentFlag(jwt, flagId); // Handles access check
+        Flag flag = getDependentFlag(jwt, flagId);
         flagRepository.delete(flag);
-        auditLogService.logActivity(flag.getEnvironmentId(), "DELETE_FLAG", flagId, "FLAG", com.rollout.io.server.controlplaneservice.helpers.JwtHelper.getUidFromJwt(jwt), flag.getKey());
+        auditLogService.logActivity(flag.getEnvironmentId(), "DELETE_FLAG", flagId, "FLAG", JwtHelper.getUidFromJwt(jwt), flag.getKey());
     }
 
+    /**
+     * Overrides internal boolean constraint flags governing operational viability.
+     *
+     * @param jwt the verified authorization JWT of the caller
+     * @param flagId precise document locator parameter
+     * @return structurally preserved flag returned with newly toggled baseline configuration
+     */
     @Override
     public Flag toggleDependentFlag(Jwt jwt, String flagId) {
         Flag flag = getDependentFlag(jwt, flagId);
         flagHelperLogic.applyToggle(flag);
         Flag saved = flagRepository.save(flag);
-        auditLogService.logActivity(flag.getEnvironmentId(), "TOGGLE_FLAG", flagId, "FLAG", com.rollout.io.server.controlplaneservice.helpers.JwtHelper.getUidFromJwt(jwt), "Target state: " + flag.getEnabled());
+        auditLogService.logActivity(flag.getEnvironmentId(), "TOGGLE_FLAG", flagId, "FLAG", JwtHelper.getUidFromJwt(jwt), "Target state: " + flag.getEnabled());
         return saved;
     }
 
+    /**
+     * Constructs the visual node/edge schema mapping all dependencies correctly structured.
+     *
+     * @param jwt the verified authorization JWT of the caller
+     * @param environmentId active environment namespace mapping rules
+     * @return topological layout structure designed for React Flow format parsing directly
+     */
     @Override
-    public com.rollout.io.server.controlplaneservice.objects.DependencyGraphResponse getDependentFlagsGraph(Jwt jwt, String environmentId) {
+    public DependencyGraphResponse getDependentFlagsGraph(Jwt jwt, String environmentId) {
         environmentService.getEnvironmentById(jwt, environmentId);
 
-        List<Flag> allFlags = new java.util.ArrayList<>();
+        List<Flag> allFlags = new ArrayList<>();
         allFlags.addAll(flagRepository.findAllByEnvironmentIdAndCategory(environmentId, FlagCategory.CORE));
         allFlags.addAll(flagRepository.findAllByEnvironmentIdAndCategory(environmentId, FlagCategory.DEPENDENT));
 
         Map<String, Flag> allFlagsMap = allFlags.stream().collect(Collectors.toMap(Flag::getId, f -> f));
-        java.util.Set<String> seenEdges = new java.util.HashSet<>();
+        Set<String> seenEdges = new HashSet<>();
 
-        List<com.rollout.io.server.controlplaneservice.objects.GraphNode> nodes = new java.util.ArrayList<>();
-        List<com.rollout.io.server.controlplaneservice.objects.GraphEdge> edges = new java.util.ArrayList<>();
+        List<GraphNode> nodes = new ArrayList<>();
+        List<GraphEdge> edges = new ArrayList<>();
 
         for (Flag flag : allFlags) {
-            nodes.add(com.rollout.io.server.controlplaneservice.objects.GraphNode.builder()
+            nodes.add(GraphNode.builder()
                     .id(flag.getId())
                     .key(flag.getKey())
                     .label(flag.getKey())
@@ -149,18 +191,27 @@ public class DependentFlagServiceLogic implements DependentFlagService {
             }
         }
 
-        return com.rollout.io.server.controlplaneservice.objects.DependencyGraphResponse.builder()
+        return DependencyGraphResponse.builder()
                 .nodes(nodes)
                 .edges(edges)
                 .build();
     }
 
+    /**
+     * Crawls actively mapped condition branches building deterministic GraphNode bindings visually.
+     *
+     * @param dependentFlag source generating structural constraints connecting mapping relations
+     * @param node active condition node validating rules 
+     * @param edges dynamically filling array buffer containing visual paths
+     * @param allFlagsMap high-speed lookup cache storing raw flag metadata objects via string ID configurations
+     * @param seenEdges memory-safeguard containing string tracking maps preventing recursion bugs
+     */
     private void extractEdges(
             Flag dependentFlag,
             RuleNode node,
-            List<com.rollout.io.server.controlplaneservice.objects.GraphEdge> edges,
+            List<GraphEdge> edges,
             Map<String, Flag> allFlagsMap,
-            java.util.Set<String> seenEdges) {
+            Set<String> seenEdges) {
 
         if (node.getOperator() != null && node.getChildren() != null) {
             for (RuleNode child : node.getChildren()) {
@@ -179,7 +230,7 @@ public class DependentFlagServiceLogic implements DependentFlagService {
                 Flag coreFlag = allFlagsMap.get(coreFlagId);
                 if (coreFlag == null) return;
                 
-                edges.add(com.rollout.io.server.controlplaneservice.objects.GraphEdge.builder()
+                edges.add(GraphEdge.builder()
                         .source(coreFlagId)
                         .sourceKey(coreFlag.getKey())
                         .target(dependentFlagId)
@@ -190,8 +241,15 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         }
     }
 
+    /**
+     * Executes real-time complex dependency computation parsing runtime rules for an explicit dependent flag.
+     *
+     * @param sdkKey exact securely generated cryptographic execution identification boundary
+     * @param flagKey human visible application reference identifier mapped natively
+     * @return single explicitly modeled execution trace confirming boolean resolution paths
+     */
     @Override
-    public com.rollout.io.server.controlplaneservice.objects.EvaluationResult evaluateDependentFlagBySdkKey(String sdkKey, String flagKey) {
+    public EvaluationResult evaluateDependentFlagBySdkKey(String sdkKey, String flagKey) {
         Environment environment = environmentService.getEnvironmentBySdkKey(sdkKey);
         Flag dependentFlag = flagRepository.findByEnvironmentIdAndKey(environment.getId(), flagKey)
                 .orElseThrow(() -> new RolloutError("Dependent flag not found", HttpStatus.NOT_FOUND));
@@ -206,8 +264,14 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         return evaluateFlag(dependentFlag, coreFlagsMap);
     }
 
+    /**
+     * Mass processes computations evaluating every mapped topology node against present system states.
+     *
+     * @param sdkKey operational authentication bearer token fragment isolating environment queries
+     * @return combined list representing complete Boolean matrices for active rules
+     */
     @Override
-    public List<com.rollout.io.server.controlplaneservice.objects.EvaluationResult> evaluateAllDependentFlagsBySdkKey(String sdkKey) {
+    public List<EvaluationResult> evaluateAllDependentFlagsBySdkKey(String sdkKey) {
         Environment environment = environmentService.getEnvironmentBySdkKey(sdkKey);
         List<Flag> dependentFlags = flagRepository.findAllByEnvironmentIdAndCategory(environment.getId(), FlagCategory.DEPENDENT);
 
@@ -224,7 +288,7 @@ public class DependentFlagServiceLogic implements DependentFlagService {
      * @param coreFlagsMap lookup map of all core flags by ID
      * @return the evaluation result with computed flag value
      */
-    private com.rollout.io.server.controlplaneservice.objects.EvaluationResult evaluateFlag(Flag dependentFlag, Map<String, Flag> coreFlagsMap) {
+    private EvaluationResult evaluateFlag(Flag dependentFlag, Map<String, Flag> coreFlagsMap) {
         boolean isEnabled = Boolean.TRUE.equals(dependentFlag.getEnabled());
         boolean ruleMatched = false;
 
@@ -235,7 +299,7 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         boolean finalResult = isEnabled && ruleMatched;
         Object returnedValue = finalResult ? dependentFlag.getValue() : getDefaultValue(dependentFlag.getType());
 
-        return com.rollout.io.server.controlplaneservice.objects.EvaluationResult.builder()
+        return EvaluationResult.builder()
                 .flagKey(dependentFlag.getKey())
                 .isEnabled(isEnabled)
                 .ruleMatched(ruleMatched)
@@ -244,14 +308,30 @@ public class DependentFlagServiceLogic implements DependentFlagService {
                 .build();
     }
 
+    /**
+     * Resolves parameter variables cleanly returning specific zero-state primitive types mapping defaults recursively.
+     *
+     * @param type categorical binding enforcing primitive type
+     * @return matched generic Java primitive instance modeling a zero-sum constraint
+     */
     private Object getDefaultValue(FlagType type) {
+        return getEnumDefaultValue(type);
+    }
+
+    /**
+     * Resolves parameter variables cleanly returning specific zero-state primitive types mapping defaults recursively.
+     *
+     * @param type categorical binding enforcing primitive type
+     * @return matched generic Java primitive instance modeling a zero-sum constraint
+     */
+    public static Object getEnumDefaultValue(FlagType type) {
         if (type == null) return null;
         return switch (type) {
             case BOOLEAN -> false;
             case INTEGER -> 0;
             case DOUBLE -> 0.0;
             case STRING -> "";
-            case JSON -> java.util.Collections.emptyMap();
+            case JSON -> Collections.emptyMap();
         };
     }
 
@@ -302,7 +382,7 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         if (actual == null || expected == null) return false;
         
         return switch (type) {
-            case BOOLEAN, STRING, JSON -> java.util.Objects.equals(actual, expected);
+            case BOOLEAN, STRING, JSON -> Objects.equals(actual, expected);
             case INTEGER -> (actual instanceof Number && expected instanceof Number) && 
                             (((Number) actual).longValue() == ((Number) expected).longValue());
             case DOUBLE -> (actual instanceof Number && expected instanceof Number) && 
@@ -313,13 +393,17 @@ public class DependentFlagServiceLogic implements DependentFlagService {
     /**
      * Recursive validation of the rule tree. 
      * Ensures dependent flags reference actual core flags prevent circular dependencies and validates strict types.
+     *
+     * @param environmentId bounding ID representing the local operational sandbox
+     * @param currentFlagId specifically blocked constraint mapping tracking sequence
+     * @param node executing sequence mapping algorithm node validating integrity constraints actively
      */
     private void validateRuleNode(String environmentId, String currentFlagId, RuleNode node) {
         if (node == null) {
             throw new RolloutError("Rule node cannot be empty or null", HttpStatus.BAD_REQUEST);
         }
 
-        if (node.getOperator() != null) { // Group Node (AND/OR)
+        if (node.getOperator() != null) { 
             if (node.getChildren() == null || node.getChildren().isEmpty()) {
                 throw new RolloutError("Logical operator node MUST have children conditions", HttpStatus.BAD_REQUEST);
             }
@@ -329,7 +413,7 @@ public class DependentFlagServiceLogic implements DependentFlagService {
             for (RuleNode child : node.getChildren()) {
                 validateRuleNode(environmentId, currentFlagId, child);
             }
-        } else if (node.getCondition() != null) { // Leaf Node
+        } else if (node.getCondition() != null) { 
             DependencyCondition condition = node.getCondition();
             if (condition.getFlagId() == null || condition.getFlagId().isBlank()) {
                 throw new RolloutError("Dependency condition must specify a flagId", HttpStatus.BAD_REQUEST);
@@ -360,16 +444,23 @@ public class DependentFlagServiceLogic implements DependentFlagService {
         }
     }
 
+    /**
+     * Resolves matching structural types matching runtime type mappings with JSON generic class evaluations recursively.
+     *
+     * @param type explicit enumerator bounding constraints matching standard validation mapping values
+     * @param value evaluated explicit block sequence tested successfully
+     */
     private void validateExpectedValueStrictType(FlagType type, Object value) {
         boolean valid = switch (type) {
             case BOOLEAN -> value instanceof Boolean;
             case INTEGER -> value instanceof Integer || value instanceof Long;
             case DOUBLE -> value instanceof Double || value instanceof Float;
             case STRING -> value instanceof String;
-            case JSON -> value instanceof java.util.Map || value instanceof List;
+            case JSON -> value instanceof Map || value instanceof List;
         };
         if (!valid) {
             throw new RolloutError("Dependency expected value strictly does not match target core flag type (" + type + ")", HttpStatus.BAD_REQUEST);
         }
     }
+
 }

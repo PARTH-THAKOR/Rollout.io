@@ -15,7 +15,11 @@ import org.springframework.stereotype.Component;
 
 import com.rollout.io.server.controlplaneservice.entity.TargetingRule;
 import com.rollout.io.server.controlplaneservice.entity.TargetOperator;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Centralized utility/logic class containing robust shared validation algorithms.
@@ -58,8 +62,8 @@ public class FlagHelperLogic {
 
         flag.setEnvironmentId(environmentId);
         flag.setVersion(1);
-        flag.setCreatedAt(java.time.Instant.now());
-        flag.setUpdatedAt(java.time.Instant.now());
+        flag.setCreatedAt(Instant.now());
+        flag.setUpdatedAt(Instant.now());
         flag.setCreatedByUid(JwtHelper.getUidFromJwt(jwt));
 
         if (flag.getEnabled() == null) {
@@ -91,13 +95,11 @@ public class FlagHelperLogic {
             existingFlag.setDescription(updateRequest.getDescription());
         }
 
-        // Rollout percentage update
         if (updateRequest.getRolloutPercentage() != null) {
             validateRolloutPercentage(updateRequest.getRolloutPercentage());
             existingFlag.setRolloutPercentage(updateRequest.getRolloutPercentage());
         }
 
-        // Targeting rules update
         if (updateRequest.getTargetingRules() != null) {
             validateTargetingRules(updateRequest.getTargetingRules());
             existingFlag.setTargetingRules(updateRequest.getTargetingRules());
@@ -109,7 +111,7 @@ public class FlagHelperLogic {
              throw new RolloutError("Flag type is immutable and cannot be changed", HttpStatus.BAD_REQUEST);
         }
 
-        if (updateRequest.getValue() != null && !java.util.Objects.equals(updateRequest.getValue(), existingFlag.getValue())) {
+        if (updateRequest.getValue() != null && !Objects.equals(updateRequest.getValue(), existingFlag.getValue())) {
             existingFlag.setValue(updateRequest.getValue());
             valueChanged = true;
         }
@@ -133,7 +135,7 @@ public class FlagHelperLogic {
         flag.setEnabled(!Boolean.TRUE.equals(flag.getEnabled()));
         int currentVersion = flag.getVersion() == null ? 1 : flag.getVersion();
         flag.setVersion(currentVersion + 1);
-        flag.setUpdatedAt(java.time.Instant.now());
+        flag.setUpdatedAt(Instant.now());
     }
 
     /**
@@ -151,8 +153,6 @@ public class FlagHelperLogic {
         }
 
         if (value == null) {
-            // For core flags, maybe null is executed as "false" or "empty"? 
-            // But usually core flags should have a default value.
             throw new RolloutError("Flag value cannot be null for Core flags", HttpStatus.BAD_REQUEST);
         }
 
@@ -191,11 +191,9 @@ public class FlagHelperLogic {
                     }
                     break;
                 case JSON:
-                    if (value instanceof java.util.Map || value instanceof java.util.List) {
-                        // Already valid map/list, map is fine
+                    if (value instanceof Map || value instanceof List) {
                         break;
                     } else if (value instanceof String) {
-                        // Attempt to parse string as JSON and convert to standard Java objects
                         try {
                             JsonNode node = objectMapper.readTree((String) value);
                             if (node == null || node.isNull()) {
@@ -216,12 +214,24 @@ public class FlagHelperLogic {
         
     }
 
+    /**
+     * Validates numerical limits on probability variables preventing negative weights.
+     *
+     * @param rolloutPercentage explicit targeted probability execution integer
+     * @throws RolloutError if percentage escapes logical boundary limits
+     */
     private void validateRolloutPercentage(Integer rolloutPercentage) {
         if (rolloutPercentage != null && (rolloutPercentage < 0 || rolloutPercentage > 100)) {
             throw new RolloutError("Rollout percentage must be between 0 and 100", HttpStatus.BAD_REQUEST);
         }
     }
 
+    /**
+     * Fully validates custom complex array sequence maps containing attribute evaluations.
+     *
+     * @param rules list segment representing client execution context queries
+     * @throws RolloutError if operator values or parameters fail logical compliance checks
+     */
     private void validateTargetingRules(List<TargetingRule> rules) {
         if (rules == null || rules.isEmpty()) return;
 
@@ -232,16 +242,15 @@ public class FlagHelperLogic {
             if (rule.getOperator() == null) {
                 throw new RolloutError("Targeting rule operator is required for attribute: " + rule.getAttribute(), HttpStatus.BAD_REQUEST);
             }
-            // IN / NOT_IN operators need values list
             if ((rule.getOperator() == TargetOperator.IN || rule.getOperator() == TargetOperator.NOT_IN)
                     && (rule.getValues() == null || rule.getValues().isEmpty())) {
                 throw new RolloutError("Targeting rule with IN/NOT_IN operator requires 'values' list for attribute: " + rule.getAttribute(), HttpStatus.BAD_REQUEST);
             }
-            // All other operators need single value
             if (rule.getOperator() != TargetOperator.IN && rule.getOperator() != TargetOperator.NOT_IN
                     && rule.getValue() == null) {
                 throw new RolloutError("Targeting rule requires 'value' for attribute: " + rule.getAttribute(), HttpStatus.BAD_REQUEST);
             }
         }
     }
+
 }
