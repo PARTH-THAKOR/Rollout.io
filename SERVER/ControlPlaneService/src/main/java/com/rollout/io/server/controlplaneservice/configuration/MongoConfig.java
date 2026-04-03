@@ -7,12 +7,19 @@ import org.springframework.data.mongodb.core.messaging.DefaultMessageListenerCon
 import org.springframework.data.mongodb.core.messaging.MessageListenerContainer;
 
 /**
- * MongoDB Configuration to enable Change Stream MessageListenerContainer.
- * Standardizes background processing of data mutation events.
+ * MongoDB configuration to enable Change Stream observation using a MessageListenerContainer.
+ * This infrastructure facilitates real-time data synchronization across the platform.
  */
 @Configuration
 public class MongoConfig {
 
+    /**
+     * Initializes and starts a background container for listening to MongoDB events.
+     * Required for real-time WebSocket state propagation.
+     *
+     * @param mongoTemplate the template used for MongoDB operations
+     * @return the active message listener container instance
+     */
     @Bean
     public MessageListenerContainer messageListenerContainer(MongoTemplate mongoTemplate) {
         DefaultMessageListenerContainer container = new DefaultMessageListenerContainer(mongoTemplate);

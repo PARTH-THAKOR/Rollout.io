@@ -8,6 +8,7 @@ package com.rollout.io.server.controlplaneservice.entity;
  * GT / GTE / LT / LTE → numeric comparison
  */
 public enum TargetOperator {
+
     EQUALS,
     NOT_EQUALS,
     IN,
@@ -17,4 +18,6 @@ public enum TargetOperator {
     GTE,
     LT,
     LTE
+
 }
+

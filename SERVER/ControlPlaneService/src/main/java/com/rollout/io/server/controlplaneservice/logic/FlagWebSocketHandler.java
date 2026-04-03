@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import static com.rollout.io.server.controlplaneservice.logic.DependentFlagServiceLogic.getEnumDefaultValue;
+
 /**
  * High-performance WebSocket handler for real-time feature flag updates.
  * Implements an evaluation engine that sends "slim" payloads (keys and values only)
@@ -31,6 +33,12 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
     private final FlagRepository flagRepository;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Triggered upon a successful connection upgrade by the client.
+     * Caches the session object and triggers the initial synchronization payload.
+     *
+     * @param session the verified WebSocket session establishing the persistent connection
+     */
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         log.debug("Session {} authenticated. Registering for updates.", session.getId());
@@ -38,12 +46,25 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
         sendInitialSnapshot(session);
     }
 
+    /**
+     * Synchronously cleans up session maps once the connection is properly terminated by the client or server.
+     *
+     * @param session the WebSocket session closing its channel
+     * @param status standard CloseStatus encapsulating closure reasons
+     */
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         log.debug("Session {} closed. Cleaning up registry.", session.getId());
         sessions.remove(session);
     }
 
+    /**
+     * Intercepts underlying transmission failures executing an aggressive cleanup protocol 
+     * purging the failing socket from the broadcast collection list.
+     *
+     * @param session the active WebSocket session encountering faults
+     * @param exception root exception thrown by the transport layer
+     */
     @Override
     public void handleTransportError(@NonNull WebSocketSession session, @NonNull Throwable exception) {
         log.warn("Transport error for session {}: {}", session.getId(), exception.getMessage());
@@ -93,11 +114,9 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
                 .filter(f -> f.getCategory() == FlagCategory.CORE)
                 .collect(Collectors.toMap(Flag::getId, f -> f));
 
-        // 1. Broadcast the changed flag itself
         Object evaluatedValue = evaluateSingle(flag, coreFlagsMap);
         broadcastToEnvironment(envId, "UPDATE", flag.getKey(), evaluatedValue);
 
-        // 2. Cascading updates: If CORE changed, re-evaluate all affected DEPENDENTS
         if (flag.getCategory() == FlagCategory.CORE) {
             for (Flag other : envFlags) {
                 if (other.getCategory() == FlagCategory.DEPENDENT && usesCoreFlag(other.getDependency(), flag.getId())) {
@@ -109,7 +128,12 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * Broadcasts a minimalist payload to all sessions matching the environment scope.
+     * Broadcasts a minimalist payload uniquely across matching scoped sessions isolating environments cleanly.
+     *
+     * @param envId literal namespace bounding the targeted group
+     * @param type standard update event signature labeling message shape
+     * @param key distinct string referencing the exact application feature flag
+     * @param value evaluated explicit property associated tightly to the mapped flag key
      */
     private void broadcastToEnvironment(String envId, String type, String key, Object value) {
         sessions.forEach(s -> {
@@ -121,7 +145,12 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
     }
 
     /**
-     * Sends a specifically formatted JSON update to a single session.
+     * Performs direct protocol frame generation and transmission injecting raw JSON strings sequentially.
+     *
+     * @param session the unique individual client recipient
+     * @param eventType the generalized categorizer label evaluating data structure
+     * @param flagKey human visible string key attached to mapping values
+     * @param data generalized primitive or structured literal assigned into the object stream
      */
     private void broadcastSlimUpdate(WebSocketSession session, String eventType, String flagKey, Object data) {
         Map<String, Object> update = new HashMap<>();
@@ -136,6 +165,12 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    /**
+     * Mass evaluates an array structure representing a snapshot resolving explicit static dependencies linearly.
+     *
+     * @param flags all configurations present inside the snapshot sequence
+     * @return map isolating keys stringing exactly over finalized Boolean representations
+     */
     private Map<String, Object> evaluateAll(List<Flag> flags) {
         Map<String, Flag> coreFlagsMap = flags.stream()
                 .filter(f -> f.getCategory() == FlagCategory.CORE)
@@ -148,6 +183,13 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
         ));
     }
 
+    /**
+     * Computes the final resolved Boolean output based strongly upon static Core state assumptions recursively.
+     *
+     * @param flag explicitly requested evaluating component context
+     * @param coreFlagsMap memory cache accelerating dependency lookup fetching paths
+     * @return purely resolved Object representing exact parameter mapping values
+     */
     private Object evaluateSingle(Flag flag, Map<String, Flag> coreFlagsMap) {
         boolean isEnabled = Boolean.TRUE.equals(flag.getEnabled());
         if (!isEnabled) return getDefaultValue(flag.getType());
@@ -156,6 +198,13 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
         return evaluateRuleNode(flag.getDependency(), coreFlagsMap) ? flag.getValue() : getDefaultValue(flag.getType());
     }
 
+    /**
+     * Traverses the rule node branch executing explicit boolean OR / AND evaluations synchronously validating nodes.
+     *
+     * @param node active executing condition node rule segment
+     * @param coreFlagsMap memory cached block referencing true Core Flag constants
+     * @return truth value mapping condition success requirements
+     */
     private boolean evaluateRuleNode(RuleNode node, Map<String, Flag> coreFlagsMap) {
         if (node.getOperator() != null) {
             if (node.getOperator() == LogicalOperator.AND) {
@@ -172,6 +221,14 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
         return false;
     }
 
+    /**
+     * Validates type constraints across primitive numeric literal overlaps correctly ignoring long versus double bugs.
+     *
+     * @param type explicit string configuration of primitive constraints
+     * @param actual active real time parameter block resolving natively
+     * @param expected strict target representing expected condition mappings
+     * @return valid boolean mapping
+     */
     private boolean compareValues(FlagType type, Object actual, Object expected) {
         if (actual == null || expected == null) return false;
         return switch (type) {
@@ -181,17 +238,23 @@ public class FlagWebSocketHandler extends TextWebSocketHandler {
         };
     }
 
+    /**
+     * Converts a raw flag identifier into its zeroed equivalent.
+     *
+     * @param type literal flag class boundary
+     * @return explicitly matched java type defaulting mapping correctly
+     */
     private Object getDefaultValue(FlagType type) {
-        if (type == null) return null;
-        return switch (type) {
-            case BOOLEAN -> false;
-            case INTEGER -> 0;
-            case DOUBLE -> 0.0;
-            case STRING -> "";
-            case JSON -> Collections.emptyMap();
-        };
+        return getEnumDefaultValue(type);
     }
 
+    /**
+     * Identifies if a child path contains reference dependencies tracing directly onto a unique parent document.
+     *
+     * @param node executing sequence condition evaluating actively
+     * @param targetId identifying string targeting the root condition logic target parent
+     * @return valid assertion truth testing connectivity overlap
+     */
     private boolean usesCoreFlag(RuleNode node, String targetId) {
         if (node == null) return false;
         if (node.getCondition() != null) return targetId.equals(node.getCondition().getFlagId());

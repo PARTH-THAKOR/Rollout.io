@@ -8,6 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * An environment scope belonging to a specific Project (e.g., Development, Staging, Production).
+ * Maintains a unique SDK key used to securely authenticate runtime feature flag evaluations.
+ */
 @Document(collection = "environments")
 @CompoundIndex(name = "project_env_unique",
         def = "{'projectId': 1, 'name': 1}",
@@ -24,10 +28,10 @@ public class Environment {
     @Indexed
     private String projectId;
 
-    private String name; // dev, staging, prod
+    private String name;
 
     @Indexed(unique = true)
-    private String sdkKey; // unique across system
+    private String sdkKey;
 
     private String createdByUid;
 

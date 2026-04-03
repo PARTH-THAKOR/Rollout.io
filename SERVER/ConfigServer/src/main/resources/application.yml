@@ -25,6 +25,13 @@ management:
     web:
       exposure:
         include: health,info,encrypt,decrypt,busrefresh,prometheus
+  metrics:
+    tags:
+      application: ConfigServer
   endpoint:
     health:
       show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true

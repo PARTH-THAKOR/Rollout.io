@@ -49,6 +49,8 @@ public class FlagChangeStreamListener {
     /**
      * Internal message handler invoked by the listener container.
      * Extracts mutation details and delegates to the evaluation-aware WebSocket handler.
+     *
+     * @param message the raw mutation document parsed from the active stream
      */
     private void handleMessage(Message<ChangeStreamDocument<Document>, Flag> message) {
         ChangeStreamDocument<Document> event = message.getRaw();
@@ -68,6 +70,10 @@ public class FlagChangeStreamListener {
         }
     }
 
+    /**
+     * Reclaims connection resources cleaning out active polling streams gracefully
+     * whenever the encompassing Spring Context shuts down.
+     */
     @PreDestroy
     public void stopListening() {
         if (subscription != null) {

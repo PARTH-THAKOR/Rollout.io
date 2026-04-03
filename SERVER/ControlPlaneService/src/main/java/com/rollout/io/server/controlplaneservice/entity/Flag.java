@@ -35,27 +35,24 @@ public class Flag {
     @Indexed
     private String environmentId;
 
-    private String key;          // unique system identifier
+    private String key;
 
-    private String displayName;  // UI friendly name
+    private String displayName;
 
     private String description;
 
-    private FlagType type; // BOOLEAN, STRING, JSON
+    private FlagType type;
 
-    private FlagCategory category; // CORE or DEPENDENT
+    private FlagCategory category;
 
     private Boolean enabled;
 
     private Object value;
 
-    // Percentage rollout (0-100). null means 100% (fully rolled out to all users)
     private Integer rolloutPercentage;
 
-    // Targeting rules — ALL must match (AND logic). null/empty = no targeting (everyone)
     private List<TargetingRule> targetingRules;
 
-    // Only used if category = DEPENDENT
     private RuleNode dependency;
 
     private Integer version;

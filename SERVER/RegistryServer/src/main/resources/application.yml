@@ -22,21 +22,15 @@ spring:
 # ===================================================================
 eureka:
   instance:
-    # Use environment variable EUREKA_HOSTNAME if deployed via Docker networking
     hostname: ${EUREKA_HOSTNAME:localhost}
     health-check-url-path: /actuator/health
   client:
-    # A Registry Server does not need to register with itself
     register-with-eureka: false
-    # Does not need to pull the registry locally
     fetch-registry: false
     service-url:
-      # Inject Docker specific EUREKA_URI or fallback to localhost
       defaultZone: ${EUREKA_URI:http://localhost:4999/eureka/}
   server:
-    # Keeps nodes in registry even if they drop connection temporarily
     enable-self-preservation: true
-    # Interval to evict disconnected instances (in ms)
     eviction-interval-timer-in-ms: 60000
 
 # ===================================================================
@@ -47,3 +41,10 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: RegistryServer
+  prometheus:
+    metrics:
+      export:
+        enabled: true

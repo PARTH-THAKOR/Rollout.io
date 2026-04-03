@@ -2,13 +2,11 @@ package com.rollout.io.server.authservice.service;
 
 import com.rollout.io.server.authservice.entity.User;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Service;
 
 /**
  * Service interface defining the contractual blueprint for user management operations.
  * Allows implementations to abstract the underlying persistent storage configurations.
  */
-@Service
 public interface UserService {
 
     /**
@@ -44,6 +42,5 @@ public interface UserService {
      * @param jwt the incoming Firebase token authenticating the operation
      */
     void deleteUser(Jwt jwt);
-
 
 }

@@ -26,7 +26,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final ObjectMapper objectMapper;
 
     private final String[] publicEndpoints = {
-            "/api/v1/sdk/**",
+            "/apiSdk/v1/sdk/**",
             "/actuator/health",
             "/actuator/prometheus",
             "/v3/api-docs/**",
@@ -35,8 +35,9 @@ public class SecurityConfig implements WebMvcConfigurer {
     };
 
     /**
-     * Integrates CORS mappings.
-     * This ensures the client SDKs can make secure cross-origin streaming requests.
+     * Integrates generalized CORS mappings ensuring SDKs securely establish bindings cross-domain.
+     *
+     * @param registry generalized Spring mapping configuring boundaries
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -44,7 +45,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     /**
-     * Secures HTTP requests.
+     * Secures HTTP requests defining exact access limitations mapping against public resources.
+     *
+     * @param http declarative builder tracking constraint configurations
+     * @return fully compiled mapping protecting endpoints securely
+     * @throws Exception matching execution pipeline failures globally
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -71,8 +76,7 @@ public class SecurityConfig implements WebMvcConfigurer {
             objectMapper.writeValue(response.getOutputStream(), apiResponse);
         })).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
             
-            // Notice: SDK public endpoints rely on simple X-SDK-KEY headers validated in controller/filters.
-            // Other endpoints will require standard OAuth2 Firebase JWT tokens.
         return http.build();
     }
+
 }

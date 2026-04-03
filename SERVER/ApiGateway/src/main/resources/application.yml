@@ -17,12 +17,11 @@ spring:
   profiles:
     active: dev-apigateway
   redis:
-    # Inject Docker specific REDIS_HOST or fallback to localhost
     host: ${REDIS_HOST:localhost}
     port: 6379
 
 # ===================================================================
-# Spring Cloud Gateway Routing & Filtering
+# Spring Cloud Gateway Routing & Filtering (Passthrough Mode)
 # ===================================================================
   cloud:
     gateway:
@@ -36,8 +35,9 @@ spring:
         - id: auth-service
           uri: lb://authservice
           predicates:
-            - Path=/authservice/**
+            - Path=/authservice/**, /apiAuth/**
           filters:
+            - RewritePath=/authservice/(?<segment>.*), /apiAuth/${segment}
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 5
@@ -48,11 +48,19 @@ spring:
                 name: authServiceCircuit
                 fallbackUri: forward:/fallback/auth
 
+        - id: controlplane-websocket
+          uri: lb:ws://controlplaneservice
+          predicates:
+            - Path=/controlplaneservice/ws/**, /wsControl/**
+          filters:
+            - RewritePath=/(controlplaneservice)/wsControl/(?<segment>.*), /wsControl/${segment}
+
         - id: controlplane-service
           uri: lb://controlplaneservice
           predicates:
-            - Path=/controlplaneservice/**
+            - Path=/controlplaneservice/**, /apiControl/**
           filters:
+            - RewritePath=/controlplaneservice/(?<segment>.*), /apiControl/${segment}
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 10
@@ -66,8 +74,9 @@ spring:
         - id: sdk-service
           uri: lb://sdkservice
           predicates:
-            - Path=/sdkservice/**
+            - Path=/sdkservice/**, /apiSdk/**
           filters:
+            - RewritePath=/sdkservice/(?<segment>.*), /apiSdk/${segment}
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 20
@@ -117,3 +126,5 @@ management:
     export:
       prometheus:
         enabled: true
+    tags:
+      application: ApiGateway

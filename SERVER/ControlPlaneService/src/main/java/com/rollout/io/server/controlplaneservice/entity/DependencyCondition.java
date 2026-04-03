@@ -18,4 +18,6 @@ public class DependencyCondition {
     private String flagId;
 
     private Object expectedValue;
+
 }
+

@@ -30,6 +30,9 @@ management:
   endpoint:
     prometheus:
       enabled: true
+  metrics:
+    tags:
+      application: ControlPlaneService
   prometheus:
     metrics:
       export:

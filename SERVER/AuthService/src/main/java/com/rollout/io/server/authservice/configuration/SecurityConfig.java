@@ -27,7 +27,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final String[] publicEndpoints = {
             "/public/**",
-            "/api/v1/auth/**",
             "/actuator/health",
             "/actuator/prometheus",
             "/v3/api-docs/**",

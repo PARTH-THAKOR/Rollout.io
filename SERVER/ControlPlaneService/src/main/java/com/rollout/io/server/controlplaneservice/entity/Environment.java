@@ -28,10 +28,10 @@ public class Environment {
     @Indexed
     private String projectId;
 
-    private String name; // dev, staging, prod
+    private String name;
 
     @Indexed(unique = true)
-    private String sdkKey; // unique across system
+    private String sdkKey;
 
     private String createdByUid;
 

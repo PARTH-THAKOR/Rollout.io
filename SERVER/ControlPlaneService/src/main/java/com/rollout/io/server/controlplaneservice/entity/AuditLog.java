@@ -9,6 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * Entity representing an immutable platform transaction/audit record.
+ */
 @Document(collection = "audit_logs")
 @Data
 @Builder
@@ -20,14 +23,17 @@ public class AuditLog {
     
     private String environmentId;
     
-    private String action; // CREATE_FLAG, UPDATE_FLAG, DELETE_FLAG, TOGGLE_FLAG
+    private String action;
     
-    private String resourceId; // Flag ID or Environment ID
-    private String resourceType; // FLAG
+    private String resourceId;
+
+    private String resourceType;
     
-    private String userUid; // UID of user completing action
+    private String userUid;
     
-    private Object changes; // Detailed diffs or old/new state mapping
+    private Object changes;
     
     private Instant timestamp;
+
 }
+

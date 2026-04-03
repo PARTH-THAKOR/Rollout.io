@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.Set;
 
 /**
  * Represents a developer identity authenticated via Firebase Auth.
@@ -40,8 +39,8 @@ public class User {
 
     private boolean emailVerified;
 
-
     private Instant createdAt;
 
     private Instant updatedAt;
+
 }

@@ -30,6 +30,9 @@ management:
   endpoint:
     prometheus:
       enabled: true
+  metrics:
+    tags:
+      application: SdkService
   prometheus:
     metrics:
       export:

@@ -17,107 +17,163 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * REST Controller governing fundamental independent Core Feature Flags.
- * Core flags act as standalone base variables (boolean, text, strictly structured JSON) evaluated directly.
+ * REST controller for managing standalone Core feature flags.
+ * Core flags represent independent boolean, string, or JSON-based toggle variables.
  */
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/apiControl/v1")
 @RequiredArgsConstructor
-@Tag(name = "Core Flag Management", description = "Endpoints for managing core feature flags")
+@Tag(name = "Core Flag Management", description = "Endpoints for administering independent feature flags")
 @Validated
 public class CoreFlagController {
 
     private final CoreFlagService coreFlagService;
 
-    // --- GET METHODS ---
-
+    /**
+     * Retrieves all core flags associated with a specific environment.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the environment scope
+     * @return a collection of core flags
+     */
     @GetMapping("/environments/{environmentId}/core-flags")
-    @Operation(summary = "Get All Core Flags", description = "Retrieves all core feature flags for a specific environment.")
+    @Operation(summary = "Get All Core Flags", description = "Retrieves the complete list of core flags for a specific environment.")
     public ResponseEntity<ApiResponse<List<Flag>>> getCoreFlags(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String environmentId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Core Flags fetched successfully", coreFlagService.getCoreFlags(jwt, environmentId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Core flags retrieved successfully", coreFlagService.getCoreFlags(jwt, environmentId));
     }
 
+    /**
+     * Filters for basic (non-JSON) core flags within an environment.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the environment scope
+     * @return a collection of boolean and string core flags
+     */
     @GetMapping("/environments/{environmentId}/core-flags/basic")
-    @Operation(summary = "Get Basic Core Flags", description = "Retrieves all basic (non-JSON) core feature flags for a specific environment.")
+    @Operation(summary = "Get Basic Core Flags", description = "Retrieves only the boolean and string-based flags for an environment.")
     public ResponseEntity<ApiResponse<List<Flag>>> getBasicCoreFlags(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String environmentId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Basic Core Flags fetched successfully", coreFlagService.getBasicCoreFlags(jwt, environmentId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Basic core flags retrieved successfully", coreFlagService.getBasicCoreFlags(jwt, environmentId));
     }
 
+    /**
+     * Filters for strictly JSON-based core flags within an environment.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the ID of the environment scope
+     * @return a collection of structured configuration flags
+     */
     @GetMapping("/environments/{environmentId}/core-flags/json")
-    @Operation(summary = "Get JSON Core Flags", description = "Retrieves all JSON core feature flags for a specific environment.")
+    @Operation(summary = "Get JSON Core Flags", description = "Retrieves only the configured JSON-type flags for an environment.")
     public ResponseEntity<ApiResponse<List<Flag>>> getJsonCoreFlags(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String environmentId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "JSON Core Flags fetched successfully", coreFlagService.getJsonCoreFlags(jwt, environmentId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "JSON core flags retrieved successfully", coreFlagService.getJsonCoreFlags(jwt, environmentId));
     }
 
-    @GetMapping("/core-flags/by-sdk-key") // Public-facing endpoint for SDKs
-    @Operation(summary = "Get Core Flags by SDK Key", description = "Retrieves all core feature flags for the environment associated with the SDK key. No user authentication required.")
+    /**
+     * Public-accessible endpoint for SDKs to fetch flags using an environment-specific SDK Key.
+     *
+     * @param sdkKey the platform-generated SDK key from headers
+     * @return a list of flags for the resolved environment
+     */
+    @GetMapping("/core-flags/by-sdk-key")
+    @Operation(summary = "Get Core Flags by SDK Key", description = "Retrieves flags for an environment using its SDK Key. No user JWT required.")
     public ResponseEntity<ApiResponse<List<Flag>>> getCoreFlagsBySdkKey(
             @RequestHeader("x-sdk-key") String sdkKey
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Core Flags fetched successfully", coreFlagService.getCoreFlagsBySdkKey(sdkKey));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Core flags resolved successfully", coreFlagService.getCoreFlagsBySdkKey(sdkKey));
     }
 
+    /**
+     * Fetches a single core flag by its unique document ID.
+     *
+     * @param jwt    the authenticated principal
+     * @param flagId the ID of the target flag
+     * @return the flag details
+     */
     @GetMapping("/core-flags/{flagId}")
-    @Operation(summary = "Get Core Flag", description = "Retrieves a specific core feature flag by its ID.")
+    @Operation(summary = "Get Core Flag", description = "Retrieves a specific core flag using its unique system ID.")
     public ResponseEntity<ApiResponse<Flag>> getCoreFlag(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String flagId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Core Flag fetched successfully", coreFlagService.getCoreFlag(jwt, flagId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Core flag retrieved successfully", coreFlagService.getCoreFlag(jwt, flagId));
     }
 
-    // --- POST METHODS ---
-
+    /**
+     * Initializes a new core flag in the specified environment.
+     *
+     * @param jwt           the authenticated principal
+     * @param environmentId the target environment scope
+     * @param flag          the flag configuration to persist
+     * @return the saved flag document
+     */
     @PostMapping("/environments/{environmentId}/core-flags")
-    @Operation(summary = "Create Core Flag", description = "Creates a new core feature flag in the specified environment.")
+    @Operation(summary = "Create Core Flag", description = "Registers a new core flag within a specific environment.")
     public ResponseEntity<ApiResponse<Flag>> createCoreFlag(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String environmentId,
             @RequestBody Flag flag
     ) {
-        return ApiResponseBuilder.out(HttpStatus.CREATED, "Core Flag created successfully", coreFlagService.createCoreFlag(jwt, environmentId, flag));
+        return ApiResponseBuilder.out(HttpStatus.CREATED, "Core flag initialized successfully", coreFlagService.createCoreFlag(jwt, environmentId, flag));
     }
 
-    // --- PATCH METHODS ---
-
+    /**
+     * Toggles the active/inactive state of a core flag.
+     *
+     * @param jwt    the authenticated principal
+     * @param flagId the ID of the flag to toggle
+     * @return the updated flag document
+     */
     @PatchMapping("/core-flags/{flagId}/toggle")
-    @Operation(summary = "Toggle Core Flag", description = "Toggles the enabled status of a core feature flag.")
+    @Operation(summary = "Toggle Core Flag", description = "Toggles the operational status of an existing core flag.")
     public ResponseEntity<ApiResponse<Flag>> toggleCoreFlag(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String flagId
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Core Flag toggled successfully", coreFlagService.toggleCoreFlag(jwt, flagId));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Core flag state toggled successfully", coreFlagService.toggleCoreFlag(jwt, flagId));
     }
 
+    /**
+     * Updates individual properties of an existing core flag.
+     *
+     * @param jwt    the authenticated principal
+     * @param flagId the ID of the flag to update
+     * @param flag   the updated configuration fields
+     * @return the updated flag document
+     */
     @PatchMapping("/core-flags/{flagId}")
-    @Operation(summary = "Update Core Flag", description = "Updates a core feature flag's properties (value, description, etc.).")
+    @Operation(summary = "Update Core Flag", description = "Updates specific metadata or default values of an existing core flag.")
     public ResponseEntity<ApiResponse<Flag>> updateCoreFlag(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String flagId,
             @RequestBody Flag flag
     ) {
-        return ApiResponseBuilder.out(HttpStatus.OK, "Core Flag updated successfully", coreFlagService.updateCoreFlag(jwt, flagId, flag));
+        return ApiResponseBuilder.out(HttpStatus.OK, "Core flag updated successfully", coreFlagService.updateCoreFlag(jwt, flagId, flag));
     }
 
-    // --- DELETE METHODS ---
-
+    /**
+     * Permanently removes a core flag from the environment.
+     *
+     * @param jwt    the authenticated principal
+     * @param flagId the ID of the flag to remove
+     * @return a success response wrapper
+     */
     @DeleteMapping("/core-flags/{flagId}")
-    @Operation(summary = "Delete Core Flag", description = "Permanently deletes a core feature flag.")
+    @Operation(summary = "Delete Core Flag", description = "Permanently removes a core flag and its associated metadata.")
     public ResponseEntity<ApiResponse<Void>> deleteCoreFlag(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String flagId
     ) {
         coreFlagService.deleteCoreFlag(jwt, flagId);
-        return ApiResponseBuilder.out(HttpStatus.OK, "Core Flag deleted successfully", null);
+        return ApiResponseBuilder.out(HttpStatus.OK, "Core flag terminated successfully", null);
     }
 
 }

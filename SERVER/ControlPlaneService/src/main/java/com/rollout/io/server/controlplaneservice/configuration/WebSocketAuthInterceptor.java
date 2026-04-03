@@ -19,9 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Security interceptor for WebSocket handshakes.
- * Responsible for verifying the 'Authorization: Bearer <JWT>' header and 
- * ensuring the connection is restricted to a valid 'environmentId'.
+ * Handshake interceptor for securing WebSocket connections.
+ * Validates the JWT bearer token and enforces environment-level access controls during the handshake phase.
  */
 @Slf4j
 @Component
@@ -33,17 +32,29 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
 
     private static final String BEARER_PREFIX = "Bearer ";
 
+    /**
+     * Intercepts the handshake to perform authentication and environment scoping.
+     * Extracts and validates the JWT from headers and environment identifier from query parameters.
+     *
+     * @param request    the server request
+     * @param response   the server response
+     * @param wsHandler  the WebSocket handler
+     * @param attributes session attributes to be populated
+     * @return true if the handshake is authorized
+     */
     @Override
     public boolean beforeHandshake(@NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response,
                                    @NonNull WebSocketHandler wsHandler, @NonNull Map<String, Object> attributes) {
-        
-        if (!(request instanceof ServletServerHttpRequest servletRequest)) return false;
+
+        if (!(request instanceof ServletServerHttpRequest servletRequest)) {
+            return false;
+        }
 
         String authHeader = servletRequest.getHeaders().getFirst("Authorization");
         String environmentId = servletRequest.getServletRequest().getParameter("environmentId");
 
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX) || environmentId == null) {
-            log.warn("Unauthorized handshake attempt: Missing credentials or environment scope.");
+            log.warn("Handshake rejected: Missing credentials or environment scope.");
             response.setStatusCode(HttpStatus.BAD_REQUEST);
             return false;
         }
@@ -54,29 +65,31 @@ public class WebSocketAuthInterceptor implements HandshakeInterceptor {
             Jwt jwt = jwtDecoder.decode(token);
             String uid = jwt.getSubject();
 
-            // Scope validation: Ensure the requested environment exists
             Optional<Environment> env = environmentRepository.findById(environmentId);
             if (env.isEmpty()) {
-                log.warn("Access denied for user {}: Environment {} not found.", uid, environmentId);
+                log.warn("Handshake abandoned: Environment {} not found for user {}.", environmentId, uid);
                 response.setStatusCode(HttpStatus.FORBIDDEN);
                 return false;
             }
 
-            // Persist scope and identity in the session attributes for the handler
             attributes.put("uid", uid);
             attributes.put("environmentId", environmentId);
             return true;
 
         } catch (Exception e) {
-            log.error("Token validation failed during WebSocket handshake: {}", e.getMessage());
+            log.error("Handshake failed: Token validation error - {}", e.getMessage());
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return false;
         }
     }
 
+    /**
+     * Post-handshake processing placeholder. Currently, no logic required.
+     */
     @Override
     public void afterHandshake(@NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response,
                                @NonNull WebSocketHandler wsHandler, Exception exception) {
+
     }
 
 }

@@ -15,9 +15,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Configures the Spring Security filter chain for the Control Plane Service.
- * Implements CORS mappings, exception handlers, and validates all IAM JWT tokens 
- * for administrative actions on Projects, Flags, and Environments.
+ * Security configuration for the Control Plane Service.
+ * Defines authentication requirements, CORS mappings, and centralized exception handling for unauthorized access.
  */
 @Configuration
 @EnableWebSecurity
@@ -37,49 +36,60 @@ public class SecurityConfig implements WebMvcConfigurer {
     };
 
     /**
-     * Integrates CORS mappings, defining origins, methods, and headers permitted.
-     * This ensures the web dashboard/frontend can make authorized cross-origin requests.
+     * Configures global CORS mappings to allow cross-origin requests from the administrative dashboard.
      *
-     * @param registry the CORS registry configurer
+     * @param registry the CORS registry
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*");
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("*")
+                .allowedHeaders("*");
     }
 
     /**
-     * Secures HTTP requests by evaluating JWT tokens against the Firebase Public Keys.
+     * Configures the security filter chain, enabling OAuth2 JWT resource server support.
      *
-     * @param http the HttpSecurity component to modify
-     * @return the resolved Security Filter Chain
-     * @throws Exception if an error occurs configuring OAuth2 resources
+     * @param http the HttpSecurity object to configure
+     * @return the built SecurityFilterChain
+     * @throws Exception if configuration fails
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(publicEndpoints).permitAll()
-                .anyRequest().authenticated()
-            ).exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(publicEndpoints).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            ApiResponse<Object> apiResponse = new ApiResponse<>(
+                                    "Authentication required. Access denied.",
+                                    false,
+                                    "Please provide a valid JWT. Contact helpdesk@rollout.io for support."
+                            );
+                            writeErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, apiResponse);
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            ApiResponse<Object> apiResponse = new ApiResponse<>(
+                                    "Forbidden. Insufficient permissions.",
+                                    false,
+                                    "Your identity is recognized, but you lack the necessary scope for this action."
+                            );
+                            writeErrorResponse(response, HttpServletResponse.SC_FORBIDDEN, apiResponse);
+                        })
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
-            ApiResponse<Object> apiResponse = new ApiResponse<>("ACCESS DENIED [AUTHENTICATION REQUIRED]", false, "Please ensure you have the necessary permissions to access. For any help contact helpdesk@rollout-io.com");
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-
-            objectMapper.writeValue(response.getOutputStream(), apiResponse);
-        }).accessDeniedHandler((request, response, accessDeniedException) -> {
-
-            ApiResponse<Object> apiResponse = new ApiResponse<>("ACCESS DENIED [FORBIDDEN]", false, "Please ensure you have the necessary permissions to access. For any help contact helpdesk@rollout-io.com");
-
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-
-            objectMapper.writeValue(response.getOutputStream(), apiResponse);
-        })).oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
 
-}
+    private void writeErrorResponse(HttpServletResponse response, int status, ApiResponse<Object> payload) throws java.io.IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        objectMapper.writeValue(response.getOutputStream(), payload);
+    }
 
+}
