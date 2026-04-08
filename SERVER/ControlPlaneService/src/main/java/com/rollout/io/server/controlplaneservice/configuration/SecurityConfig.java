@@ -11,8 +11,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 /**
  * Security configuration for the Control Plane Service.
@@ -21,7 +23,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig implements WebMvcConfigurer {
+public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
 
@@ -36,16 +38,20 @@ public class SecurityConfig implements WebMvcConfigurer {
     };
 
     /**
-     * Configures global CORS mappings to allow cross-origin requests from the administrative dashboard.
-     *
-     * @param registry the CORS registry
+     * Absolute CORS configuration using CorsFilter.
      */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("*")
-                .allowedHeaders("*");
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(false);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
     }
 
     /**
@@ -58,8 +64,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(publicEndpoints).permitAll()
                         .anyRequest().authenticated()
                 )
