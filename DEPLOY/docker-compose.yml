@@ -1,27 +1,39 @@
-name: 'rollout-v4-preview'
+name: 'rollout-v5-stable'
 
 services:
+  # ==========================================
+  # Infrastructure Services
+  # ==========================================
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    restart: always
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:latest
     container_name: redis
-    ports:
-      - "6379:6379"
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ==========================================
+  # Monitoring Services
+  # ==========================================
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    ports:
-      - "9090:9090"
+    restart: always
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
@@ -30,45 +42,51 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    restart: always
     ports:
-      - "3000:3000"
+      - "5001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - prometheus
 
+  # ==========================================
+  # Microservices (Rollout.io)
+  # ==========================================
   registry-server:
-    image: parththakor/registry-server:0.0.1
+    image: rolloutio/registry-server:5.0.1
     container_name: registry-server
-    entrypoint: [ "sh", "-c", "sleep 10 && java -jar app.jar" ]
+    restart: always
+    entrypoint: [ "sh", "-c", "sleep 30 && java -jar app.jar" ]
     ports:
-      - "4999:4999"
+      - "5000:4999"
     depends_on:
       - prometheus
     environment:
       - EUREKA_HOSTNAME=registry-server
 
   config-server:
-    image: parththakor/config-server:0.0.1
+    image: rolloutio/config-server:5.0.1
     container_name: config-server
-    entrypoint: [ "sh", "-c", "sleep 25 && java -jar app.jar" ]
-    ports:
-      - "4998:4998"
+    restart: always
+    entrypoint: [ "sh", "-c", "sleep 60 && java -jar app.jar" ]
     depends_on:
-      - registry-server
-      - rabbitmq
-      - prometheus
+      rabbitmq:
+        condition: service_healthy
+      registry-server:
+        condition: service_started
     environment:
       - RABBITMQ_HOST=rabbitmq
       - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
 
   api-gateway:
-    image: parththakor/api-gateway:0.0.1
+    image: rolloutio/api-gateway:5.0.1
     container_name: api-gateway
-    entrypoint: [ "sh", "-c", "sleep 60 && java -jar app.jar" ]
+    restart: always
+    entrypoint: [ "sh", "-c", "sleep 150 && java -jar app.jar" ]
     ports:
-      - "5000:5000"
+      - "80:5000"
     depends_on:
       - config-server
       - registry-server
@@ -83,11 +101,10 @@ services:
       - EUREKA_HOSTNAME=api-gateway
 
   auth-service:
-    image: parththakor/auth-service:0.0.1
+    image: rolloutio/auth-service:5.0.1
     container_name: auth-service
-    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
-    ports:
-      - "5001:5001"
+    restart: always
+    entrypoint: [ "sh", "-c", "sleep 100 && java -jar app.jar" ]
     depends_on:
       - config-server
       - registry-server
@@ -97,11 +114,10 @@ services:
       - EUREKA_HOSTNAME=auth-service
 
   controlplane-service:
-    image: parththakor/controlplane-service:0.0.1
+    image: rolloutio/controlplane-service:5.0.1
     container_name: controlplane-service
-    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
-    ports:
-      - "5002:5002"
+    restart: always
+    entrypoint: [ "sh", "-c", "sleep 100 && java -jar app.jar" ]
     depends_on:
       - config-server
       - registry-server
@@ -111,11 +127,10 @@ services:
       - EUREKA_HOSTNAME=controlplane-service
 
   sdk-service:
-    image: parththakor/sdk-service:0.0.1
+    image: rolloutio/sdk-service:5.0.1
     container_name: sdk-service
-    entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
-    ports:
-      - "5003:5003"
+    restart: always
+    entrypoint: [ "sh", "-c", "sleep 100 && java -jar app.jar" ]
     depends_on:
       - config-server
       - registry-server
@@ -125,3 +140,7 @@ services:
       - CONFIG_SERVER_URI=http://config:pass@config-server:4998
       - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
       - EUREKA_HOSTNAME=sdk-service
+
+networks:
+  default:
+    name: rollout-v5-stable-network

@@ -9,12 +9,14 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.reactive.config.CorsRegistry;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +27,7 @@ import reactor.core.publisher.Mono;
 @Configuration
 @EnableWebFluxSecurity
 @RequiredArgsConstructor
-public class SecurityConfig implements WebFluxConfigurer {
+public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
 
@@ -51,13 +53,21 @@ public class SecurityConfig implements WebFluxConfigurer {
     };
 
     /**
-     * Configures global CORS mappings.
-     *
-     * @param registry the CorsRegistry to modify
+     * Absolute CORS configuration using CorsWebFilter.
+     * This bean takes precedence over other filters to resolve preflight issues.
      */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
+    @Bean
+    public CorsWebFilter corsWebFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(false);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsWebFilter(source);
     }
 
     /**
@@ -70,8 +80,8 @@ public class SecurityConfig implements WebFluxConfigurer {
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .cors(Customizer.withDefaults())
                 .authorizeExchange(ex -> ex
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyExchange().authenticated()
                 )

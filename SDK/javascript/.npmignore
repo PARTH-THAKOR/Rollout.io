@@ -1,0 +1,20 @@
+# Ignore test infrastructure
+examples/
+tests/
+test/
+
+# Ignore development configs
+.gitignore
+.npmignore
+package-lock.json
+
+# Ignore local scripts
+serve-test.js
+api-test.js
+
+# Only keep src/ and types in the bundle
+!src/
+!index.d.ts
+!package.json
+!README.md
+!LICENSE

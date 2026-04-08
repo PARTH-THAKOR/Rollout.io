@@ -28,7 +28,6 @@ scrape_configs:
   # API Gateway Scrape Configuration
   - job_name: 'api-gateway'
     metrics_path: '/actuator/prometheus'
-    # No basic_auth since the gateway uses JWT but prometheus endpoint is permittedAll
     static_configs:
       - targets: ['api-gateway:5000']
         labels:
@@ -57,4 +56,3 @@ scrape_configs:
       - targets: ['sdk-service:5003']
         labels:
           application: 'SdkService'
-

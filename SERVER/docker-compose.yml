@@ -44,7 +44,7 @@ services:
     build:
       context: ./RegistryServer
       dockerfile: Dockerfile
-    image: registry-server:5.0.1
+    image: rolloutio/registry-server:5.0.1
     container_name: registry-server
     entrypoint: [ "sh", "-c", "sleep 10 && java -jar app.jar" ]
     ports:
@@ -58,7 +58,7 @@ services:
     build:
       context: ./ConfigServer
       dockerfile: Dockerfile
-    image: config-server:5.0.1
+    image: rolloutio/config-server:5.0.1
     container_name: config-server
     entrypoint: [ "sh", "-c", "sleep 25 && java -jar app.jar" ]
     depends_on:
@@ -73,7 +73,7 @@ services:
     build:
       context: ./ApiGateway
       dockerfile: Dockerfile
-    image: api-gateway:5.0.1
+    image: rolloutio/api-gateway:5.0.1
     container_name: api-gateway
     entrypoint: [ "sh", "-c", "sleep 60 && java -jar app.jar" ]
     ports:
@@ -95,7 +95,7 @@ services:
     build:
       context: ./AuthService
       dockerfile: Dockerfile
-    image: auth-service:5.0.1
+    image: rolloutio/auth-service:5.0.1
     container_name: auth-service
     entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
     depends_on:
@@ -110,7 +110,7 @@ services:
     build:
       context: ./ControlPlaneService
       dockerfile: Dockerfile
-    image: controlplane-service:5.0.1
+    image: rolloutio/controlplane-service:5.0.1
     container_name: controlplane-service
     entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
     depends_on:
@@ -125,7 +125,7 @@ services:
     build:
       context: ./SdkService
       dockerfile: Dockerfile
-    image: sdk-service:5.0.1
+    image: rolloutio/sdk-service:5.0.1
     container_name: sdk-service
     entrypoint: [ "sh", "-c", "sleep 55 && java -jar app.jar" ]
     depends_on:
