@@ -1,77 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --zomato-red: #E23744;
-  --bg-primary: #ffffff;
-  --bg-secondary: #F8F8F8;
-  --text-primary: #1C1C1C;
-  --text-secondary: #696969;
-  --border-color: #E8E8E8;
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  --header-height: 72px;
+  --accent: #e23744;
+  --accent-light: #fff1f2;
+  --bg-main: #ffffff;
+  --bg-surface: #f7f7f8;
+  --bg-elevated: #ffffff;
+  --text-main: #171717;
+  --text-sub: #737380;
+  --text-faint: #a1a1aa;
+  --border: #e4e4e7;
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-xl: 0 24px 64px rgba(0,0,0,0.1), 0 8px 20px rgba(0,0,0,0.06);
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-xl: 36px;
 }
 
 [data-theme='dark'] {
-  --bg-primary: #121212;
-  --bg-secondary: #1E1E1E;
-  --text-primary: #F5F5F5;
-  --text-secondary: #B0B0B0;
-  --border-color: #333333;
-  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --bg-main: #09090b;
+  --bg-surface: #18181b;
+  --bg-elevated: #1e1e22;
+  --text-main: #fafafa;
+  --text-sub: #a1a1aa;
+  --text-faint: #52525b;
+  --border: #27272a;
+  --glass: rgba(9, 9, 11, 0.85);
+  --glass-border: rgba(255,255,255,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.4);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-main);
+  color: var(--text-main);
   line-height: 1.5;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; font-family: inherit; background: none; }
 
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
-  background: none;
-  font-family: inherit;
-}
-
-.container {
-  max-width: 1100px;
+.section-container {
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 48px;
 }
 
-/* Glassmorphism utility */
-.glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+::selection {
+  background: var(--accent);
+  color: white;
 }
 
-[data-theme='dark'] .glass {
-  background: rgba(18, 18, 18, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-  animation: fadeIn 0.6s ease forwards;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
