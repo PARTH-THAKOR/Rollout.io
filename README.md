@@ -36,7 +36,7 @@ This project is licensed under the MIT License.
 
 ## Client SDKs
 
-### JavaScript SDK (@rollout.io/sdk-js)
+JavaScript SDK (@rollout.io/sdk-js)
 Professional-grade, high-performance SDK for web-based environments.
 
 Installation:
