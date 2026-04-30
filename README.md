@@ -45,12 +45,12 @@ This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE)
 
 ## Client SDKs
 
-**JavaScript SDK (`@rollout.io/sdk-js`)**
+**JavaScript SDK (`@techparaglide/sdk-js`)**
 Professional-grade, high-performance SDK for web-based environments.
 
 Installation:
 ```bash
-npm install @rollout.io/sdk-js@latest
+npm install @techparaglide/sdk-js@latest
 ```
 
 Full documentation and implementation guide available at [SDK/javascript/README.txt](./SDK/javascript/README.txt).
