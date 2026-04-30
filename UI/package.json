@@ -1,0 +1,36 @@
+{
+  "name": "ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.99.0",
+    "@xyflow/react": "^12.10.2",
+    "connect-history-api-fallback": "^2.0.0",
+    "dotenv": "^17.3.1",
+    "firebase": "^12.10.0",
+    "firebase-admin": "^13.7.0",
+    "js-cookie": "^3.0.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "react-window": "^2.2.7",
+    "remixicon": "^4.3.0",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/generator": "^7.29.1",
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.1",
+    "vite-plugin-rewrite-all": "^1.0.2"
+  }
+}

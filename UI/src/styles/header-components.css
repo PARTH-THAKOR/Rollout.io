@@ -1,0 +1,213 @@
+/* 
+   header-components.css
+   Modern, solid, and minimalistic styles for Header Dropdowns (Environment Dropdown, Admin Profile).
+   Overrides the project's glassmorphism defaults for these specific components.
+*/
+
+.header-dropdown-container {
+    position: relative;
+    user-select: none;
+}
+
+/* ─── Dropdown Toggles ─── */
+.header-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: #1e1e24; /* Solid subtle background */
+    border: 1px solid #2e2e36;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.header-dropdown-toggle:hover:not(:disabled) {
+    background: #272730;
+    border-color: #3f3f4a;
+}
+
+.header-dropdown-toggle:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.header-dropdown-toggle:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.header-dropdown-toggle.is-active {
+    background: #272730;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+}
+
+/* Admin Profile specific toggle overriding default */
+.profile-avatar-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: #1e1e24;
+    border: 1px solid #2e2e36;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-avatar-toggle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-toggle i {
+    font-size: 16px;
+    color: #94a3b8;
+}
+
+.profile-avatar-toggle:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.profile-avatar-toggle.is-active {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* ─── Dropdown Menu ─── */
+.header-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: #121216; /* Pure dark solid background */
+    border: 1px solid #2e2e36;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 0, 0, 0.5);
+    padding: 6px;
+    z-index: 1000;
+    transform-origin: top right;
+    animation: dropdownMenuPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.header-dropdown-menu.profile-menu {
+    min-width: 240px;
+}
+
+@keyframes dropdownMenuPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.95) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ─── Menu Items ─── */
+.header-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #cbd5e1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-weight: 500;
+}
+
+.header-dropdown-item i {
+    font-size: 16px;
+    color: #64748b;
+    transition: color 0.15s ease;
+}
+
+.header-dropdown-item:hover {
+    background: #1e1e24;
+    color: #f8fafc;
+}
+
+.header-dropdown-item:hover i {
+    color: #cbd5e1;
+}
+
+/* Danger Item (Logout) */
+.header-dropdown-item.danger-item {
+    color: #ef4444;
+}
+
+.header-dropdown-item.danger-item i {
+    color: #ef4444;
+}
+
+.header-dropdown-item.danger-item:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+/* Primary Action Item (Create Env) */
+.header-dropdown-item.primary-item {
+    color: #38bdf8;
+}
+
+.header-dropdown-item.primary-item i {
+    color: #38bdf8;
+}
+
+.header-dropdown-item.primary-item:hover {
+    background: rgba(56, 189, 248, 0.1);
+}
+
+/* Dropdown Divider */
+.header-dropdown-divider {
+    height: 1px;
+    background: #2e2e36;
+    margin: 6px 0;
+}
+
+/* Profile Header Section (Inside Dropdown) */
+.header-dropdown-profile-header {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.header-dropdown-profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f8fafc;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-dropdown-profile-email {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Active Environment Indicator */
+.env-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}

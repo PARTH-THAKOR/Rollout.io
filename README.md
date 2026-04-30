@@ -30,13 +30,22 @@ Administrators manage feature flags and configurations through an admin dashboar
 * A/B testing and experimentation
 * SaaS application feature control
 
+## Community
+
+We welcome everyone! Check out these links:
+
+* [**Contributing**](./CONTRIBUTING.md) - How to help us.
+* [**Security**](./SECURITY.md) - Report a bug.
+* [**Support**](./SUPPORT.md) - Get help.
+
 ## License
 
-This project is licensed under the MIT License.
+
+This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
 
 ## Client SDKs
 
-JavaScript SDK (@rollout.io/sdk-js)
+**JavaScript SDK (`@rollout.io/sdk-js`)**
 Professional-grade, high-performance SDK for web-based environments.
 
 Installation:
@@ -44,9 +53,9 @@ Installation:
 npm install @rollout.io/sdk-js@latest
 ```
 
-Full documentation and implementation guide available at:
-SDK/javascript/README.txt
+Full documentation and implementation guide available at [SDK/javascript/README.txt](./SDK/javascript/README.txt).
 
 ## Authors
 
-Parthsinh R. Thakor, Dharmik S. Aslaliya, Meet N. Parmar
+**Parthsinh R. Thakor, Dharmik S. Aslaliya, Meet N. Parmar**
+
