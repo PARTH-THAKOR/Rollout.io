@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Thakor"
+    given-names: "Parthsinh R."
+  - family-names: "Aslaliya"
+    given-names: "Dharmik S."
+  - family-names: "Parmar"
+    given-names: "Meet N."
+title: "Rollout.io - The Architecture of Instant Change"
+version: 5.0.1
+date-released: 2026-05-01
+url: "https://github.com/TechParaglide/Rollout.io"
+description: "A centralized, ultra-low latency feature flag and configuration management system built as a Final Year Project at Government Engineering College, Gandhinagar."
