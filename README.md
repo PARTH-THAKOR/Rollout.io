@@ -11,40 +11,63 @@
 
 ## Overview
 
-Rollout.io Remote Config enables applications to control features dynamically at runtime without redeploying code. It supports safe rollouts, instant rollback, and centralized configuration control, improving reliability in high-availability production environments.
+Rollout.io Remote Config is an enterprise-grade feature management platform that enables engineering teams to decouple deployment from release. By centralizing feature flags and configurations, applications can dynamically control features at runtime without initiating a redeployment sequence. It supports safe and targeted rollouts, instantaneous rollbacks, and synchronized configuration state across distributed systems, dramatically improving reliability in high-availability production environments.
 
-## Architecture Capabilities
+## Distributed System Architecture
 
-* **Centralized Flag Management**: Unified control plane for all feature toggles.
-* **Runtime Execution**: Enable and disable features without process restarts.
-* **Controlled Rollouts**: Gradual feature exposure and precise targeting.
-* **Instant Rollback**: Emergency kill switches during cascading failures.
-* **Project Isolation**: Segregated configuration handling across environments.
-* **Seamless Integration**: Ultra-low latency SDKs for modern applications.
+The core of Rollout.io is built on a highly scalable, fault-tolerant microservices architecture pattern, orchestrated via Docker and Spring Cloud. 
+
+<div align="center">
+  <img src="ASSETS/Component_System%20Design.png" alt="Rollout.io System Design" width="100%">
+</div>
+
+The ecosystem comprises the following internal microservices and infrastructure components:
+* **API Gateway (`port 80`)**: The central entry point handling rate limiting, CORS, and routing traffic to appropriate downstream microservices.
+* **Service Registry (Eureka, `port 5000`)**: Handles dynamic service discovery and registration for all internal microservices.
+* **Config Server**: Centralized configuration management across all environments, utilizing RabbitMQ message bus for real-time configuration propagation.
+* **Auth Service**: Manages security, token validation, and access control.
+* **Control Plane Service**: The administrative backend handling the business logic for feature flag creation, modification, and user targeting.
+* **SDK Service**: A highly optimized, read-heavy API utilizing Redis caching to serve ultra-low latency flag evaluations to client SDKs.
+* **Monitoring & Observability (`port 5001`)**: Integrated Prometheus and Grafana stack for real-time telemetry, metric aggregation, and system health monitoring.
+
+## Core Capabilities
+
+* **Centralized Flag Management**: A unified control plane to govern all feature toggles across frontend and backend applications.
+* **Zero-Downtime Execution**: Enable and disable features instantly without application restarts or CI/CD pipeline triggers.
+* **Targeted Rollouts**: Gradual feature exposure based on user segmentation and precise contextual targeting.
+* **Instantaneous Rollback**: Emergency kill switches to immediately disable malfunctioning features during cascading failures.
+* **Project Isolation**: Segregated configuration handling across multiple distinct environments (e.g., Development, Staging, Production).
+* **High-Throughput Telemetry**: Asynchronous usage reporting from SDKs to track flag evaluation metrics without blocking the main execution thread.
 
 ## Technical Foundation
 
-The system is built on a highly scalable, distributed technology stack:
-* **Frontend Layer**: React, Vite
-* **Execution Engine**: Java, Spring Boot, RESTful APIs
+The platform leverages a modern, highly scalable distributed technology stack:
+* **Frontend Rendering**: React, Vite
+* **Execution Engine**: Java 17, Spring Boot, Spring Cloud, RESTful APIs
 * **Persistence Layer**: MongoDB
 * **Message Broker**: RabbitMQ
-* **Caching Layer**: Redis
-* **Telemetry & Monitoring**: Prometheus
+* **Caching & Low-Latency Store**: Redis
+* **Telemetry & Observability**: Prometheus, Grafana
+* **Containerization**: Docker, Docker Compose
 
 ## Quick Start Guide
 
 ### 1. Initialize the Backend Infrastructure
-The entire backend ecosystem (microservices, databases, and message brokers) is containerized and orchestrated using Docker Compose.
+The entire backend ecosystem (microservices, databases, caching layers, and message brokers) is containerized and orchestrated using Docker Compose.
 
 ```bash
 cd DEPLOY
 docker-compose up -d
 ```
-Verify the container execution state utilizing `docker ps`.
+*Note: Due to the complexity of the microservices topology, the orchestration uses delayed startup strategies (sleep intervals) to ensure infrastructural dependencies (RabbitMQ, Eureka) are fully initialized before downstream services boot. Initial boot sequence may take 2-3 minutes.*
 
-### 2. Configure and Execute the Admin Control Plane
-The Admin Dashboard requires Firebase Authentication for secure access control. 
+Verify the container execution state utilizing:
+```bash
+docker ps
+```
+
+### 2. Configure and Execute the Admin Control Plane (UI)
+The Admin Dashboard requires Firebase Authentication for secure identity management. 
 
 **Authentication Setup:**
 Navigate to `UI/src/firebase.js` and inject your Firebase project configuration parameters:
@@ -60,7 +83,7 @@ const firebaseConfig = {
 };
 ```
 
-**Bootstrapping the UI:**
+**Bootstrapping the UI Server:**
 ```bash
 cd UI
 npm install
@@ -68,7 +91,7 @@ npm run dev
 ```
 
 ### 3. Execute the Integration Test Environment (Zomato Clone)
-To validate the Rollout.io SDK integration, boot the pre-configured sample test application.
+To validate the Rollout.io SDK integration and observe real-time feature flagging, boot the pre-configured sample test application.
 
 ```bash
 cd TEST/zomato-clone
@@ -79,7 +102,7 @@ npm start
 ## Supported Client SDKs
 
 **JavaScript SDK (`@techparaglide/sdk-js`)**
-Professional-grade, high-performance SDK for web-based rendering environments.
+Professional-grade, high-performance SDK designed for web-based rendering environments (Browser & Node.js).
 
 ```bash
 npm install @techparaglide/sdk-js@latest
@@ -87,7 +110,7 @@ npm install @techparaglide/sdk-js@latest
 Detailed implementation schematics available at: `SDK/javascript/README.txt`
 
 **Java SDK (`com.rollout.io:sdk-java`)**
-Enterprise-grade SDK for server-side Java and Spring Boot runtimes.
+Enterprise-grade SDK built utilizing native `HttpClient` for server-side Java and Spring Boot runtimes.
 
 ```xml
 <dependency>
@@ -98,9 +121,14 @@ Enterprise-grade SDK for server-side Java and Spring Boot runtimes.
 ```
 Detailed implementation schematics available at: `SDK/java/README.md`
 
-## Engineering Team
+## Academic Context & Engineering Team
 
-**Parthsinh R. Thakor | Dharmik S. Aslaliya | Meet N. Parmar**
+This system was architected and developed as a Final Year Project by scholars of the **Information Technology Department** at **Government Engineering College, Gandhinagar**.
+
+**Core Engineering Team:**
+* Parthsinh R. Thakor
+* Dharmik S. Aslaliya
+* Meet N. Parmar
 
 ## License
 
