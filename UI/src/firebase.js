@@ -2,10 +2,10 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "-",
+  apiKey: "",
   authDomain: "",
   projectId: "rollout-io",
-  storageBucket: ".app",
+  storageBucket: "",
   messagingSenderId: "",
   appId: "",
   measurementId: ""
