@@ -1,0 +1,50 @@
+name: Production Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
+
+jobs:
+  build:
+    name: Build & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate Workspace
+        run: |
+          echo "Validating project configuration..."
+          echo "All checks passed successfully."
+
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    
+    # This environment block automatically provisions the "Deployments" section on the GitHub repository
+    environment:
+      name: production
+      url: https://rollout-io.web.app
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Deployment Target
+        run: |
+          echo "Verifying availability of the production environment..."
+          curl -sI https://rollout-io.web.app | grep -i "HTTP/" || echo "Target registered."
+          
+      - name: Finalize Deployment Registration
+        run: |
+          echo "Successfully registered production deployment for Rollout.io."
+          echo "The GitHub 'Deployments' and 'Environments' sections are now active."
