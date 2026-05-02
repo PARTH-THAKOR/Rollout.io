@@ -3,7 +3,7 @@
 
   <h1>Rollout.io</h1>
 
-  <p><b>The Architecture of Instant Change.</b></p>
+  <p><b>The Architecture of Instant Change</b></p>
   <p>A centralized, ultra-low latency feature flag and configuration management system. Designed for complex distributed microservices architectures dealing with dynamic rendering and runtime execution layers.</p>
 </div>
 
@@ -29,6 +29,14 @@ The ecosystem comprises the following internal microservices and infrastructure 
 * **Control Plane Service**: The administrative backend handling the business logic for feature flag creation, modification, and user targeting.
 * **SDK Service**: A highly optimized, read-heavy API utilizing Redis caching to serve ultra-low latency flag evaluations to client SDKs.
 * **Monitoring & Observability (`port 5001`)**: Integrated Prometheus and Grafana stack for real-time telemetry, metric aggregation, and system health monitoring.
+
+### Zero-Trust Context Isolation Pattern
+Rollout.io implements a **Zero-Trust System Design** where the `Jwt` token serves as an immutable context boundary directly in the service layer. Rather than treating the token merely as an edge-validation mechanism at the Gateway, identity is directly extracted and enforced inside downstream microservices and repositories (e.g., `findByIdAndCreatedByUid`).
+* This eliminates the risk of Insecure Direct Object Reference (**IDOR**) vulnerabilities out-of-the-box.
+* Removes repetitive ownership validation logic (`if (entity.getUserId().equals(currentUserId))`).
+* Prevents spoofing via client payloads by relying entirely on the security context for identity evaluation.
+
+For a deeper dive into the theoretical foundation and trade-offs of this design pattern, read the complete engineering article: **[Zero-Trust System Design: How We Used JWT as an Immutable Context Boundary in Spring Boot](https://medium.com/@myself.parthsinh/zero-trust-system-design-how-we-used-jwt-as-an-immutable-context-boundary-in-spring-boot-42924aae086f)**.
 
 ## Core Capabilities
 
@@ -144,9 +152,11 @@ Enterprise-grade SDK built utilizing native `HttpClient` for server-side Java an
 ```
 Detailed implementation schematics available at: `SDK/java/README.md`
 
-## Academic Context & Engineering Team
+## Academic Context & Project Documentation
 
 This system was architected and developed as a Final Year Project by scholars of the **Information Technology Department** at **Government Engineering College, Gandhinagar**.
+
+* **Project Report:** The complete engineering project report, including microservices topology, sequence flows, and system designs is available at **[Rollout.io - Project Report.pdf](REPORT/Rollout.io%20-%20Project%20Report.pdf)**.
 
 **Core Engineering Team:**
 * Parthsinh R. Thakor
@@ -155,4 +165,4 @@ This system was architected and developed as a Final Year Project by scholars of
 
 ## License
 
-This project is distributed under the **MIT License**. Reference the `LICENSE` file for full terms and conditions.
+This project is dual-licensed under the **MIT License** and the **Apache License 2.0**. Reference the [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE) files for full terms and conditions.
