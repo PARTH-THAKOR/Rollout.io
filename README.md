@@ -1,3 +1,9 @@
+---
+layout: default
+title: Rollout.io
+description: Centralized, ultra-low latency feature flag and configuration management system.
+---
+
 <div align="center">
   <img src="ASSETS/banner.png" alt="Rollout.io Architecture" width="100%">
 
