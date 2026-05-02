@@ -50,6 +50,17 @@ The platform leverages a modern, highly scalable distributed technology stack:
 * **Telemetry & Observability**: Prometheus, Grafana
 * **Containerization**: Docker, Docker Compose
 
+## Application & Dashboard Demos
+
+Here is a visual overview of the Rollout.io Admin Dashboard and the Zomato clone test application:
+
+| Rollout.io Admin Dashboard | Zomato Test Application Integration |
+| :---: | :---: |
+| <img src="ASSETS/Screenshot 2026-04-14 225317.png" width="100%"><br>**Rollout.io Control Plane Dashboard**<br>The main workspace dashboard where developers can view, create, and manage multiple remote config projects. | <img src="ASSETS/Screenshot 2026-04-14 225815.png" width="100%"><br>**Zomato Clone Integrated in Light Mode**<br>A beautiful food delivery frontend evaluating features like search placeholder text via the remote config platform. |
+| <img src="ASSETS/Screenshot 2026-04-14 230355.png" width="100%"><br>**Environment Management System**<br>Managing distinct operational environments (Development, Testing, Production) with project keys and targeting details. | <img src="ASSETS/Screenshot 2026-04-14 230427.png" width="100%"><br>**Zomato Clone Live Theme Evaluation**<br>Testing features such as full-page dark mode using the `zomato-dark-mode` flag instantly. |
+| <img src="ASSETS/Screenshot 2026-04-14 230452.png" width="100%"><br>**Feature Flag Control Console**<br>Interactive toggles and advanced rules for individual flags, including zero-downtime emergency kill switches. | <img src="ASSETS/Screenshot 2026-04-15 094013.png" width="100%"><br>**Test App Dynamic Feature Visibility**<br>Real-time conditional rendering of sections like 'Top Brands' using the `zomato-show-top-brands` flag. |
+| <img src="ASSETS/Screenshot 2026-04-15 094411.png" width="100%"><br>**Contextual Targeting Logic**<br>Configuring precise user conditions and JSON data payloads for flags like `zomato-offers-config`. | <img src="ASSETS/Screenshot 2026-04-15 095042.png" width="100%"><br>**Zomato Offer Banner Live Testing**<br>Real-time dynamic checkout logic and exclusive member discount banners evaluated from backend rules. |
+
 ## Quick Start Guide
 
 ### 1. Initialize the Backend Infrastructure
