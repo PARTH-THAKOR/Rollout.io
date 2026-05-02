@@ -54,8 +54,9 @@ The platform leverages a modern, highly scalable distributed technology stack:
 
 Here is a visual overview of the Rollout.io Admin Dashboard and the Zomato clone test application:
 
-| Rollout.io Admin Dashboard | Zomato Test Application Integration |
+| | |
 | :---: | :---: |
+| <img src="ASSETS/Screenshot 2026-04-14 225317.png" width="100%"><br>**Rollout.io Control Plane Dashboard**<br>The main workspace dashboard where developers can view, create, and manage multiple remote config projects. | <img src="ASSETS/Screenshot 2026-04-14 225815.png" width="100%"><br>**Project Management Window**<br>Creating and managing multiple distinct operational configurations for feature isolation. |
 | <img src="ASSETS/Screenshot 2026-04-14 230355.png" width="100%"><br>**Core Flag Management Window**<br>Interactive environment-specific feature toggle and remote configuration console. | <img src="ASSETS/Screenshot 2026-04-14 230427.png" width="100%"><br>**Integrated JSON Editor in Dashboard**<br>A fully interactive JSON editor allowing developers to update complex configuration objects safely at runtime. |
 | <img src="ASSETS/Screenshot 2026-04-14 230452.png" width="100%"><br>**Dependent Flags Management**<br>Configuring parent-child dependencies where a feature flag only evaluates to true if its parent flag is enabled first. | <img src="ASSETS/Screenshot 2026-04-15 094013.png" width="100%"><br>**Light Mode Test Application**<br>Displaying the default white theme when the `zomato-dark-mode` feature flag is disabled. |
 | <img src="ASSETS/Screenshot 2026-04-15 094411.png" width="100%"><br>**Test Application Dark Mode View**<br>Testing features such as full-page dark mode using the `zomato-dark-mode` flag instantly. | <img src="ASSETS/Screenshot 2026-04-15 095042.png" width="100%"><br>**Zomato Offer Banner Live Testing**<br>Real-time dynamic checkout logic and exclusive member discount banners evaluated from backend rules. |
