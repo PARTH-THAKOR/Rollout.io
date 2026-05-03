@@ -275,6 +275,7 @@ This system was architected and developed as a Final Year Project by scholars of
     <tr>
       <th align="left">Name</th>
       <th align="left">Enrollment No</th>
+      <th align="left">Worked on Modules</th>
       <th align="left">LinkedIn Profile</th>
     </tr>
   </thead>
@@ -282,16 +283,19 @@ This system was architected and developed as a Final Year Project by scholars of
     <tr>
       <td><b>Parthsinh R. Thakor</b></td>
       <td><code>220130116064</code></td>
+      <td>Backend, Docker, Launch website, SDK, Test app</td>
       <td><a href="https://www.linkedin.com/in/parthsinh-thakor/"><img src="https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=flat-square" alt="LinkedIn"></a></td>
     </tr>
     <tr>
       <td><b>Dharmik S. Aslaliya</b></td>
       <td><code>220130116002</code></td>
+      <td>Dashboard Module</td>
       <td><a href="https://www.linkedin.com/in/dharmikaslaliya/"><img src="https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=flat-square" alt="LinkedIn"></a></td>
     </tr>
     <tr>
       <td><b>Meet N. Parmar</b></td>
       <td><code>220130116036</code></td>
+      <td>Dashboard Module</td>
       <td><a href="https://www.linkedin.com/in/parmar-meet-a97203244/"><img src="https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=flat-square" alt="LinkedIn"></a></td>
     </tr>
   </tbody>
