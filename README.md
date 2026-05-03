@@ -5,6 +5,15 @@
 
   <p><b>The Architecture of Instant Change</b></p>
   <p>A centralized, ultra-low latency feature flag and configuration management system. Designed for complex distributed microservices architectures dealing with dynamic rendering and runtime execution layers.</p>
+
+  <p>
+    <img src="https://img.shields.io/badge/Java-17-orange?logo=java&logoColor=white" alt="Java 17">
+    <img src="https://img.shields.io/badge/Spring--Boot-3.x-brightgreen?logo=springboot&logoColor=white" alt="Spring Boot">
+    <img src="https://img.shields.io/badge/React-18-blue?logo=react&logoColor=white" alt="React 18">
+    <img src="https://img.shields.io/badge/Redis-6.x-red?logo=redis&logoColor=white" alt="Redis">
+    <img src="https://img.shields.io/badge/MongoDB-Latest-green?logo=mongodb&logoColor=white" alt="MongoDB">
+    <img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache%202.0-blue.svg" alt="License">
+  </p>
 </div>
 
 <hr />
@@ -38,6 +47,18 @@ Rollout.io implements a **Zero-Trust System Design** where the `Jwt` token serve
 
 For a deeper dive into the theoretical foundation and trade-offs of this design pattern, read the complete engineering article: **[Zero-Trust System Design: How We Used JWT as an Immutable Context Boundary in Spring Boot](https://medium.com/@myself.parthsinh/zero-trust-system-design-how-we-used-jwt-as-an-immutable-context-boundary-in-spring-boot-42924aae086f)**.
 
+## Repository Structure
+
+```
+├── ASSETS/         # Core system architecture and screenshot assets
+├── DEPLOY/         # Docker Compose orchestration configurations
+├── REPORT/         # Project documentation and engineering report
+├── SDK/            # Client integration SDKs (Java and JavaScript)
+├── SERVER/         # Spring Boot & Spring Cloud microservices
+├── TEST/           # Demo integration applications (e.g., Zomato Clone)
+└── UI/             # Admin Control Plane Dashboard (React/Vite frontend)
+```
+
 ## Core Capabilities
 
 * **Centralized Flag Management**: A unified control plane to govern all feature toggles across frontend and backend applications.
@@ -50,6 +71,13 @@ For a deeper dive into the theoretical foundation and trade-offs of this design 
 ## Technical Foundation
 
 The platform leverages a modern, highly scalable distributed technology stack:
+
+<div align="center">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=java,spring,react,vite,mongodb,rabbitmq,redis,firebase,prometheus,grafana,docker,git,github,vscode,idea" alt="Tech Stack Icons" />
+  </a>
+</div>
+
 * **Frontend Rendering**: React, Vite
 * **Execution Engine**: Java 17, Spring Boot, Spring Cloud, RESTful APIs
 * **Persistence Layer**: MongoDB
@@ -81,7 +109,43 @@ Here is a visual overview of the Rollout.io Admin Dashboard and the Zomato clone
   </tr>
 </table>
 
+## API Gateway & Documentation
+
+For comprehensive API documentation and interactive testing, the centralized API Gateway includes built-in Swagger/OpenAPI documentation.
+
+Additionally, a pre-configured Postman collection file is available to easily test API calls directly:
+* **[Rollout.io Postman Collection](DEPLOY/Rollout.io%20-%20Rest%20-%20v5.0.1.postman_collection.json)**
+
+To view the interface and test endpoints directly, start the backend infrastructure and navigate to:
+**[http://localhost:80](http://localhost:80)**
+
+<div align="center">
+  <img src="ASSETS/apigateway.png" alt="API Gateway Documentation Interface" width="100%">
+</div>
+
+## Telemetry & Metrics Monitoring with Grafana
+
+Rollout.io includes a pre-configured Prometheus and Grafana telemetry stack for real-time microservices performance and health monitoring.
+
+To configure and view the dashboard:
+1. Navigate to the monitoring interface (by default on port `5001` or as configured).
+2. Head over to the **Service Monitoring** section in the sidebar.
+3. Connect your **Prometheus** instance as the target data source to fetch real-time telemetry.
+4. Import the **Spring APM Dashboard** to visualize CPU, memory, and API request performance.
+5. Create and configure the **datasource variable** to ensure dynamic mapping of Spring Boot metrics across the microservices ecosystem.
+
+<div align="center">
+  <img src="ASSETS/grafana.png" alt="Grafana Telemetry Monitoring" width="100%">
+</div>
+
 ## Quick Start Guide
+
+### Prerequisites
+Make sure you have the following installed on your machine before starting:
+* **Docker & Docker Compose** (Desktop/CLI)
+* **Node.js** (v18.x or above)
+* **Java SDK** (v17 or above)
+* **Maven** (v3.8+)
 
 ### 1. Initialize the Backend Infrastructure
 The entire backend ecosystem (microservices, databases, caching layers, and message brokers) is containerized and orchestrated using Docker Compose.
@@ -138,6 +202,27 @@ Professional-grade, high-performance SDK designed for web-based rendering enviro
 ```bash
 npm install @techparaglide/sdk-js@latest
 ```
+
+**Usage Example:**
+```javascript
+import sdk from '@techparaglide/sdk-js';
+
+// Initialize the SDK
+await sdk.init({
+  sdkKey: "YOUR_SDK_KEY",
+  userId: "user-unique-id",
+  baseUrl: "http://localhost:80" // API Gateway URL
+});
+
+// Evaluate flag value instantly (Fallback value is false)
+const isFeatureEnabled = sdk.getFlag("zomato-dark-mode", false);
+
+if (isFeatureEnabled) {
+  // Execute feature specific logic
+  console.log("Dark mode feature is active.");
+}
+```
+
 Detailed implementation schematics available at: `SDK/javascript/README.txt`
 
 **Java SDK (`com.rollout.io:sdk-java`)**
@@ -150,6 +235,31 @@ Enterprise-grade SDK built utilizing native `HttpClient` for server-side Java an
     <version>5.0.1</version>
 </dependency>
 ```
+
+**Usage Example:**
+```java
+import com.rollout.io.sdk.RolloutClient;
+import com.rollout.io.sdk.RolloutConfig;
+
+// Initialize the SDK
+RolloutClient client = new RolloutClient();
+RolloutConfig config = new RolloutConfig(
+    "YOUR_SDK_KEY",
+    "user-unique-id",
+    "http://localhost:80" // API Gateway URL
+);
+
+client.init(config);
+
+// Evaluate flag value instantly (Fallback value is false)
+boolean isNewCheckoutEnabled = client.getFlag("new-checkout", false);
+
+if (isNewCheckoutEnabled) {
+    // Execute feature specific logic
+    System.out.println("Checkout feature is active.");
+}
+```
+
 Detailed implementation schematics available at: `SDK/java/README.md`
 
 ## Academic Context & Project Documentation
@@ -159,9 +269,33 @@ This system was architected and developed as a Final Year Project by scholars of
 * **Project Report:** The complete engineering project report, including microservices topology, sequence flows, and system designs is available at **[Rollout.io - Project Report.pdf](REPORT/Rollout.io%20-%20Project%20Report.pdf)**.
 
 **Core Engineering Team:**
-* Parthsinh R. Thakor
-* Dharmik S. Aslaliya
-* Meet N. Parmar
+
+<table width="100%">
+  <thead>
+    <tr>
+      <th align="left">Name</th>
+      <th align="left">Enrollment No</th>
+      <th align="left">LinkedIn Profile</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Parthsinh R. Thakor</b></td>
+      <td><code>220130116064</code></td>
+      <td><a href="https://www.linkedin.com/in/parthsinh-thakor/"><img src="https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=flat-square" alt="LinkedIn"></a></td>
+    </tr>
+    <tr>
+      <td><b>Dharmik S. Aslaliya</b></td>
+      <td><code>220130116002</code></td>
+      <td><a href="https://www.linkedin.com/in/dharmikaslaliya/"><img src="https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=flat-square" alt="LinkedIn"></a></td>
+    </tr>
+    <tr>
+      <td><b>Meet N. Parmar</b></td>
+      <td><code>220130116036</code></td>
+      <td><a href="https://www.linkedin.com/in/parmar-meet-a97203244/"><img src="https://img.shields.io/badge/LinkedIn-Profile-blue?logo=linkedin&style=flat-square" alt="LinkedIn"></a></td>
+    </tr>
+  </tbody>
+</table>
 
 ## License
 
