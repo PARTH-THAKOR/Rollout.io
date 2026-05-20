@@ -17,12 +17,7 @@
 
   <hr />
 
-  <span style="font-size: 1.5rem; font-weight: bold; display: block; margin: 10px 0;">PROJECT IS LIVE</span>
-  <span style="font-size: 2.25rem; font-weight: bold; display: block; margin: 10px 0;">
-    <a href="https://rollout.paraglide.in" target="_blank">
-      <i>rollout.paraglide.in</i>
-    </a>
-  </span>
+  <span style="font-size: 1.5rem; font-weight: bold; display: block; margin: 10px 0;">PROJECT IS LIVE : <a href="https://rollout.paraglide.in" target="_blank"><i>rollout.paraglide.in</i></a></span>
 </div>
 
 <hr />
