@@ -14,13 +14,12 @@ const ProjectCardSkeleton = ({ count = 6 }) => {
                         <div className="skeleton-cell skeleton-dot" />
                     </div>
                     <div className="project-info">
-                        <div className="skeleton-cell skeleton-title" />
-                        <div className="skeleton-cell skeleton-line-long" />
-                        <div className="skeleton-cell skeleton-line-short" />
-                    </div>
-                    <div className="project-footer skeleton-footer">
-                        <div className="skeleton-cell skeleton-badge" />
-                        <div className="skeleton-cell skeleton-date" />
+                        <div className="skeleton-cell" style={{ width: '60%', height: '24px', borderRadius: '6px', marginBottom: '8px' }} />
+                        <div className="skeleton-cell" style={{ width: '90%', height: '14px', borderRadius: '4px', marginBottom: '8px' }} />
+                        <div className="skeleton-cell" style={{ width: '70%', height: '14px', borderRadius: '4px', marginBottom: '30px' }} />
+                        <div className="project-meta">
+                            <div className="skeleton-cell" style={{ width: '100px', height: '16px', borderRadius: '4px' }} />
+                        </div>
                     </div>
                 </div>
             ))}

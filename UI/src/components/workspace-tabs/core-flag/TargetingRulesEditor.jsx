@@ -40,7 +40,7 @@ const TargetingRulesEditor = memo(({ rules, onAddRule, onRemoveRule, onUpdateRul
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                         <div>
                             <label className="form-label" style={{ fontSize: '11px', marginBottom: '5px' }}>Attribute</label>
-                            <input type="text" className="login-input" value={rule.attribute} onChange={(e) => onUpdateRule(rIndex, 'attribute', e.target.value)} placeholder="e.g. country, userId" style={{ width: '100%', boxSizing: 'border-box', fontSize: '13px', padding: '9px 12px' }} />
+                            <input type="text" className="login-input" maxLength={50} value={rule.attribute} onChange={(e) => onUpdateRule(rIndex, 'attribute', e.target.value)} placeholder="e.g. country, userId" style={{ width: '100%', boxSizing: 'border-box', fontSize: '13px', padding: '9px 12px' }} />
                         </div>
                         <div>
                             <label className="form-label" style={{ fontSize: '11px', marginBottom: '5px' }}>Operator</label>
@@ -67,13 +67,14 @@ const TargetingRulesEditor = memo(({ rules, onAddRule, onRemoveRule, onUpdateRul
                                     <input type="text" value={rule._tempInput || ''} onChange={(e) => onUpdateRule(rIndex, '_tempInput', e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onAddTagToRule(rIndex); } }}
                                         placeholder={rule.values?.length > 0 ? 'Add more...' : 'Type value & press Enter'}
+                                        maxLength={50}
                                         style={{ flex: 1, minWidth: '110px', background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: '13px', padding: '4px 0', fontFamily: 'inherit' }}
                                     />
                                 </div>
                                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '4px' }}>Press Enter to add each value</div>
                             </div>
                         ) : (
-                            <input type="text" className="login-input" value={rule.value} onChange={(e) => onUpdateRule(rIndex, 'value', e.target.value)} placeholder="e.g. US, premium, true" style={{ width: '100%', boxSizing: 'border-box', fontSize: '13px', padding: '9px 12px' }} />
+                            <input type="text" className="login-input" maxLength={100} value={rule.value} onChange={(e) => onUpdateRule(rIndex, 'value', e.target.value)} placeholder="e.g. US, premium, true" style={{ width: '100%', boxSizing: 'border-box', fontSize: '13px', padding: '9px 12px' }} />
                         )}
                     </div>
                 </div>

@@ -7,6 +7,7 @@ import TargetingRulesEditor from '../core-flag/TargetingRulesEditor';
 import ValueInput from '../core-flag/ValueInput';
 import JsonEditor from '../json-flag/JsonEditor';
 import DependencyRuleBuilder, { emptyGroup, cleanRuleNode, isTreeValid } from './DependencyRuleBuilder';
+import { getFriendlyErrorMessage } from '../../../utils/errorFormatter';
 
 // ═══════════════════════════════════════════════════════════
 //  UpdateDependentFlagModal — Edit a dependent flag
@@ -179,7 +180,8 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
             onSubmit(data);
         } catch (err) {
             console.error('Failed to update dependent flag', err);
-            setServerError(err.message || 'Failed to update dependent flag. Please check your inputs and try again.');
+            const msg = getFriendlyErrorMessage(err);
+            setServerError(msg);
             setIsSubmitting(false);
         }
     };
@@ -188,7 +190,7 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
         return (
             <div className="modal-overlay">
                 <div className="modal-content glass-card" style={{ maxWidth: '700px', width: '92%', padding: '30px', textAlign: 'center' }}>
-                    <i className="ri-loader-4-line spin" style={{ fontSize: '32px', color: '#f59e0b' }}></i>
+                    <i className="ri-loader-4-line spin" style={{ fontSize: '32px', color: '#c084fc' }}></i>
                     <div style={{ marginTop: '16px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Loading flag details...</div>
                 </div>
             </div>
@@ -199,7 +201,7 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
     const descCountClass = descLen >= 200 ? 'error' : descLen >= 170 ? 'warning' : '';
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={() => !isSubmitting && onClose()}>
             <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px', width: '92%', padding: 0, overflow: 'hidden' }}>
                 <form onSubmit={handleSubmit}>
                     {/* Header */}
@@ -207,8 +209,8 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#fff', fontFamily: '"Outfit", "Inter", sans-serif', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(234,179,8,0.2), rgba(245,158,11,0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <i className="ri-edit-2-line" style={{ fontSize: '16px', color: '#f59e0b' }}></i>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(147, 51, 234, 0.2))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <i className="ri-edit-2-line" style={{ fontSize: '16px', color: '#a78bfa' }}></i>
                                     </div>
                                     Update Dependent Flag
                                 </h3>
@@ -217,7 +219,7 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
                                     &nbsp;&nbsp;<strong style={{ color: 'rgba(255,255,255,0.6)' }}>v</strong>{initialData?.version}
                                 </p>
                             </div>
-                            <button type="button" onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <button type="button" onClick={onClose} disabled={isSubmitting} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 <i className="ri-close-line" style={{ fontSize: '18px' }}></i>
                             </button>
                         </div>
@@ -243,7 +245,10 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
                             <input type="text" className={`login-input ${formErrors.displayName ? 'input-error' : ''}`} required
                                 value={formData.displayName} onChange={(e) => setFormData(prev => ({ ...prev, displayName: e.target.value }))}
                                 maxLength={50} style={{ width: '100%', boxSizing: 'border-box' }} />
-                            {formErrors.displayName && <div className="field-error"><i className="ri-error-warning-line"></i>{formErrors.displayName}</div>}
+                            {formErrors.displayName
+                                ? <div className="field-error"><i className="ri-error-warning-line"></i>{formErrors.displayName}</div>
+                                : formData.displayName.length > 0 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
+                            }
                         </div>
 
                         {/* Value */}
@@ -292,7 +297,7 @@ const UpdateDependentFlagModal = ({ flag, onClose, onSubmit, coreFlags = [] }) =
 
                     {/* Footer */}
                     <div className="modal-footer">
-                        <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+                        <button type="button" onClick={onClose} className="btn-ghost" disabled={isSubmitting}>Cancel</button>
                         <button type="submit" className="btn-primary" disabled={!valid || isSubmitting || !hasChanges}>
                             {isSubmitting ? (<><i className="ri-loader-4-line spin" style={{ fontSize: '15px' }}></i> Saving...</>) : (<><i className="ri-check-line" style={{ fontSize: '15px' }}></i> Save Changes</>)}
                         </button>

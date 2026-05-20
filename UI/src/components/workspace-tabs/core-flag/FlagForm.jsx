@@ -14,7 +14,7 @@ import JsonEditor from '../json-flag/JsonEditor';
 //  Owns its own form state; calls onSubmit(payload) on submit.
 // ═══════════════════════════════════════════════════════════
 
-const FlagForm = ({ onClose, onSubmit, isSubmitting, defaultType, existingKeys }) => {
+const FlagForm = ({ onClose, onSubmit, isSubmitting, defaultType, existingKeys, serverError = '' }) => {
     const initialType = defaultType || INITIAL_FORM_STATE.type;
     const defaults = { BOOLEAN: true, STRING: '', INTEGER: 0, DOUBLE: 0.0, JSON: {} };
     const [formData, setFormData] = useState({ ...INITIAL_FORM_STATE, type: initialType, value: defaults[initialType] ?? '', targetingRules: [] });
@@ -149,7 +149,7 @@ const FlagForm = ({ onClose, onSubmit, isSubmitting, defaultType, existingKeys }
     const descCountClass = descLen >= 200 ? 'error' : descLen >= 170 ? 'warning' : '';
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={() => !isSubmitting && onClose()}>
             <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px', width: '92%', padding: 0, overflow: 'hidden' }}>
                 <form onSubmit={handleSubmit}>
                     {/* ── Modal Header ──────────────────── */}
@@ -164,7 +164,7 @@ const FlagForm = ({ onClose, onSubmit, isSubmitting, defaultType, existingKeys }
                                 </h3>
                                 <p style={{ margin: '6px 0 0 42px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>{defaultType === 'JSON' ? 'Create a new JSON configuration flag for this environment' : 'Create a new core feature flag for this environment'}</p>
                             </div>
-                            <button type="button" onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
+                            <button type="button" onClick={onClose} disabled={isSubmitting} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
                                 <i className="ri-close-line" style={{ fontSize: '18px' }}></i>
                             </button>
                         </div>
@@ -172,6 +172,16 @@ const FlagForm = ({ onClose, onSubmit, isSubmitting, defaultType, existingKeys }
 
                     {/* ── Modal Body (scrollable) ───────── */}
                     <div className="modal-body">
+                        {serverError && (
+                            <div style={{
+                                padding: '12px 16px', marginBottom: '16px', borderRadius: '8px',
+                                background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                                display: 'flex', alignItems: 'flex-start', gap: '10px', animation: 'fadeIn 0.2s ease-out'
+                            }}>
+                                <i className="ri-error-warning-fill" style={{ color: '#f87171', fontSize: '16px', flexShrink: 0, marginTop: '1px' }}></i>
+                                <div style={{ fontSize: '13px', color: '#fca5a5', lineHeight: 1.5, wordBreak: 'break-word', textAlign: 'left' }}>{serverError}</div>
+                            </div>
+                        )}
 
                         {/* ── Required Fields ────────────── */}
                         <div className="section-heading">
@@ -209,7 +219,7 @@ const FlagForm = ({ onClose, onSubmit, isSubmitting, defaultType, existingKeys }
                             />
                             {formErrors.displayName
                                 ? <div className="field-error"><i className="ri-error-warning-line"></i>{formErrors.displayName}</div>
-                                : formData.displayName.length > 40 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
+                                : formData.displayName.length > 0 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
                             }
                         </div>
 

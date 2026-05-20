@@ -22,8 +22,8 @@ const FlagRow = memo(({ flag, isExpanded, onToggle, onExpand, onMenuOpen, catego
             <td>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {isDependent ? (
-                        <div style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, rgba(234,179,8,0.12), rgba(245,158,11,0.12))' }}>
-                            <i className="ri-git-branch-line" style={{ fontSize: '16px', color: '#f59e0b' }}></i>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(147,51,234,0.12))' }}>
+                            <i className="ri-git-branch-line" style={{ fontSize: '16px', color: '#a78bfa' }}></i>
                         </div>
                     ) : (
                         <div className={`flag-icon-box ${isActive ? 'active' : 'inactive'}`}>

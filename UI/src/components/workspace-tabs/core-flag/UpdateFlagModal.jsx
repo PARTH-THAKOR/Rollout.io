@@ -6,6 +6,7 @@ import { validateFormData, checkFormValid, newRule, MULTI_VALUE_OPERATORS } from
 import ValueInput from './ValueInput';
 import TargetingRulesEditor from './TargetingRulesEditor';
 import JsonEditor from '../json-flag/JsonEditor';
+import { getFriendlyErrorMessage } from '../../../utils/errorFormatter';
 
 // ═══════════════════════════════════════════════════════════
 //  UpdateFlagModal — Edit Core Flag with full validation
@@ -14,6 +15,7 @@ import JsonEditor from '../json-flag/JsonEditor';
 const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [serverError, setServerError] = useState(null);
     
     // Store original fetched data to detect changes
     const [initialData, setInitialData] = useState(null);
@@ -166,6 +168,7 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
         e.preventDefault();
         if (!valid || isSubmitting || !hasChanges) return;
         setIsSubmitting(true);
+        setServerError(null);
 
         let resolvedValue;
         if (isJsonType) {
@@ -211,6 +214,8 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
             onSubmit(data); // Return full real backend data
         } catch (err) {
             console.error('Failed to update flag', err);
+            const msg = getFriendlyErrorMessage(err);
+            setServerError(msg);
             setIsSubmitting(false);
         }
     };
@@ -230,7 +235,7 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
     const descCountClass = descLen >= 200 ? 'error' : descLen >= 170 ? 'warning' : '';
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={() => !isSubmitting && onClose()}>
             <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px', width: '92%', padding: 0, overflow: 'hidden' }}>
                 <form onSubmit={handleSubmit}>
                     {/* ── Modal Header ──────────────────── */}
@@ -249,7 +254,7 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
                                     <span><strong style={{color: 'rgba(255,255,255,0.6)'}}>Version:</strong> v{initialData.version}</span>
                                 </p>
                             </div>
-                            <button type="button" onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
+                            <button type="button" onClick={onClose} disabled={isSubmitting} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
                                 <i className="ri-close-line" style={{ fontSize: '18px' }}></i>
                             </button>
                         </div>
@@ -257,6 +262,16 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
 
                     {/* ── Modal Body (scrollable) ───────── */}
                     <div className="modal-body">
+                        {serverError && (
+                            <div style={{
+                                padding: '12px 16px', marginBottom: '16px', borderRadius: '8px',
+                                background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                                display: 'flex', alignItems: 'flex-start', gap: '10px', animation: 'fadeIn 0.2s ease-out'
+                            }}>
+                                <i className="ri-error-warning-fill" style={{ color: '#f87171', fontSize: '16px', flexShrink: 0, marginTop: '1px' }}></i>
+                                <div style={{ fontSize: '13px', color: '#fca5a5', lineHeight: 1.5, wordBreak: 'break-word', textAlign: 'left' }}>{serverError}</div>
+                            </div>
+                        )}
                         
                         {/* Display Name */}
                         <div style={{ marginBottom: '16px' }}>
@@ -271,7 +286,7 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
                             />
                             {formErrors.displayName
                                 ? <div className="field-error"><i className="ri-error-warning-line"></i>{formErrors.displayName}</div>
-                                : formData.displayName.length > 40 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
+                                : formData.displayName.length > 0 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
                             }
                         </div>
 
@@ -341,7 +356,7 @@ const UpdateFlagModal = ({ flag, onClose, onSubmit }) => {
 
                     {/* ── Modal Footer ──────────────────── */}
                     <div className="modal-footer">
-                        <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+                        <button type="button" onClick={onClose} className="btn-ghost" disabled={isSubmitting}>Cancel</button>
                         <button type="submit" className="btn-primary" disabled={!valid || isSubmitting || !hasChanges}>
                             {isSubmitting ? (
                                 <><i className="ri-loader-4-line spin" style={{ fontSize: '15px' }}></i> Saving...</>

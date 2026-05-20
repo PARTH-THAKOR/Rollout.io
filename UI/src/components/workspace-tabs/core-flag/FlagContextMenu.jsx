@@ -9,9 +9,8 @@ const FlagContextMenu = ({ flag, onClose, onEdit, onDelete }) => {
                         {flag.displayName || flag.name}
                     </div>
                     <div className="flag-context-meta">
-                        <span className="flag-context-key">{flag.key}</span>
-                        <span style={{ flexShrink: 0 }}>•</span>
-                        <span style={{ flexShrink: 0 }}>{flag.type}</span>
+                        <span className="flag-context-key" title={flag.key}>{flag.key}</span>
+                        <span className="flag-context-type">{flag.type}</span>
                     </div>
                 </div>
                 <button className="flag-context-close" onClick={onClose}>
@@ -21,10 +20,10 @@ const FlagContextMenu = ({ flag, onClose, onEdit, onDelete }) => {
             
             <div className="flag-context-actions">
                 <button onClick={() => onEdit(flag)} className="flag-context-item primary">
-                    <i className="ri-edit-2-line"></i> Update Flag
+                    <i className="ri-pencil-line"></i> Update Flag
                 </button>
                 <button onClick={() => onDelete(flag)} className="flag-context-item danger">
-                    <i className="ri-delete-bin-6-line"></i> Remove
+                    <i className="ri-delete-bin-line"></i> Remove
                 </button>
             </div>
         </div>

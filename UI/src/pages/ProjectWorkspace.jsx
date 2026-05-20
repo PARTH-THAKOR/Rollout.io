@@ -1,26 +1,24 @@
-import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import '../styles/welcome.css';
 import '../styles/dashboard.css';
 import 'remixicon/fonts/remixicon.css';
 import '../styles/workspace-tabs.css';
-import EnvironmentSelector from '../components/workspace-tabs/EnvironmentSelector';
-import AdminProfile from '../components/AdminProfile';
-import OverviewTab from '../components/workspace-tabs/OverviewTab';
+import EnvironmentSelector from '../components/workspace/EnvironmentSelector';
+import AdminProfile from '../components/common/AdminProfile';
+import OverviewTab from '../components/workspace-tabs/overview/OverviewTab';
 import WorkspaceSkeleton from '../components/workspace/WorkspaceSkeleton';
 import WorkspaceEmptyState from '../components/workspace/WorkspaceEmptyState';
 import CreateEnvironmentModal from '../components/workspace/CreateEnvironmentModal';
-import { controlPlaneApi } from '../api/apiClient';
-import { ENDPOINTS } from '../api/config';
-import { unwrapResponse } from '../api/queries';
+import { getFriendlyErrorMessage } from '../utils/errorFormatter';
 
 // ─── Workspace tabs ──────────────────────────────────────
-import CoreFlagTab from '../components/workspace-tabs/CoreFlagTab';
-import JsonFlagTab from '../components/workspace-tabs/JsonFlagTab';
-import DependantFlagTab from '../components/workspace-tabs/DependantFlagTab';
-import AuditLogTab from '../components/workspace-tabs/AuditLogTab';
-import SettingsTab from '../components/workspace-tabs/SettingsTab';
+import CoreFlagTab from '../components/workspace-tabs/core-flag/CoreFlagTab';
+import JsonFlagTab from '../components/workspace-tabs/json-flag/JsonFlagTab';
+import DependantFlagTab from '../components/workspace-tabs/dependant-flag/DependantFlagTab';
+import AuditLogTab from '../components/workspace-tabs/audit-log/AuditLogTab';
+import SettingsTab from '../components/workspace-tabs/settings/SettingsTab';
 
 // Inline spinner for tab transitions
 const TabLoader = () => (
@@ -30,22 +28,20 @@ const TabLoader = () => (
     </div>
 );
 import {
-    useProjectById,
+    useProjectByName,
     useEnvironments,
     useFlags,
     useCreateEnvironment,
     environmentKeys,
-    flagKeys,
 } from '../api/queries';
 
 const ProjectWorkspace = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const projectId = searchParams.get('id');
-    const defaultProjectName = searchParams.get('name') || '';
+    const projectName = searchParams.get('name') || '';
     const queryClient = useQueryClient();
 
     // ─── Server State (TanStack Query) ──────────────────────
-    const { data: projectDetails, isLoading: isProjectLoading } = useProjectById(projectId);
+    const { data: projectDetails, isLoading: isProjectLoading } = useProjectByName(projectName);
     const { data: environmentsData = [], isLoading: isEnvLoading } = useEnvironments(projectDetails?.id);
 
     // Combined loading state: wait for both project and environments
@@ -85,9 +81,17 @@ const ProjectWorkspace = () => {
     const [env, setEnv] = useState(null);
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isCreateEnvModalOpen, setIsCreateEnvModalOpen] = useState(false);
+    const [createEnvError, setCreateEnvError] = useState(null);
     const [newEnvName, setNewEnvName] = useState('');
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
     const tabsRef = React.useRef([]);
+
+    // Toast state
+    const [toast, setToast] = useState(null);
+    const showToast = useCallback((message, type = 'success') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 3500);
+    }, []);
 
     // ─── Flags: fetched via TanStack Query, but also kept in local state
     //     because CoreFlagTab mutates flags optimistically via setFlags.
@@ -107,40 +111,18 @@ const ProjectWorkspace = () => {
         }
     }, [fetchedFlags]);
 
-    // ─── If project was looked up by name instead of id ─────
-    const [projectDetailsByName, setProjectDetailsByName] = useState(null);
-
-    useEffect(() => {
-        if (projectId || projectDetails) return; // Already have it
-        const name = searchParams.get('name');
-        if (!name) return;
-
-        const fetchByName = async () => {
-            try {
-                const data = await unwrapResponse(
-                    await controlPlaneApi(`${ENDPOINTS.PROJECT_BY_NAME}?name=${encodeURIComponent(name)}`)
-                );
-                setProjectDetailsByName(Array.isArray(data) ? data[0] : data);
-            } catch (error) {
-                console.warn("API fetch project by name failed:", error);
-            }
-        };
-        fetchByName();
-    }, [searchParams, projectId, projectDetails]);
-
-    // Effective project details (prefer query data, fallback to name-based lookup)
-    const effectiveProject = projectDetails || projectDetailsByName;
+    const displayFlags = flags.length === 0 && fetchedFlags && fetchedFlags.length > 0 ? fetchedFlags : flags;
 
     // Fix 5: Sync URL name parameter if it doesn't match the actual project name
     useEffect(() => {
-        if (effectiveProject && effectiveProject.name && effectiveProject.name !== defaultProjectName) {
+        if (projectDetails && projectDetails.name && projectDetails.name !== projectName) {
             setSearchParams((prev) => {
                 const next = new URLSearchParams(prev);
-                next.set('name', effectiveProject.name);
+                next.set('name', projectDetails.name);
                 return next;
             }, { replace: true });
         }
-    }, [effectiveProject, defaultProjectName, setSearchParams]);
+    }, [projectDetails, projectName, setSearchParams]);
 
     // Fix 3: Sync state to effective environment if the selected one is invalid or deleted
     useEffect(() => {
@@ -186,16 +168,18 @@ const ProjectWorkspace = () => {
 
     const handleCreateEnvironment = async (e) => {
         e.preventDefault();
-        if (!newEnvName.trim() || !effectiveProject?.id) return;
+        if (!newEnvName.trim() || !projectDetails?.id) return;
 
         const envName = newEnvName.trim();
         try {
             await createEnvironmentMutation.mutateAsync({
-                projectId: effectiveProject.id,
+                projectId: projectDetails.id,
                 name: envName,
             });
+            showToast('Environment created successfully!', 'success');
         } catch (error) {
             console.error('Create environment error:', error);
+            showToast('Failed to create environment.', 'error');
         }
 
         setEnv(envName);
@@ -207,9 +191,9 @@ const ProjectWorkspace = () => {
     // SettingsTab needs to modify environmentsData locally (e.g., after SDK key rotation).
     // This function wraps queryClient.setQueryData to maintain compatibility.
     const setEnvironmentsData = (updater) => {
-        if (!effectiveProject?.id) return;
+        if (!projectDetails?.id) return;
         queryClient.setQueryData(
-            environmentKeys.byProject(effectiveProject.id),
+            environmentKeys.byProject(projectDetails.id),
             typeof updater === 'function'
                 ? updater
                 : () => updater
@@ -220,7 +204,24 @@ const ProjectWorkspace = () => {
         <>
             <div id="cursor-glow"></div>
 
-            <div className="dashboard-layout">
+            <div className="dashboard-layout workspace-layout">
+                {/* Desktop View Restricted Warning Overlay */}
+                <div className="desktop-only-overlay">
+                    <div className="desktop-overlay-card">
+                        <div className="desktop-overlay-icon">
+                            <i className="ri-computer-line"></i>
+                            <span className="desktop-glow"></span>
+                        </div>
+                        <h4>Desktop View Recommended</h4>
+                        <p>
+                            The Rollout.io Workspace is optimized for larger displays to safely configure feature flags, rule parameters, and dependency graphs.
+                        </p>
+                        <Link to="/dashboard" className="btn-gradient">
+                            <i className="ri-arrow-left-line"></i> Back to Dashboard
+                        </Link>
+                    </div>
+                </div>
+
                 {/* Main Content */}
                 <div className="main-wrapper">
                     <div className="workspace-header" style={{ background: '#07030edf' }}>
@@ -237,7 +238,7 @@ const ProjectWorkspace = () => {
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(147, 51, 234, 0.15) 100%)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
                                         <i className="ri-folder-3-fill" style={{ fontSize: '13px', color: '#38bdf8' }}></i>
                                     </div>
-                                    <span style={{ color: '#fff', fontSize: '13.5px', fontWeight: 600, letterSpacing: '0.2px' }}>{effectiveProject?.name || defaultProjectName}</span>
+                                    <span style={{ color: '#fff', fontSize: '13.5px', fontWeight: 600, letterSpacing: '0.2px', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block', verticalAlign: 'middle' }}>{projectDetails?.name || projectName}</span>
                                 </div>
                             </div>
                         </div>
@@ -320,14 +321,14 @@ const ProjectWorkspace = () => {
                                         environments.length === 0 ? (
                                             <WorkspaceEmptyState onCreateClick={() => setIsCreateEnvModalOpen(true)} />
                                         ) : (
-                                            <OverviewTab env={effectiveEnv} envId={envId} flags={flags} sdkKey={currentEnvData?.sdkKey} />
+                                            <OverviewTab env={effectiveEnv} envId={envId} flags={displayFlags} sdkKey={currentEnvData?.sdkKey} />
                                         )
                                     )}
-                                    {activeTab === 'core-flag' && <CoreFlagTab flags={flags} setFlags={setFlags} env={effectiveEnv} envId={envId} isFlagsLoading={isFlagsLoading} />}
+                                    {activeTab === 'core-flag' && <CoreFlagTab flags={displayFlags} setFlags={setFlags} env={effectiveEnv} envId={envId} isFlagsLoading={isFlagsLoading} />}
                                     {activeTab === 'json-flag' && <JsonFlagTab env={effectiveEnv} envId={envId} />}
                                     {activeTab === 'dependant-flag' && <DependantFlagTab env={effectiveEnv} envId={envId} />}
                                     {activeTab === 'audit-log' && <AuditLogTab env={effectiveEnv} envId={envId} />}
-                                    {activeTab === 'settings' && <SettingsTab projectDetails={effectiveProject} env={effectiveEnv} setEnv={setEnv} environmentsData={environmentsData} setEnvironmentsData={setEnvironmentsData} />}
+                                    {activeTab === 'settings' && <SettingsTab projectDetails={projectDetails} env={effectiveEnv} setEnv={setEnv} environmentsData={environmentsData} />}
                                 </div>
                         )}
                     </main>
@@ -337,21 +338,39 @@ const ProjectWorkspace = () => {
             {/* Create Environment Modal */}
             {isCreateEnvModalOpen && (
                 <CreateEnvironmentModal
-                    onClose={() => setIsCreateEnvModalOpen(false)}
+                    onClose={() => {
+                        setIsCreateEnvModalOpen(false);
+                        setCreateEnvError(null);
+                    }}
                     onSubmit={(name) => {
-                        setNewEnvName(name); // State updates then handleCreateEnvironment will be triggered implicitly or explicitly
-                        // Wait, handleCreateEnvironment uses newEnvName from state, but the child manages its own state now.
-                        // I should pass a callback that takes the submitted name.
-                        if (!name.trim() || !effectiveProject?.id) return;
+                        if (!name.trim() || !projectDetails?.id) return;
+                        setCreateEnvError(null);
                         createEnvironmentMutation.mutateAsync({
-                            projectId: effectiveProject.id,
+                            projectId: projectDetails.id,
                             name: name.trim(),
                         }).then(() => {
                             setEnv(name.trim());
                             setIsCreateEnvModalOpen(false);
-                        }).catch(console.error);
+                            setCreateEnvError(null);
+                            showToast('Environment created successfully!', 'success');
+                        }).catch((err) => {
+                            console.error(err);
+                            const msg = getFriendlyErrorMessage(err);
+                            setCreateEnvError(msg);
+                        });
                     }}
+                    serverError={createEnvError}
+                    isSubmitting={createEnvironmentMutation.isPending}
+                    onNameChange={() => setCreateEnvError(null)}
                 />
+            )}
+
+            {/* Toast notifications */}
+            {toast && (
+                <div className={`toast-notification ${toast.type === 'success' ? 'toast-success' : 'toast-error'}`} style={{ zIndex: 100000 }}>
+                    <i className={toast.type === 'success' ? 'ri-checkbox-circle-fill' : 'ri-error-warning-fill'} style={{ fontSize: '18px' }}></i>
+                    {toast.message}
+                </div>
             )}
 
             <style>

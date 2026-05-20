@@ -1,7 +1,7 @@
 <div align="center">
   <img src="ASSETS/banner.png" alt="Rollout.io Architecture" width="100%">
 
-  <h1>Rollout.io</h1>
+  <h1 style="font-size: 3.5rem; font-weight: 800; margin: 15px 0 5px 0;">ROLLOUT.IO</h1>
 
   <p><b>The Architecture of Instant Change</b></p>
   <p>A centralized, ultra-low latency feature flag and configuration management system. Designed for complex distributed microservices architectures dealing with dynamic rendering and runtime execution layers.</p>
@@ -14,6 +14,15 @@
     <img src="https://img.shields.io/badge/MongoDB-Latest-green?logo=mongodb&logoColor=white" alt="MongoDB">
     <img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache%202.0-blue.svg" alt="License">
   </p>
+
+  <hr />
+
+  <span style="font-size: 1.5rem; font-weight: bold; display: block; margin: 10px 0;">PROJECT IS LIVE</span>
+  <span style="font-size: 2.25rem; font-weight: bold; display: block; margin: 10px 0;">
+    <a href="https://rollout.paraglide.in" target="_blank">
+      <i>rollout.paraglide.in</i>
+    </a>
+  </span>
 </div>
 
 <hr />
@@ -21,6 +30,19 @@
 ## Overview
 
 Rollout.io Remote Config is an enterprise-grade feature management platform that enables engineering teams to decouple deployment from release. By centralizing feature flags and configurations, applications can dynamically control features at runtime without initiating a redeployment sequence. It supports safe and targeted rollouts, instantaneous rollbacks, and synchronized configuration state across distributed systems, dramatically improving reliability in high-availability production environments.
+
+## Live Production Demo
+
+The complete Rollout.io ecosystem has been deployed and is accessible at **[rollout.paraglide.in](http://rollout.paraglide.in)**.
+
+Through the integrated Nginx edge proxy configuration, all microservices, management interfaces, and demonstration components are accessible under the primary domain:
+
+* **Launch Website**: **[rollout.paraglide.in](http://rollout.paraglide.in/)** - Developer landing portal and system overview page.
+* **Admin Control Plane**: **[rollout.paraglide.in/app/](http://rollout.paraglide.in/app/)** - Core administrative dashboard used to govern environments and feature configurations.
+* **Test Environment (Zomato Clone)**: **[rollout.paraglide.in/test/](http://rollout.paraglide.in/test/)** - Integration validation environment showing real-time, dynamic feature evaluation and flag resolution.
+* **API Gateway and Documentation**: **[rollout.paraglide.in/gateway/](http://rollout.paraglide.in/gateway/)** - Central entry point containing interactive OpenAPI/Swagger definitions.
+* **Service Registry (Eureka)**: **[rollout.paraglide.in/registry/](http://rollout.paraglide.in/registry/)** - Console displaying active microservice registration and system state.
+* **Grafana Monitoring**: **[rollout.paraglide.in/grafana/](http://rollout.paraglide.in/grafana/)** - Real-time metrics dashboard for observing microservices performance and database access telemetry.
 
 ## Distributed System Architecture
 
@@ -116,8 +138,9 @@ For comprehensive API documentation and interactive testing, the centralized API
 Additionally, a pre-configured Postman collection file is available to easily test API calls directly:
 * **[Rollout.io Postman Collection](DEPLOY/Rollout.io%20-%20Rest%20-%20v5.0.1.postman_collection.json)**
 
-To view the interface and test endpoints directly, start the backend infrastructure and navigate to:
-**[http://localhost:80](http://localhost:80)**
+To view the interface and test endpoints directly:
+* **Local Development**: Start the infrastructure and navigate to **[http://localhost:80](http://localhost:80)**
+* **Live Production**: Navigate directly to **[http://rollout.paraglide.in/gateway/](http://rollout.paraglide.in/gateway/)** (Swagger UI documentation endpoint)
 
 <div align="center">
   <img src="ASSETS/apigateway.png" alt="API Gateway Documentation Interface" width="100%">
@@ -147,19 +170,39 @@ Make sure you have the following installed on your machine before starting:
 * **Java SDK** (v17 or above)
 * **Maven** (v3.8+)
 
-### 1. Initialize the Backend Infrastructure
-The entire backend ecosystem (microservices, databases, caching layers, and message brokers) is containerized and orchestrated using Docker Compose.
+### 1. Initialize the Ecosystem via Docker Compose
+
+The complete Rollout.io ecosystem—including microservices, front-end portals, support databases, and monitoring telemetry—is containerized and orchestrated using Docker Compose.
+
+To boot the entire architecture:
 
 ```bash
 cd DEPLOY
 docker-compose up -d
 ```
-*Note: Due to the complexity of the microservices topology, the orchestration uses delayed startup strategies (sleep intervals) to ensure infrastructural dependencies (RabbitMQ, Eureka) are fully initialized before downstream services boot. Initial boot sequence may take 2-3 minutes.*
 
-Verify the container execution state utilizing:
+*Note: Due to the sequential startup dependencies inside the microservices topology, the orchestration uses delayed container initialization to ensure RabbitMQ and the Eureka Service Registry are fully operational before dependent services boot. The initial startup sequence may require 2 to 3 minutes to complete.*
+
+To monitor the startup state and verify active containers:
+
 ```bash
 docker ps
 ```
+
+Once the stack is operational, the integrated Nginx edge proxy serves all components on port 80, replicating the production environment structure locally:
+
+* **Launch Website**: **[http://localhost](http://localhost)**
+* **Admin Control Plane**: **[http://localhost/app/](http://localhost/app/)**
+* **Test Environment (Zomato Clone)**: **[http://localhost/test/](http://localhost/test/)**
+* **API Gateway and Swagger Docs**: **[http://localhost/gateway/](http://localhost/gateway/)**
+* **Service Registry (Eureka)**: **[http://localhost/registry/](http://localhost/registry/)**
+* **Grafana Dashboard**: **[http://localhost/grafana/](http://localhost/grafana/)**
+
+---
+
+### Local Development Options
+
+If you wish to run individual front-end components in development mode (e.g., for making live code changes) instead of using the pre-built containerized versions, you can shut down the respective containers in Docker and run the local development servers using the steps below.
 
 ### 2. Configure and Execute the Admin Control Plane (UI)
 The Admin Dashboard requires Firebase Authentication for secure identity management. 
@@ -211,7 +254,7 @@ import sdk from '@techparaglide/sdk-js';
 await sdk.init({
   sdkKey: "YOUR_SDK_KEY",
   userId: "user-unique-id",
-  baseUrl: "http://localhost:80" // API Gateway URL
+  baseUrl: "http://rollout.paraglide.in" // Live Production Gateway (or "http://localhost:80" for local)
 });
 
 // Evaluate flag value instantly (Fallback value is false)
@@ -246,7 +289,7 @@ RolloutClient client = new RolloutClient();
 RolloutConfig config = new RolloutConfig(
     "YOUR_SDK_KEY",
     "user-unique-id",
-    "http://localhost:80" // API Gateway URL
+    "http://rollout.paraglide.in" // Live Production Gateway (or "http://localhost:80" for local)
 );
 
 client.init(config);

@@ -163,7 +163,7 @@ const DependentFlagForm = ({ onClose, onSubmit, isSubmitting, coreFlags = [], ex
     const OPTION_BG_LOCAL = { background: '#120924' };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={() => !isSubmitting && onClose()}>
             <div className="modal-content glass-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px', width: '92%', padding: 0, overflow: 'hidden' }}>
                 <form onSubmit={handleSubmit}>
                     {/* Header */}
@@ -171,24 +171,24 @@ const DependentFlagForm = ({ onClose, onSubmit, isSubmitting, coreFlags = [], ex
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
                                 <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#fff', fontFamily: '"Outfit", "Inter", sans-serif', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(234,179,8,0.2) 0%, rgba(245,158,11,0.2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <i className="ri-git-branch-line" style={{ fontSize: '16px', color: '#f59e0b' }}></i>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <i className="ri-git-branch-line" style={{ fontSize: '16px', color: '#a78bfa' }}></i>
                                     </div>
                                     New Dependent Flag
                                 </h3>
                                 <p style={{ margin: '6px 0 0 42px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Create a conditionally-activated flag with prerequisite dependencies</p>
                             </div>
-                            <button type="button" onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
+                            <button type="button" onClick={onClose} disabled={isSubmitting} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', flexShrink: 0 }}>
                                 <i className="ri-close-line" style={{ fontSize: '18px' }}></i>
                             </button>
                         </div>
                     </div>
 
                     {/* Body */}
-                    <div className="modal-body" style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+                    <div className="modal-body">
                         {coreFlags.length === 0 ? (
                             <div style={{ padding: '60px 20px', textAlign: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: '12px' }}>
-                                <i className="ri-alert-line" style={{ fontSize: '38px', color: '#f59e0b', opacity: 0.8 }}></i>
+                                <i className="ri-alert-line" style={{ fontSize: '38px', color: '#a78bfa', opacity: 0.8 }}></i>
                                 <h4 style={{ margin: '16px 0 8px 0', color: '#fff', fontSize: '18px', fontWeight: 600 }}>No Core Flags Available</h4>
                                 <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '14px', lineHeight: 1.5 }}>
                                     A Dependent Flag requires at least one prerequisite Core Flag to function.
@@ -242,7 +242,7 @@ const DependentFlagForm = ({ onClose, onSubmit, isSubmitting, coreFlags = [], ex
                                     />
                                     {formErrors.displayName
                                         ? <div className="field-error"><i className="ri-error-warning-line"></i>{formErrors.displayName}</div>
-                                        : formData.displayName.length > 40 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
+                                        : formData.displayName.length > 0 && <div className={`char-count ${formData.displayName.length >= 50 ? 'error' : 'warning'}`}>{formData.displayName.length}/50</div>
                                     }
                                 </div>
 
@@ -333,7 +333,7 @@ const DependentFlagForm = ({ onClose, onSubmit, isSubmitting, coreFlags = [], ex
 
                     {/* Footer */}
                     <div className="modal-footer">
-                        <button type="button" onClick={onClose} className="btn-ghost">Cancel</button>
+                        <button type="button" onClick={onClose} className="btn-ghost" disabled={isSubmitting}>Cancel</button>
                         <button type="submit" className="btn-primary" disabled={!valid || isSubmitting}>
                             {isSubmitting ? (
                                 <><i className="ri-loader-4-line spin" style={{ fontSize: '15px' }}></i> Creating...</>

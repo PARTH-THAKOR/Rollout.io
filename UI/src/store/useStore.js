@@ -1,15 +1,11 @@
 import { create } from 'zustand';
 
 // ─── UI Store ───────────────────────────────────────────────
-// Sidebar toggle, active project, and small global UI state.
+// Active project, and small global UI state.
 // These are low-frequency, cross-page values that don't belong
 // in React Query (they're not server data).
 
 export const useUIStore = create((set) => ({
-    // Sidebar
-    isSidebarCollapsed: false,
-    toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
-    setSidebarCollapsed: (value) => set({ isSidebarCollapsed: value }),
 
     // Active project context (used for cross-page navigation)
     activeProjectId: null,
@@ -31,14 +27,15 @@ export const useUIStore = create((set) => ({
 export const useAuthStore = create((set, get) => ({
     user: null,
     isAuthenticated: false,
+    isAuthLoading: true, // Initial check pending
 
     /**
-     * Store the Firebase user object after successful login/signup.
+     * Store the Firebase user object after successful login/signup or on init.
      * Extracts commonly needed fields for convenience.
      */
     setUser: (firebaseUser) => {
         if (!firebaseUser) {
-            set({ user: null, isAuthenticated: false });
+            set({ user: null, isAuthenticated: false, isAuthLoading: false });
             return;
         }
         set({
@@ -49,8 +46,11 @@ export const useAuthStore = create((set, get) => ({
                 photoURL: firebaseUser.photoURL,
             },
             isAuthenticated: true,
+            isAuthLoading: false,
         });
     },
+
+    setAuthLoading: (isLoading) => set({ isAuthLoading: isLoading }),
 
     /** Get the current user (useful outside React components). */
     getUser: () => get().user,

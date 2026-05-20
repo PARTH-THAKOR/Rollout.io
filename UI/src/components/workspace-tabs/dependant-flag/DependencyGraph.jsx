@@ -77,8 +77,8 @@ const GraphLoadingFallback = () => (
                         width: '180px',
                         height: '60px',
                         borderRadius: '12px',
-                        background: 'rgba(245,158,11,0.06)',
-                        border: '1px solid rgba(245,158,11,0.08)',
+                        background: 'rgba(167, 139, 250, 0.06)',
+                        border: '1px solid rgba(167, 139, 250, 0.08)',
                     }} />
                 ))}
             </div>
@@ -92,7 +92,7 @@ const GraphLoadingFallback = () => (
             alignItems: 'center',
             gap: '8px',
         }}>
-            <i className="ri-loader-4-line spin" style={{ fontSize: '16px', color: '#f59e0b', opacity: 0.6 }} />
+            <i className="ri-loader-4-line spin" style={{ fontSize: '16px', color: '#a78bfa', opacity: 0.6 }} />
             Loading dependency graph...
         </div>
     </div>

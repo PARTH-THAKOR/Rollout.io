@@ -39,9 +39,11 @@ const Welcome = () => {
                 </div>
 
                 <div className="nav-links">
-                    <a href="#">Overview</a>
-                    <a href="#">Documentation</a>
-                    <a href="#">Support</a>
+                    <a href="https://rollout.paraglide.in" target="_blank" rel="noopener noreferrer" className="nav-doc-link">
+                        <i className="ri-book-open-line"></i>
+                        <span>Documentation</span>
+                        <i className="ri-arrow-right-up-line" style={{ fontSize: '11px', opacity: 0.55 }}></i>
+                    </a>
                 </div>
             </nav>
 

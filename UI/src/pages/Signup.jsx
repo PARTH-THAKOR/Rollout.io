@@ -4,13 +4,14 @@ import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import { authApi } from '../api/apiClient';
 import { useAuthStore } from '../store/useStore';
+import { getFriendlyErrorMessage } from '../utils/errorFormatter';
 import '../styles/welcome.css';
 import '../styles/login.css';
 import 'remixicon/fonts/remixicon.css';
 
 const Signup = () => {
     const navigate = useNavigate();
-    const { setUser } = useAuthStore();
+    const { setUser, isAuthenticated } = useAuthStore();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,7 +21,24 @@ const Signup = () => {
     const handleSignup = async (e) => {
         e.preventDefault();
         if (isAuthenticating) return;
+
         setError('');
+
+        // Client-side validations
+        const trimmedName = name.trim();
+        if (!trimmedName || !email.trim() || !password.trim()) {
+            setError("Please fill out all required fields.");
+            return;
+        }
+        if (trimmedName.length < 3 || trimmedName.length > 30) {
+            setError("Full Name must be between 3 and 30 characters long.");
+            return;
+        }
+        if (password.length < 8) {
+            setError("Password must be at least 8 characters long.");
+            return;
+        }
+
         try {
             setIsAuthenticating(true);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -33,10 +51,11 @@ const Signup = () => {
                 }
             } catch (syncError) {
                 console.warn('Backend identity sync failed:', syncError);
+                throw new Error("SERVER_DOWN");
             }
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
         } catch (error) {
-            setError(error.message);
+            setError(getFriendlyErrorMessage(error));
             setIsAuthenticating(false);
         }
     };
@@ -52,13 +71,20 @@ const Signup = () => {
                 await authApi('/users/me');
             } catch (syncError) {
                 console.warn('Backend identity sync failed:', syncError);
+                throw new Error("SERVER_DOWN");
             }
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
         } catch (error) {
-            setError(error.message);
+            setError(getFriendlyErrorMessage(error));
             setIsAuthenticating(false);
         }
     };
+
+    useEffect(() => {
+        if (isAuthenticated && !isAuthenticating) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, isAuthenticating, navigate]);
 
     useEffect(() => {
         const cursor = document.getElementById('cursor-glow');
@@ -103,15 +129,20 @@ const Signup = () => {
             <section className="hero-section wrapper">
                 <div className="hero-content">
                     <div className="badge-outline" style={{ marginBottom: '30px' }}>Create Workspace</div>
-                    {error && <div style={{ color: '#ff4d4d', marginBottom: '15px', fontSize: '14px', textAlign: 'center' }}>{error}</div>}
+                    {error && (
+                        <div className="error-alert">
+                            <i className="ri-error-warning-fill"></i>
+                            <span>{error}</span>
+                        </div>
+                    )}
 
-                    <form className="login-form-inline" onSubmit={handleSignup}>
-                        <input type="text" className="login-input" placeholder="Full Name" required value={name} onChange={(e) => setName(e.target.value)} />
-                        <input type="email" className="login-input" placeholder="Work Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <input type="password" className="login-input" placeholder="Password (min. 8 characters)" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <form className="login-form-inline" onSubmit={handleSignup} noValidate>
+                        <input type="text" className="login-input" placeholder="Full Name" required minLength={3} maxLength={30} value={name} onChange={(e) => setName(e.target.value)} />
+                        <input type="email" className="login-input" placeholder="Work Email" required maxLength={100} value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <input type="password" className="login-input" placeholder="Password (min. 8 characters)" required maxLength={50} value={password} onChange={(e) => setPassword(e.target.value)} />
 
                         <div className="hero-actions" style={{ marginTop: '10px' }}>
-                            <button type="submit" className="btn btn-primary" disabled={isAuthenticating} style={{ width: '100%', textAlign: 'center', border: 'none', cursor: isAuthenticating ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 'inherit', opacity: isAuthenticating ? 0.7 : 1 }}>
+                            <button type="submit" className="hero-btn hero-btn-primary" disabled={isAuthenticating} style={{ width: '100%', cursor: isAuthenticating ? 'not-allowed' : 'pointer', opacity: isAuthenticating ? 0.7 : 1 }}>
                                 {isAuthenticating ? 'Creating Workspace...' : 'Create Free Workspace'}
                             </button>
                         </div>

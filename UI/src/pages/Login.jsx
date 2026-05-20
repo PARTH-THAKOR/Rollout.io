@@ -5,6 +5,7 @@ import { auth, googleProvider } from '../firebase';
 import { authApi } from '../api/apiClient';
 import { useAuthStore } from '../store/useStore';
 import { useQueryClient } from '@tanstack/react-query';
+import { getFriendlyErrorMessage } from '../utils/errorFormatter';
 import '../styles/welcome.css';
 import '../styles/login.css';
 import 'remixicon/fonts/remixicon.css';
@@ -12,7 +13,7 @@ import 'remixicon/fonts/remixicon.css';
 const Login = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { setUser } = useAuthStore();
+    const { setUser, isAuthenticated } = useAuthStore();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -22,16 +23,26 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         if (isAuthenticating) return;
+        
         setError('');
+        
+        // Client-side validations
+        if (!email.trim() || !password.trim()) {
+            setError("Please enter your email and password.");
+            return;
+        }
+        
         if (!rememberMe) {
             setError('Please check the Remember me box to continue');
             return;
         }
+        
         try {
             setIsAuthenticating(true);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             // Store user in Zustand for global access
             setUser(userCredential.user);
+            // Sync user identity to backend (must complete before navigating)
             try {
                 await authApi('/users/me');
             } catch (syncError) {
@@ -40,9 +51,9 @@ const Login = () => {
             // Flush ALL stale data from previous user sessions before navigating
             queryClient.removeQueries();
             queryClient.clear();
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
         } catch (error) {
-            setError(error.message);
+            setError(getFriendlyErrorMessage(error));
             setIsAuthenticating(false);
         }
     };
@@ -54,6 +65,7 @@ const Login = () => {
             const userCredential = await signInWithPopup(auth, googleProvider);
             // Store user in Zustand for global access
             setUser(userCredential.user);
+            // Sync user identity to backend (must complete before navigating)
             try {
                 await authApi('/users/me');
             } catch (syncError) {
@@ -62,12 +74,18 @@ const Login = () => {
             // Flush ALL stale data from previous user sessions before navigating
             queryClient.removeQueries();
             queryClient.clear();
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
         } catch (error) {
-            setError(error.message);
+            setError(getFriendlyErrorMessage(error));
             setIsAuthenticating(false);
         }
     };
+
+    useEffect(() => {
+        if (isAuthenticated && !isAuthenticating) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [isAuthenticated, isAuthenticating, navigate]);
 
     useEffect(() => {
         const cursor = document.getElementById('cursor-glow');
@@ -112,22 +130,27 @@ const Login = () => {
             <section className="hero-section wrapper">
                 <div className="hero-content">
                     <div className="badge-outline" style={{ marginBottom: '30px' }}>Workspace Access</div>
-                    {error && <div style={{ color: '#ff4d4d', marginBottom: '15px', fontSize: '14px', textAlign: 'center' }}>{error}</div>}
+                    {error && (
+                        <div className="error-alert">
+                            <i className="ri-error-warning-fill"></i>
+                            <span>{error}</span>
+                        </div>
+                    )}
 
-                    <form className="login-form-inline" onSubmit={handleLogin}>
-                        <input type="email" className="login-input" placeholder="Email Address" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <input type="password" className="login-input" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <form className="login-form-inline" onSubmit={handleLogin} noValidate>
+                        <input type="email" className="login-input" placeholder="Email Address" required maxLength={100} value={email} onChange={(e) => setEmail(e.target.value)} />
+                        <input type="password" className="login-input" placeholder="Password" required maxLength={50} value={password} onChange={(e) => setPassword(e.target.value)} />
 
                         <div className="login-options">
                             <label className="remember-checkbox">
                                 <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
                                 <span>Remember me</span>
                             </label>
-                            <a href="#" className="forgot-link">Forgot password?</a>
+                            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
                         </div>
 
                         <div className="hero-actions" style={{ marginTop: '5px' }}>
-                            <button type="submit" className="btn btn-primary" disabled={isAuthenticating} style={{ width: '100%', textAlign: 'center', border: 'none', cursor: isAuthenticating ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 'inherit', opacity: isAuthenticating ? 0.7 : 1 }}>
+                            <button type="submit" className="hero-btn hero-btn-primary" disabled={isAuthenticating} style={{ width: '100%', cursor: isAuthenticating ? 'not-allowed' : 'pointer', opacity: isAuthenticating ? 0.7 : 1 }}>
                                 {isAuthenticating ? 'Authenticating...' : 'Log In to Dashboard'}
                             </button>
                         </div>
