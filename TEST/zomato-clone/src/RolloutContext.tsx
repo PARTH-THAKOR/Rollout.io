@@ -21,7 +21,7 @@ export const RolloutProvider: React.FC<{ children: React.ReactNode }> = ({ child
         await sdk.init({
           sdkKey: 'sdk_e5df00b66efd4340a81013e0473e1a58',
           userId: 'user-guest-1',
-          baseUrl: 'http://localhost', // Hits ApiGateway on port 80
+          baseUrl: window.location.origin + '/gateway', // Routes through Nginx proxy to Gateway
           refreshInterval: 0 // As per latest request
         });
         

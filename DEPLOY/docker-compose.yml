@@ -2,6 +2,44 @@ name: 'rollout-v5-stable'
 
 services:
   # ==========================================
+  # Edge Proxy (NGINX)
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    command: [ "/bin/sh", "-c", "sleep 160 && nginx -g 'daemon off;'" ]
+    depends_on:
+      - launch
+      - ui
+      - test
+      - api-gateway
+      - registry-server
+      - grafana
+
+  # ==========================================
+  # Frontend Services
+  # ==========================================
+  launch:
+    image: rolloutio/launch-web:5.0.1
+    container_name: launch-web
+    restart: always
+
+  ui:
+    image: rolloutio/dashboard-app:5.0.1
+    container_name: dashboard-app
+    restart: always
+
+  test:
+    image: rolloutio/test-app:5.0.1
+    container_name: test-app
+    restart: always
+
+  # ==========================================
   # Infrastructure Services
   # ==========================================
   rabbitmq:
@@ -11,8 +49,10 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,8 +61,10 @@ services:
     image: redis:latest
     container_name: redis
     restart: always
+    volumes:
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,6 +78,7 @@ services:
     restart: always
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
 
@@ -43,11 +86,14 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     restart: always
-    ports:
-      - "5001:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_DOMAIN=localhost
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+      - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
 
@@ -59,8 +105,6 @@ services:
     container_name: registry-server
     restart: always
     entrypoint: [ "sh", "-c", "sleep 30 && java -jar app.jar" ]
-    ports:
-      - "5000:4999"
     depends_on:
       - prometheus
     environment:
@@ -85,8 +129,6 @@ services:
     container_name: api-gateway
     restart: always
     entrypoint: [ "sh", "-c", "sleep 150 && java -jar app.jar" ]
-    ports:
-      - "80:5000"
     depends_on:
       - config-server
       - registry-server
@@ -144,3 +186,9 @@ services:
 networks:
   default:
     name: rollout-v5-stable-network
+
+volumes:
+  rabbitmq_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:

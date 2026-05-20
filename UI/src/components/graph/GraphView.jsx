@@ -179,15 +179,15 @@ const GraphViewInner = ({ depFlags, coreFlagsMap }) => {
                     width: '72px',
                     height: '72px',
                     borderRadius: '20px',
-                    background: 'rgba(245,158,11,0.05)',
-                    border: '1px solid rgba(245,158,11,0.1)',
+                    background: 'rgba(167, 139, 250, 0.05)',
+                    border: '1px solid rgba(167, 139, 250, 0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
                     <i className="ri-mind-map" style={{
                         fontSize: '32px',
-                        color: 'rgba(245,158,11,0.3)',
+                        color: 'rgba(167, 139, 250, 0.3)',
                     }} />
                 </div>
                 <div style={{

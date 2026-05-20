@@ -1,9 +1,0 @@
-/* 
-   project-workspace.css is explicitly DEPRECATED.
-   All workspace styles have been modularized into:
-   - shared.css (for generic enterprise components like buttons and forms)
-   - workspace-tabs.css (for layout-specific tabs like core-flag, json-flag)
-   - header-components.css (for isolated menus)
-   
-   Please do not add styles here.
-*/

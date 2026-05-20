@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/app/',
     plugins: [react()],
     build: {
         // ─── Code splitting ──────────────────────────────────
@@ -47,7 +48,6 @@ export default defineConfig({
             '@tanstack/react-query',
             'zustand',
             'js-cookie',
-            'remixicon/fonts/remixicon.css',
         ],
     },
 })

@@ -1,5 +1,9 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './firebase';
+import { useAuthStore } from './store/useStore';
+import { PublicRoute, ProtectedRoute, AuthRoute } from './components/common/RouteGuards';
 
 // ─── Route-level lazy loading ────────────────────────────────
 // Each page is loaded on-demand as a separate chunk.
@@ -7,10 +11,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 const Welcome = lazy(() => import('./pages/Welcome.jsx'));
 const Login = lazy(() => import('./pages/Login.jsx'));
 const Signup = lazy(() => import('./pages/Signup.jsx'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const ProjectWorkspace = lazy(() => import('./pages/ProjectWorkspace.jsx'));
-const Documentation = lazy(() => import('./pages/Documentation.jsx'));
-const OpenSource = lazy(() => import('./pages/OpenSource.jsx'));
 const Settings = lazy(() => import('./pages/Settings.jsx'));
 
 // ─── Minimal full-screen loading fallback ────────────────────
@@ -37,19 +40,40 @@ const PageLoader = () => (
 );
 
 function App() {
+    const { setUser, isAuthLoading } = useAuthStore();
+
+    useEffect(() => {
+        // Listen for Firebase auth state changes globally
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            setUser(firebaseUser); // This also sets isAuthLoading to false
+        });
+
+        return () => unsubscribe();
+    }, [setUser]);
+
+    // Show full-screen loader while checking initial auth state
+    if (isAuthLoading) {
+        return <PageLoader />;
+    }
+
     return (
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <BrowserRouter basename={import.meta.env.BASE_URL} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Suspense fallback={<PageLoader />}>
                 <Routes>
-                    <Route path="/" element={<Welcome />} />
-                    <Route path="/welcome" element={<Welcome />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/workspace" element={<ProjectWorkspace />} />
-                    <Route path="/docs" element={<Documentation />} />
-                    <Route path="/opensource" element={<OpenSource />} />
-                    <Route path="/settings" element={<Settings />} />
+                    {/* Public Routes (Accessible only if NOT logged in) */}
+                    <Route path="/" element={<PublicRoute><Welcome /></PublicRoute>} />
+                    <Route path="/welcome" element={<PublicRoute><Welcome /></PublicRoute>} />
+                    <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+                    <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
+                    <Route path="/forgot-password" element={<AuthRoute><ForgotPassword /></AuthRoute>} />
+
+                    {/* Protected Routes (Accessible only if logged in) */}
+                    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/workspace" element={<ProtectedRoute><ProjectWorkspace /></ProtectedRoute>} />
+                    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    
+                    {/* Catch-all route */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </Suspense>
         </BrowserRouter>

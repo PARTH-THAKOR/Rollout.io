@@ -1,0 +1,273 @@
+/* ══════════════════════════════════════════════════════════════
+   Workspace Settings Tab Specific Styles
+   ══════════════════════════════════════════════════════════════ */
+
+.settings-tab-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 20px 24px;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.settings-glass-card {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    height: calc(100vh - 180px);
+    position: relative;
+    overflow: hidden;
+}
+
+.settings-header {
+    padding: 24px 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.settings-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+.settings-header p {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.settings-content {
+    padding: 32px 40px 100px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Custom Scrollbar for Settings Content */
+.settings-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.settings-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.settings-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+}
+
+.settings-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-section-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 32px;
+}
+
+.settings-section-title {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.sdk-key-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.sdk-key-input-container {
+    flex: 1;
+    position: relative;
+}
+
+.sdk-key-input-container input {
+    width: 100%;
+    opacity: 0.8;
+    font-family: monospace;
+    padding-right: 40px;
+}
+
+.sdk-key-toggle-visibility {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 18px;
+    transition: color 0.2s;
+}
+
+.sdk-key-toggle-visibility:hover {
+    color: #fff;
+}
+
+.sdk-copy-btn {
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sdk-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.sdk-copy-btn:active {
+    transform: translateY(0);
+}
+
+.sdk-rotate-btn {
+    padding: 12px 20px;
+    background: rgba(239, 68, 68, 0.08);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sdk-rotate-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.16);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    transform: translateY(-1px);
+}
+
+.sdk-rotate-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.sdk-rotate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.danger-zone-container {
+    background: linear-gradient(to bottom, rgba(239, 68, 68, 0.03), rgba(239, 68, 68, 0.005));
+    border-radius: 14px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.danger-zone-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.danger-zone-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.danger-zone-info h5 {
+    margin: 0 0 6px 0;
+    color: #f87171;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.danger-zone-info p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.5;
+}
+
+.danger-zone-divider {
+    height: 1px;
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.danger-zone-btn-outline {
+    background: transparent;
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.danger-zone-btn-outline:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+}
+
+.danger-zone-btn-solid {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    transition: all 0.2s;
+}
+
+.danger-zone-btn-solid:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+}
+
+.settings-sticky-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(7, 3, 14, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 16px 40px;
+    display: flex;
+    justify-content: flex-end;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    z-index: 10;
+}

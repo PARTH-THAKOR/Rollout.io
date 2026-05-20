@@ -100,7 +100,10 @@
 }
 
 .header-dropdown-menu.profile-menu {
-    min-width: 240px;
+    width: 280px;
+    max-width: 320px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 @keyframes dropdownMenuPop {
@@ -184,6 +187,9 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .header-dropdown-profile-name {
@@ -210,4 +216,29 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
+}
+
+/* Responsive adjustments for Headers & Dropdowns */
+@media (max-width: 768px) {
+    .header-dropdown-toggle {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .profile-avatar-toggle {
+        width: 32px;
+        height: 32px;
+    }
+
+    .header-dropdown-menu {
+        max-width: calc(100vw - 20px);
+    }
+
+    .header-dropdown-menu.profile-menu {
+        right: -10px;
+    }
+
+    .header-dropdown-item {
+        min-height: 44px; /* Better touch target */
+    }
 }

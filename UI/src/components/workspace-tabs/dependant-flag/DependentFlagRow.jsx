@@ -53,7 +53,7 @@ const DependencyChips = ({ dep, coreFlagsMap }) => {
                             {child.text || '...'}
                         </span>
                         {i < parsed.children.length - 1 && (
-                            <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 700, fontFamily: '"Fira Code", monospace' }}>{symbol}</span>
+                            <span style={{ fontSize: '12px', color: '#a78bfa', fontWeight: 700, fontFamily: '"Fira Code", monospace' }}>{symbol}</span>
                         )}
                     </React.Fragment>
                 ))}
@@ -89,11 +89,11 @@ const DependentFlagRow = memo(({ flag, coreFlagsMap, onToggle, onMenuOpen }) => 
                         <div style={{
                             width: '36px', height: '36px', borderRadius: '10px', display: 'flex',
                             alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                            background: 'linear-gradient(135deg, rgba(234,179,8,0.12) 0%, rgba(245,158,11,0.12) 100%)',
+                            background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(147, 51, 234, 0.12) 100%)',
                         }}>
-                            <i className="ri-git-branch-line" style={{ fontSize: '16px', color: '#f59e0b' }}></i>
+                            <i className="ri-git-branch-line" style={{ fontSize: '16px', color: '#a78bfa' }}></i>
                         </div>
-                        <div style={{ minWidth: 0 }}>
+                        <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
                             <div style={{ fontSize: '14px', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {flag.displayName || flag.key}
                             </div>

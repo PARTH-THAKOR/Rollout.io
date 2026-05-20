@@ -3,7 +3,7 @@
    Used across Core, JSON, Dependent, Audit, and Settings Tabs
    ══════════════════════════════════════════════════════════════ */
 
-/* ─── Toolbar (Flags, Audit, etc) ──────────────────────────── */
+/* ─── Toolbar (Flags, Audit, etc) ──────────────────────────── */ 
 .tab-toolbar {
     display: flex;
     justify-content: space-between;
@@ -82,20 +82,22 @@
 
 /* ─── Shared Context Menu (Flags) ──────────────────────────── */
 .flag-context-menu {
-    background: rgba(18, 9, 36, 0.98);
+    background: rgba(15, 10, 25, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 14px;
     width: 260px;
     padding: 16px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    animation: slideUpMenu 0.15s ease-out, fadeInMenu 0.15s ease-out;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 100px rgba(139, 92, 246, 0.05);
+    animation: slideUpMenu 0.15s cubic-bezier(0.16, 1, 0.3, 1), fadeInMenu 0.15s ease-out;
 }
 
 .flag-context-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 
 .flag-context-title {
@@ -105,12 +107,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: -0.2px;
 }
 
 .flag-context-meta {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.5);
-    margin-top: 4px;
+    margin-top: 6px;
     display: flex;
     gap: 6px;
     align-items: center;
@@ -118,40 +121,56 @@
 
 .flag-context-key {
     font-size: 10px;
-    padding: 1px 5px;
-    color: #a78bfa;
+    font-weight: 500;
+    padding: 2px 8px;
+    color: #c084fc;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex-shrink: 1;
     font-family: 'Fira Code', monospace;
-    background: rgba(147, 51, 234, 0.15);
-    border-radius: 4px;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 6px;
+}
+
+.flag-context-type {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
 .flag-context-close {
     background: rgba(255, 255, 255, 0.05);
     border: none;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 }
 
 .flag-context-close:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transform: rotate(90deg);
 }
 
 .flag-context-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .flag-context-item {
@@ -160,9 +179,10 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
+    font-size: 13px;
     display: flex;
     align-items: center;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .flag-context-item i {
@@ -171,33 +191,50 @@
 }
 
 .flag-context-item.primary {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(147, 51, 234, 0.9) 100%);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    background: rgba(56, 189, 248, 0.06);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.05);
 }
 
 .flag-context-item.primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(147, 51, 234, 0.5);
+    transform: scale(1.02);
+    background: rgba(56, 189, 248, 0.14);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #e0f2fe;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+.flag-context-item.primary:active {
+    transform: scale(0.98);
 }
 
 .flag-context-item.danger {
-    background: rgba(239, 68, 68, 0.08);
+    background: rgba(239, 68, 68, 0.06);
     color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.18);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.05);
 }
 
 .flag-context-item.danger:hover {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fef2f2;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+    transform: scale(1.02);
+}
+
+.flag-context-item.danger:active {
+    transform: scale(0.98);
 }
 
 /* ─── Table Empty States & Not Found ───────────────────────── */
 .table-empty-row td {
-    padding: 50px 24px;
+    padding: 80px 24px;
     text-align: center;
     color: var(--text-secondary);
+    height: 400px;
+    vertical-align: middle;
 }
 
 .table-empty-icon {
@@ -231,23 +268,27 @@
 
 /* Animations */
 @keyframes slideUpMenu {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeInMenu {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
-/* ─── Component Skeletons ──────────────────────────────────── */
-.skeleton-pulse {
-    animation: skeletonPulseAnim 1.5s infinite;
-}
-
-@keyframes skeletonPulseAnim {
-    50% { opacity: 0.5; }
-}
 
 /* ─── View Toggle (List / Graph) ───────────────────────────── */
 .view-toggle {
@@ -281,12 +322,12 @@
 }
 
 .view-toggle-btn.active {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
+    background: rgba(147, 51, 234, 0.15);
+    color: #a78bfa;
     font-weight: 600;
 }
 
-.view-toggle-btn + .view-toggle-btn {
+.view-toggle-btn+.view-toggle-btn {
     border-left: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -316,7 +357,7 @@
 .dep-operator {
     font-size: 11px;
     font-weight: 700;
-    color: #f59e0b;
+    color: #a78bfa;
     padding: 2px 6px;
     font-family: "Fira Code", monospace;
 }
@@ -421,3 +462,105 @@
     border-radius: 50%;
 }
 
+/* ─── Desktop Only Restricted View Overlay ─── */
+.desktop-only-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, #0f0a1d 0%, #07030e 100%) !important;
+    z-index: 999999 !important;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.desktop-overlay-card {
+    text-align: center;
+    max-width: 400px;
+    padding: 45px 35px;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.desktop-overlay-icon {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 20px;
+    color: #38bdf8;
+    font-size: 40px;
+}
+
+.desktop-glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #38bdf8, #9333ea);
+    z-index: -1;
+    opacity: 0.3;
+    filter: blur(8px);
+    animation: pulseDot 2s infinite;
+}
+
+.desktop-overlay-card h4 {
+    margin: 0 0 12px 0;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+.desktop-overlay-card p {
+    margin: 0 0 32px 0;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 14.5px;
+    line-height: 1.6;
+}
+
+.desktop-overlay-card .btn-gradient {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    text-decoration: none;
+    background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 10px 20px rgba(168, 85, 247, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.desktop-overlay-card .btn-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(168, 85, 247, 0.35);
+}
+
+@media (max-width: 1023px) {
+    .desktop-only-overlay {
+        display: flex !important;
+    }
+    
+    /* Hide the workspace layout on mobile/tablet viewports */
+    .workspace-layout .main-wrapper {
+        display: none !important;
+    }
+}

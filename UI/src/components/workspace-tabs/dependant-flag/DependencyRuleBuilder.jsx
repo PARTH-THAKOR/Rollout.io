@@ -138,6 +138,7 @@ const ConditionRow = memo(({ node, index, coreFlags, onUpdate, onRemove, canRemo
                     <input type="text" value={expectedValue || ''}
                         onChange={(e) => handleValueChange(e.target.value)}
                         placeholder="Expected string..."
+                        maxLength={200}
                         style={inputStyle} />
                 );
             case 'INTEGER':
@@ -482,7 +483,7 @@ const DependencyRuleBuilder = memo(({ coreFlags = [], ruleNode, onRuleNodeChange
     return (
         <div style={{ marginBottom: '16px' }}>
             <div className="section-heading">
-                <span className="section-label" style={{ color: '#f59e0b' }}>
+                <span className="section-label" style={{ color: '#a78bfa' }}>
                     <i className="ri-git-branch-line" style={{ marginRight: '6px' }}></i>
                     Dependency Rules <span className="form-required">*</span>
                 </span>
@@ -506,7 +507,7 @@ const DependencyRuleBuilder = memo(({ coreFlags = [], ruleNode, onRuleNodeChange
 
             {/* Validation hint */}
             {!valid && tree.children && tree.children.length > 0 && (
-                <div style={{ fontSize: '11px', color: '#f59e0b', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#a78bfa', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <i className="ri-error-warning-line" style={{ fontSize: '14px' }}></i>
                     All conditions must have a selected flag and expected value.
                 </div>

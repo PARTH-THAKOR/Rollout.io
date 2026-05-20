@@ -15,6 +15,18 @@ const GLOWS = ['blue-glow', 'purple-glow', 'red-glow', 'green-glow', 'yellow-glo
 export const unwrapResponse = async (response) => {
     if (!response.ok) {
         let text = await response.text().catch(() => '');
+        // Check if the response is JSON
+        try {
+            const parsed = JSON.parse(text);
+            if (parsed && typeof parsed === 'object') {
+                throw new Error(parsed.message || parsed.error || `API error ${response.status}`);
+            }
+        } catch (e) {
+            // It's not valid JSON, or we re-throw the Error created inside the try block
+            if (e.message && !e.message.startsWith('Unexpected token') && !e.message.startsWith('JSON.parse')) {
+                throw e;
+            }
+        }
         // If the response is HTML (e.g., Vite proxy 503), do not dump raw HTML
         if (text.trim().startsWith('<')) {
             text = `Service returned an unexpected HTML response.`;
@@ -40,7 +52,7 @@ const mapProject = (project, index) => ({
         : '',
     icon: ICONS[index % ICONS.length],
     glow: GLOWS[index % GLOWS.length],
-    link: `/workspace?id=${project.id || String(index + 1)}&name=${encodeURIComponent(project.name || '')}`,
+    link: `/workspace?name=${encodeURIComponent(project.name || '')}`,
 });
 
 /**
@@ -119,6 +131,9 @@ export const useProjects = () => {
             const rawList = Array.isArray(data) ? data : (data.content || [data]);
             return rawList.map(mapProject);
         },
+        staleTime: 0,
+        gcTime: 0, // Ensure no stale cache is shown on reload/re-mount
+        refetchOnMount: 'always',
     });
 };
 
@@ -133,6 +148,23 @@ export const useProjectById = (id) => {
             return await unwrapResponse(await controlPlaneApi(ENDPOINTS.PROJECT_BY_ID(id)));
         },
         enabled: !!id,
+    });
+};
+
+/**
+ * Fetch a single project by Name. Returns raw backend data.
+ * Only fires when `name` is truthy.
+ */
+export const useProjectByName = (name) => {
+    return useQuery({
+        queryKey: ['projects', 'by-name', name],
+        queryFn: async () => {
+            const data = await unwrapResponse(
+                await controlPlaneApi(`${ENDPOINTS.PROJECT_BY_NAME}?name=${encodeURIComponent(name)}`)
+            );
+            return Array.isArray(data) ? data[0] : data;
+        },
+        enabled: !!name,
     });
 };
 
