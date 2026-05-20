@@ -14,13 +14,9 @@
     <img src="https://img.shields.io/badge/MongoDB-Latest-green?logo=mongodb&logoColor=white" alt="MongoDB">
     <img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache%202.0-blue.svg" alt="License">
   </p>
-
-  <hr />
-
-  <span style="font-size: 1.5rem; font-weight: bold; display: block; margin: 10px 0;">PROJECT IS LIVE : <a href="https://rollout.paraglide.in" target="_blank"><i>rollout.paraglide.in</i></a></span>
+  
+  <h1 style="font-size: 3.5rem; font-weight: 800; margin: 15px 0 5px 0;">PROJECT IS LIVE : <a href="https://rollout.paraglide.in" target="_blank"><i>rollout.paraglide.in</i></a></h1>
 </div>
-
-<hr />
 
 ## Overview
 
