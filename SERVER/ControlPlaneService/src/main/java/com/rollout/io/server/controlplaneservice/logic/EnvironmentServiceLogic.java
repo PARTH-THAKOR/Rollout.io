@@ -1,11 +1,15 @@
 package com.rollout.io.server.controlplaneservice.logic;
 
+import com.rollout.io.server.controlplaneservice.configuration.RabbitMQConfig;
 import com.rollout.io.server.controlplaneservice.entity.Environment;
+import com.rollout.io.server.controlplaneservice.events.EnvironmentDeletedEvent;
 import com.rollout.io.server.controlplaneservice.exceptions.RolloutError;
 import com.rollout.io.server.controlplaneservice.repository.EnvironmentRepository;
 import com.rollout.io.server.controlplaneservice.repository.ProjectRepository;
 import com.rollout.io.server.controlplaneservice.service.EnvironmentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -22,10 +26,12 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EnvironmentServiceLogic implements EnvironmentService {
 
     private final EnvironmentRepository environmentRepository;
     private final ProjectRepository projectRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     /**
      * Provisions a unique operational environment belonging rigidly to a mapped Project scope.
@@ -97,6 +103,8 @@ public class EnvironmentServiceLogic implements EnvironmentService {
 
     /**
      * Initiates total elimination of a mapped Environment object from underlying Mongo boundaries.
+     * Publishes an {@link EnvironmentDeletedEvent} to RabbitMQ so that the cascade consumer
+     * can clean up all Flags and AuditLogs belonging to this environment.
      *
      * @param jwt the verified authorization JWT of the caller
      * @param environmentId the mapped String UUID of the Environment sequence
@@ -106,6 +114,13 @@ public class EnvironmentServiceLogic implements EnvironmentService {
     public void deleteEnvironment(Jwt jwt, String environmentId) {
         Environment environment = getEnvironmentById(jwt, environmentId);
         environmentRepository.delete(environment);
+
+        EnvironmentDeletedEvent event = EnvironmentDeletedEvent.builder()
+                .environmentId(environmentId)
+                .timestamp(Instant.now())
+                .build();
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ENVIRONMENT_DELETED_ROUTING_KEY, event);
+        log.info("Published environment.deleted event for environmentId: {}", environmentId);
     }
 
     /**

@@ -20,4 +20,11 @@ public interface AuditLogRepository extends MongoRepository<AuditLog, String> {
      */
     List<AuditLog> findAllByEnvironmentIdOrderByTimestampDesc(String environmentId);
 
+    /**
+     * Bulk-removes all audit log entries scoped under a specific environment during cascading deletion.
+     *
+     * @param environmentId the target environment identifier whose audit logs must be purged
+     */
+    void deleteAllByEnvironmentId(String environmentId);
+
 }

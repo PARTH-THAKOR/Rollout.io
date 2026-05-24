@@ -38,4 +38,11 @@ public interface EnvironmentRepository extends MongoRepository<Environment, Stri
      */
     Optional<Environment> findBySdkKey(String sdkKey);
 
+    /**
+     * Bulk-removes all environments scoped under a specific project during cascading deletion.
+     *
+     * @param projectId the target project identifier whose environments must be purged
+     */
+    void deleteAllByProjectId(String projectId);
+
 }

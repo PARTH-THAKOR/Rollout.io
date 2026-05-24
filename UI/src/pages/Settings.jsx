@@ -8,11 +8,13 @@ import '../styles/pages/settings.css';
 import { authApi } from '../api/apiClient';
 import { auth } from '../firebase';
 import { authKeys } from '../api/queries';
+import { useAuthStore } from '../store/useStore';
 
 const Settings = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const queryClient = useQueryClient();
+    const logout = useAuthStore(state => state.logout);
 
     // Check if we navigated here from a workspace
     const fromWorkspace = location.state?.fromWorkspace;
@@ -28,7 +30,7 @@ const Settings = () => {
     const [toast, setToast] = useState(null);
     const [isUserLoading, setIsUserLoading] = useState(true);
 
-    // Modal: Delete Account States
+    // Modal: Delete All Data States
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
@@ -124,8 +126,31 @@ const Settings = () => {
             const response = await authApi('/users/me', {
                 method: 'DELETE'
             });
-            if (response.ok) {
-                navigate('/');
+            if (response.ok || response.status === 404) {
+                // Permanently delete user from Firebase Authentication
+                const currentUser = auth.currentUser;
+                if (currentUser) {
+                    try {
+                        const { deleteUser } = await import('firebase/auth');
+                        await deleteUser(currentUser);
+                        console.log("Firebase Authentication user deleted successfully");
+                    } catch (e) {
+                        console.warn("Could not delete user from Firebase (requires recent login):", e);
+                    }
+                }
+
+                // Sign out from Firebase Auth (as cleanup/fallback)
+                try { await auth.signOut(); } catch (e) { console.error("Firebase signout failed", e); }
+                
+                // Clear local Zustand auth store
+                logout();
+                
+                // Purge React Query cache to prevent rendering deleted resources
+                queryClient.removeQueries();
+                queryClient.clear();
+                
+                // Safely redirect to the public Welcome page
+                navigate('/welcome', { replace: true });
             } else {
                 showToast("Failed to delete account. Please try again.", "error");
             }
@@ -136,6 +161,7 @@ const Settings = () => {
             setIsDeleting(false);
         }
     };
+
 
     return (
         <>
@@ -280,12 +306,12 @@ const Settings = () => {
                                     <div className="user-settings-danger-zone">
                                         <div className="user-settings-danger-row">
                                             <div className="user-settings-danger-info">
-                                                <h5>Delete Account</h5>
+                                                <h5>Delete All Data</h5>
                                                 <p>
                                                     Permanently remove your account, associated organizations, configurations, and all of its contents. This action is irreversible.
                                                 </p>
                                             </div>
-                                            <button className="user-settings-danger-btn-solid" onClick={() => setIsDeleteModalOpen(true)}>Delete Account</button>
+                                            <button className="user-settings-danger-btn-solid" onClick={() => setIsDeleteModalOpen(true)}>Delete All Data</button>
                                         </div>
                                     </div>
                                 </div>
@@ -311,7 +337,7 @@ const Settings = () => {
                 </div>
             </div>
 
-            {/* Modal: Delete Account */}
+            {/* Modal: Delete All Data */}
             {isDeleteModalOpen && (
                 <div className="modal-overlay" onClick={() => !isDeleting && setIsDeleteModalOpen(false)}>
                     <div className="modal-content glass-card user-settings-modal" onClick={(e) => e.stopPropagation()}>
@@ -320,7 +346,7 @@ const Settings = () => {
                                 <i className="ri-alert-fill" style={{ fontSize: '24px', color: '#ef4444' }}></i>
                             </div>
                             <div>
-                                <h3 className="user-settings-modal-title">Delete Account</h3>
+                                <h3 className="user-settings-modal-title">Delete All Data</h3>
                             </div>
                         </div>
                         <div className="user-settings-modal-body">
@@ -347,7 +373,7 @@ const Settings = () => {
                                 disabled={deleteConfirmInput !== 'DELETE' || isDeleting} 
                                 className="user-settings-delete-btn"
                             >
-                                {isDeleting ? 'Deleting...' : 'Delete Account'}
+                                {isDeleting ? 'Deleting...' : 'Delete All Data'}
                             </button>
                         </div>
                     </div>

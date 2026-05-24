@@ -47,4 +47,11 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
      */
     List<Project> findByCreatedByUidAndNameContainingIgnoreCase(String createdByUid, String name);
 
+    /**
+     * Bulk-removes all projects owned by a specific user during cascading account deletion.
+     *
+     * @param createdByUid the Firebase UID of the departing user whose projects must be purged
+     */
+    void deleteAllByCreatedByUid(String createdByUid);
+
 }
