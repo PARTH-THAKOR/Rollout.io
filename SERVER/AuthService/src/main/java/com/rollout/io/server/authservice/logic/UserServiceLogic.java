@@ -1,10 +1,14 @@
 package com.rollout.io.server.authservice.logic;
 
 import com.rollout.io.server.authservice.entity.User;
+import com.rollout.io.server.authservice.events.UserDeletedEvent;
 import com.rollout.io.server.authservice.exceptions.RolloutError;
 import com.rollout.io.server.authservice.repository.UserRepository;
 import com.rollout.io.server.authservice.service.UserService;
+import com.rollout.io.server.authservice.configuration.RabbitMQConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -18,9 +22,11 @@ import java.time.Instant;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceLogic implements UserService {
 
     private final UserRepository userRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     /**
      * Synchronizes a Firebase user identity into the local MongoDB store.
@@ -107,6 +113,8 @@ public class UserServiceLogic implements UserService {
 
     /**
      * Permanently deletes the authenticated user's record from the database.
+     * Publishes a {@link UserDeletedEvent} to RabbitMQ so that ControlPlaneService
+     * can cascade-delete all Projects, Environments, Flags, and AuditLogs owned by this user.
      *
      * @param jwt the incoming Firebase ID token
      */
@@ -114,6 +122,13 @@ public class UserServiceLogic implements UserService {
     public void deleteUser(Jwt jwt) {
         User user = getUserByJwt(jwt);
         userRepository.delete(user);
+
+        UserDeletedEvent event = UserDeletedEvent.builder()
+                .uid(user.getFirebaseUid())
+                .timestamp(java.time.Instant.now())
+                .build();
+        rabbitTemplate.convertAndSend(RabbitMQConfig.USER_DELETED_ROUTING_KEY, event);
+        log.info("Published user.deleted event for UID: {}", user.getFirebaseUid());
     }
 
 

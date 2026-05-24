@@ -150,10 +150,12 @@ services:
     depends_on:
       - config-server
       - registry-server
+      - rabbitmq
     environment:
       - CONFIG_SERVER_URI=http://config:pass@config-server:4998
       - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
       - EUREKA_HOSTNAME=auth-service
+      - RABBITMQ_HOST=rabbitmq
 
   controlplane-service:
     image: rolloutio/controlplane-service:5.0.1
@@ -163,10 +165,12 @@ services:
     depends_on:
       - config-server
       - registry-server
+      - rabbitmq
     environment:
       - CONFIG_SERVER_URI=http://config:pass@config-server:4998
       - EUREKA_URI=http://admin:admin123@registry-server:4999/eureka/
       - EUREKA_HOSTNAME=controlplane-service
+      - RABBITMQ_HOST=rabbitmq
 
   sdk-service:
     image: rolloutio/sdk-service:5.0.1

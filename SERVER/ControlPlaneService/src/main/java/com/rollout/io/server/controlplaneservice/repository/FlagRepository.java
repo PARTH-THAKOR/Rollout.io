@@ -70,4 +70,11 @@ public interface FlagRepository extends MongoRepository<Flag, String> {
      */
     Optional<Flag> findByEnvironmentIdAndDisplayName(String environmentId, String displayName);
 
+    /**
+     * Bulk-removes all flags scoped under a specific environment during cascading deletion.
+     *
+     * @param environmentId the target environment identifier whose flags must be purged
+     */
+    void deleteAllByEnvironmentId(String environmentId);
+
 }

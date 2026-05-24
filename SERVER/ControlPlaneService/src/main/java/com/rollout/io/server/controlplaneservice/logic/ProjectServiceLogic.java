@@ -1,11 +1,15 @@
 package com.rollout.io.server.controlplaneservice.logic;
 
+import com.rollout.io.server.controlplaneservice.configuration.RabbitMQConfig;
 import com.rollout.io.server.controlplaneservice.entity.Project;
+import com.rollout.io.server.controlplaneservice.events.ProjectDeletedEvent;
 import com.rollout.io.server.controlplaneservice.exceptions.RolloutError;
 import com.rollout.io.server.controlplaneservice.helpers.JwtHelper;
 import com.rollout.io.server.controlplaneservice.repository.ProjectRepository;
 import com.rollout.io.server.controlplaneservice.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -19,9 +23,11 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProjectServiceLogic implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     /**
      * Bootstraps a new workspace project initialized by the authorized user.
@@ -123,6 +129,8 @@ public class ProjectServiceLogic implements ProjectService {
 
     /**
      * Triggers a hard destructive deletion of an active workspace project entity.
+     * Publishes a {@link ProjectDeletedEvent} to RabbitMQ so that the cascade consumer
+     * can clean up all Environments, Flags, and AuditLogs belonging to this project.
      *
      * @param jwt the verified authorization JWT of the caller
      * @param projectId the specific boundary identifier of the project to erase
@@ -135,6 +143,13 @@ public class ProjectServiceLogic implements ProjectService {
                 .orElseThrow(() -> new RolloutError("Project not found", HttpStatus.NOT_FOUND));
 
         projectRepository.delete(project);
+
+        ProjectDeletedEvent event = ProjectDeletedEvent.builder()
+                .projectId(projectId)
+                .timestamp(Instant.now())
+                .build();
+        rabbitTemplate.convertAndSend(RabbitMQConfig.PROJECT_DELETED_ROUTING_KEY, event);
+        log.info("Published project.deleted event for projectId: {}", projectId);
     }
 
     /**
