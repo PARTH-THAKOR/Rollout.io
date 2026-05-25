@@ -141,18 +141,14 @@ const FlagDetailPanel = memo(({ flagId, flag, category }) => {
 
                         {/* Rollout */}
                         <DetailField icon="ri-pie-chart-line" label="Rollout">
-                            {rollout != null ? (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ fontWeight: 600, color: rollout === 100 ? 'rgba(255,255,255,0.5)' : '#38bdf8', fontSize: '14px' }}>
-                                        {rollout}%
-                                    </span>
-                                    <div style={{ flex: 1, maxWidth: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                                        <div style={{ width: `${rollout}%`, height: '100%', borderRadius: '2px', background: 'linear-gradient(90deg, #38bdf8, #9333ea)', transition: 'width 0.3s' }}></div>
-                                    </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontWeight: 600, color: (rollout ?? 100) === 100 ? 'rgba(255,255,255,0.5)' : '#38bdf8', fontSize: '14px' }}>
+                                    {rollout ?? 100}%
+                                </span>
+                                <div style={{ flex: 1, maxWidth: '80px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                                    <div style={{ width: `${rollout ?? 100}%`, height: '100%', borderRadius: '2px', background: 'linear-gradient(90deg, #38bdf8, #9333ea)', transition: 'width 0.3s' }}></div>
                                 </div>
-                            ) : (
-                                <span style={{ color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}></span>
-                            )}
+                            </div>
                         </DetailField>
 
                         {/* Created At */}

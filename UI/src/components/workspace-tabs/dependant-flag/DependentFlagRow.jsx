@@ -141,14 +141,12 @@ const DependentFlagRow = memo(({ flag, coreFlagsMap, onToggle, onMenuOpen }) => 
 
                 {/* Rollout */}
                 <td style={{ padding: '16px 24px' }}>
-                    {flag.rolloutPercentage != null ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{flag.rolloutPercentage}%</span>
-                            <div className="rollout-bar" style={{ width: '50px' }}>
-                                <div className="rollout-bar-fill" style={{ width: `${flag.rolloutPercentage}%` }}></div>
-                            </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '13px', color: '#fff', fontWeight: 600 }}>{flag.rolloutPercentage ?? 100}%</span>
+                        <div className="rollout-bar" style={{ width: '50px' }}>
+                            <div className="rollout-bar-fill" style={{ width: `${flag.rolloutPercentage ?? 100}%` }}></div>
                         </div>
-                    ) : <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '12px' }}></span>}
+                    </div>
                 </td>
 
                 {/* Status Toggle */}
