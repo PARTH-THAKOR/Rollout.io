@@ -14,6 +14,10 @@
     <img src="https://img.shields.io/badge/MongoDB-Latest-green?logo=mongodb&logoColor=white" alt="MongoDB">
     <img src="https://img.shields.io/badge/License-MIT%20%2F%20Apache%202.0-blue.svg" alt="License">
   </p>
+
+  <p style="font-size: 1.1rem; letter-spacing: 0.5px;">
+    <b>Status: Completed and Deployed</b>
+  </p>
   
   <h1 style="font-size: 3.5rem; font-weight: 800; margin: 15px 0 5px 0;"><a href="https://rollout.paraglide.in" target="_blank">PROJECT IS LIVE</a></h1>
 </div>
@@ -245,7 +249,7 @@ import sdk from '@techparaglide/sdk-js';
 await sdk.init({
   sdkKey: "YOUR_SDK_KEY",
   userId: "user-unique-id",
-  baseUrl: "http://rollout.paraglide.in" // Live Production Gateway (or "http://localhost:80" for local)
+  baseUrl: "http://rollout.paraglide.in/gateway" // Live Production Gateway (or "http://localhost:80/gateway" for local)
 });
 
 // Evaluate flag value instantly (Fallback value is false)
@@ -280,7 +284,7 @@ RolloutClient client = new RolloutClient();
 RolloutConfig config = new RolloutConfig(
     "YOUR_SDK_KEY",
     "user-unique-id",
-    "http://rollout.paraglide.in" // Live Production Gateway (or "http://localhost:80" for local)
+    "http://rollout.paraglide.in/gateway" // Live Production Gateway (or "http://localhost:80/gateway" for local)
 );
 
 client.init(config);
@@ -295,6 +299,14 @@ if (isNewCheckoutEnabled) {
 ```
 
 Detailed implementation schematics available at: `SDK/java/README.md`
+
+## Future Scope / Roadmap
+
+While the core ecosystem is complete and fully functional, future enhancements could include:
+* **Additional SDKs**: Development of native Python, GoLang, and .NET client SDKs.
+* **Advanced Analytics**: Built-in A/B testing analytics and conversion tracking based on flag evaluations.
+* **Kubernetes Orchestration**: Official Helm charts for scalable Kubernetes cluster deployments.
+* **Webhooks & CI/CD Integrations**: Automated flag toggles triggered by external GitHub Actions or CI/CD pipelines.
 
 ## Academic Context & Project Documentation
 
@@ -334,6 +346,13 @@ This system was architected and developed as a Final Year Project by scholars of
     </tr>
   </tbody>
 </table>
+
+## Acknowledgments
+
+We would like to express our deepest gratitude to the individuals and organizations who supported this project:
+* **Prof. Prashant Chaudhari** (Internal Guide) - For his continuous mentorship, technical guidance, and valuable feedback throughout the project lifecycle.
+* **Dr. Komal Anadkat** (Head of Department, IT) - For providing the academic framework and encouragement to pursue industry-standard system design.
+* **Mitra Media Labs** - For providing an excellent internship environment that inspired several core architectural concepts utilized in this ecosystem.
 
 ## License
 
