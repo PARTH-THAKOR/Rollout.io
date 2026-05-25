@@ -369,31 +369,29 @@ const DependenciesPanel = memo(({
                     )}
 
                     {/* Rollout */}
-                    {nodeData.rolloutPercentage != null && (
-                        <InfoRow label="Rollout">
+                    <InfoRow label="Rollout">
+                        <div style={{
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                        }}>
                             <div style={{
-                                display: 'flex', alignItems: 'center', gap: '8px',
+                                width: '60px', height: '3px',
+                                background: 'rgba(255,255,255,0.06)',
+                                borderRadius: '2px', overflow: 'hidden',
                             }}>
                                 <div style={{
-                                    width: '60px', height: '3px',
-                                    background: 'rgba(255,255,255,0.06)',
-                                    borderRadius: '2px', overflow: 'hidden',
-                                }}>
-                                    <div style={{
-                                        width: `${nodeData.rolloutPercentage}%`,
-                                        height: '100%',
-                                        background: accent,
-                                        borderRadius: '2px',
-                                    }} />
-                                </div>
-                                <span style={{
-                                    fontSize: '11px', color: accent, fontWeight: 600,
-                                }}>
-                                    {nodeData.rolloutPercentage}%
-                                </span>
+                                    width: `${nodeData.rolloutPercentage ?? 100}%`,
+                                    height: '100%',
+                                    background: accent,
+                                    borderRadius: '2px',
+                                }} />
                             </div>
-                        </InfoRow>
-                    )}
+                            <span style={{
+                                fontSize: '11px', color: accent, fontWeight: 600,
+                            }}>
+                                {nodeData.rolloutPercentage ?? 100}%
+                            </span>
+                        </div>
+                    </InfoRow>
                 </div>
 
                 {/* ── Dependencies Section (Dependent flags only) ── */}

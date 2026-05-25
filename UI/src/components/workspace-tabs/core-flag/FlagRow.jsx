@@ -47,18 +47,14 @@ const FlagRow = memo(({ flag, isExpanded, onToggle, onExpand, onMenuOpen, catego
 
             {/* Rollout Percentage */}
             <td>
-                {flag.rolloutPercentage == null ? (
-                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px' }}></span>
-                ) : (
-                    <div>
-                        <span style={{ fontSize: '13px', color: flag.rolloutPercentage === 100 ? 'rgba(255,255,255,0.5)' : '#fff', fontWeight: flag.rolloutPercentage < 100 ? 600 : 400 }}>
-                            {flag.rolloutPercentage}%
-                        </span>
-                        <div className="rollout-bar">
-                            <div className="rollout-bar-fill" style={{ width: `${flag.rolloutPercentage}%` }}></div>
-                        </div>
+                <div>
+                    <span style={{ fontSize: '13px', color: (flag.rolloutPercentage ?? 100) === 100 ? 'rgba(255,255,255,0.5)' : '#fff', fontWeight: (flag.rolloutPercentage ?? 100) < 100 ? 600 : 400 }}>
+                        {flag.rolloutPercentage ?? 100}%
+                    </span>
+                    <div className="rollout-bar">
+                        <div className="rollout-bar-fill" style={{ width: `${flag.rolloutPercentage ?? 100}%` }}></div>
                     </div>
-                )}
+                </div>
             </td>
 
             {/* Toggle Switch */}

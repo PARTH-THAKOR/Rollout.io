@@ -178,7 +178,7 @@ const GraphNode = memo(({ data, selected }) => {
                     )}
 
                     {/* Rollout percentage (dependent only) */}
-                    {!isCore && data.rolloutPercentage != null && (
+                    {!isCore && (
                         <span style={{
                             fontSize: '10px',
                             color: 'rgba(255,255,255,0.3)',
@@ -186,13 +186,13 @@ const GraphNode = memo(({ data, selected }) => {
                             marginLeft: 'auto',
                             flexShrink: 0,
                         }}>
-                            {data.rolloutPercentage}%
+                            {data.rolloutPercentage ?? 100}%
                         </span>
                     )}
 
                     {/* Status indicator */}
                     <div style={{
-                        marginLeft: data.rolloutPercentage != null ? '0' : 'auto',
+                        marginLeft: !isCore ? '0' : 'auto',
                         width: '9px',
                         height: '9px',
                         borderRadius: '50%',

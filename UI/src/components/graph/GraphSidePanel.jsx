@@ -265,40 +265,38 @@ const GraphSidePanel = memo(({ node, onClose, coreFlagsMap = {} }) => {
                 )}
 
                 {/* Rollout */}
-                {nodeData.rolloutPercentage != null && (
-                    <InfoRow label="Rollout">
+                <InfoRow label="Rollout">
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                    }}>
                         <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
+                            flex: 1,
+                            height: '4px',
+                            background: 'rgba(255,255,255,0.06)',
+                            borderRadius: '2px',
+                            overflow: 'hidden',
                         }}>
                             <div style={{
-                                flex: 1,
-                                height: '4px',
-                                background: 'rgba(255,255,255,0.06)',
+                                width: `${nodeData.rolloutPercentage ?? 100}%`,
+                                height: '100%',
+                                background: `linear-gradient(90deg, ${accent}, rgba(${accentRgb},0.5))`,
                                 borderRadius: '2px',
-                                overflow: 'hidden',
-                            }}>
-                                <div style={{
-                                    width: `${nodeData.rolloutPercentage}%`,
-                                    height: '100%',
-                                    background: `linear-gradient(90deg, ${accent}, rgba(${accentRgb},0.5))`,
-                                    borderRadius: '2px',
-                                    transition: 'width 0.5s ease',
-                                }} />
-                            </div>
-                            <span style={{
-                                fontSize: '12px',
-                                color: accent,
-                                fontWeight: 600,
-                                minWidth: '36px',
-                                textAlign: 'right',
-                            }}>
-                                {nodeData.rolloutPercentage}%
-                            </span>
+                                transition: 'width 0.5s ease',
+                            }} />
                         </div>
-                    </InfoRow>
-                )}
+                        <span style={{
+                            fontSize: '12px',
+                            color: accent,
+                            fontWeight: 600,
+                            minWidth: '36px',
+                            textAlign: 'right',
+                        }}>
+                            {nodeData.rolloutPercentage ?? 100}%
+                        </span>
+                    </div>
+                </InfoRow>
 
                 {/* Dependencies */}
                 {deps.length > 0 && (
