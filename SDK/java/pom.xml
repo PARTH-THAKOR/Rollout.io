@@ -6,7 +6,7 @@
 
     <groupId>com.github.TechParaglide.Rollout.io</groupId>
     <artifactId>sdk-java</artifactId>
-    <version>5.0.4</version>
+    <version>5.0.5</version>
     <packaging>jar</packaging>
 
     <name>Rollout.io Java SDK</name>
