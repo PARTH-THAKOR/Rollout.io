@@ -29,8 +29,8 @@ Include the SDK artifact in your `pom.xml`:
 ```xml
 <dependencies>
     <dependency>
-        <groupId>com.github.TechParaglide.Rollout.io</groupId>
-        <artifactId>sdk-java</artifactId>
+        <groupId>com.github.TechParaglide</groupId>
+        <artifactId>Rollout.io</artifactId>
         <version>5.0.5</version>
     </dependency>
 </dependencies>

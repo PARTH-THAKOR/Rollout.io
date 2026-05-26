@@ -234,21 +234,17 @@ npm start
 
 ## Supported Client SDKs
 
-**JavaScript SDK (`@techparaglide/sdk-js`)**
+**JavaScript SDK (`@rollout.io/sdk-js`)**
 Professional-grade, high-performance SDK designed for web-based rendering environments (Browser & Node.js).
 
-Since the SDK is hosted on GitHub Packages, you must configure the npm registry first:
+Install the SDK via npm:
 ```bash
-npm config set "@techparaglide:registry" "https://npm.pkg.github.com/"
-```
-Then, install the SDK:
-```bash
-npm install @techparaglide/sdk-js@latest
+npm install "@rollout.io/sdk-js@latest"
 ```
 
 **Usage Example:**
 ```javascript
-import sdk from '@techparaglide/sdk-js';
+import sdk from '@rollout.io/sdk-js';
 
 // Initialize the SDK
 await sdk.init({
@@ -286,8 +282,8 @@ Then, add the dependency:
 
 ```xml
 <dependency>
-    <groupId>com.github.TechParaglide.Rollout.io</groupId>
-    <artifactId>sdk-java</artifactId>
+    <groupId>com.github.TechParaglide</groupId>
+    <artifactId>Rollout.io</artifactId>
     <version>5.0.5</version>
 </dependency>
 ```
