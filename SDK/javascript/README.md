@@ -11,18 +11,11 @@ The Rollout.io JavaScript SDK is an enterprise-grade, high-performance library d
 
 ## Installation
 
-### 1. Configure the Registry
-This SDK is published on GitHub Packages. You must configure your npm environment to fetch the `@techparaglide` scope from the correct registry.
-
-```bash
-npm config set "@techparaglide:registry" "https://npm.pkg.github.com/"
-```
-
-### 2. Install the Package
+### Installation
 Execute the following command in your project's root directory:
 
 ```bash
-npm install @techparaglide/sdk-js@latest
+npm install "@rollout.io/sdk-js@latest"
 ```
 
 ## API Reference
@@ -44,7 +37,7 @@ Initializes the SDK and fetches the initial configuration state from the Control
 
 **Example:**
 ```javascript
-import sdk from '@techparaglide/sdk-js';
+import sdk from '@rollout.io/sdk-js';
 
 export const initRollout = async (userId) => {
     try {

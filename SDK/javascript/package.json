@@ -1,5 +1,5 @@
 {
-  "name": "@techparaglide/sdk-js",
+  "name": "@rollout.io/sdk-js",
   "version": "5.0.9",
   "type": "module",
   "description": "The official JavaScript SDK for the Rollout.io feature management platform. High-performance, real-time evaluations for browsers and Node.js.",
@@ -19,10 +19,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TechParaglide/Rollout.io.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "public"
   },
   "keywords": [
     "feature-flags",
