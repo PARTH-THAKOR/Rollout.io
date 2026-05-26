@@ -1,2 +1,4 @@
-build:
-  file: SDK/java/pom.xml
+jdk:
+  - openjdk17
+install:
+  - cd SDK/java && mvn install -DskipTests

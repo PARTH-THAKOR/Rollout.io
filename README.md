@@ -288,7 +288,7 @@ Then, add the dependency:
 <dependency>
     <groupId>com.github.TechParaglide.Rollout.io</groupId>
     <artifactId>sdk-java</artifactId>
-    <version>5.0.4</version>
+    <version>5.0.5</version>
 </dependency>
 ```
 
