@@ -6,11 +6,16 @@
 
     <groupId>com.rollout.io</groupId>
     <artifactId>sdk-java</artifactId>
-    <version>5.0.1</version>
+    <version>5.0.4</version>
     <packaging>jar</packaging>
 
     <name>Rollout.io Java SDK</name>
-    <description>Java SDK for Rollout.io</description>
+    <description>The Rollout.io Java SDK is an enterprise-grade library for real-time feature flag evaluation and remote configuration.</description>
+    <url>https://github.com/TechParaglide/Rollout.io/tree/main/SDK/java</url>
+    <scm>
+        <url>https://github.com/TechParaglide/Rollout.io/tree/main/SDK/java</url>
+        <connection>scm:git:git://github.com/TechParaglide/Rollout.io.git</connection>
+    </scm>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -30,7 +35,6 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <!-- Replace with your actual GitHub username/repo if different -->
             <url>https://maven.pkg.github.com/TechParaglide/Rollout.io</url>
         </repository>
     </distributionManagement>
