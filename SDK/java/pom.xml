@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rollout.io</groupId>
+    <groupId>com.github.TechParaglide.Rollout.io</groupId>
     <artifactId>sdk-java</artifactId>
     <version>5.0.4</version>
     <packaging>jar</packaging>
@@ -12,10 +12,6 @@
     <name>Rollout.io Java SDK</name>
     <description>The Rollout.io Java SDK is an enterprise-grade library for real-time feature flag evaluation and remote configuration.</description>
     <url>https://github.com/TechParaglide/Rollout.io/tree/main/SDK/java</url>
-    <scm>
-        <url>https://github.com/TechParaglide/Rollout.io/tree/main/SDK/java</url>
-        <connection>scm:git:git://github.com/TechParaglide/Rollout.io.git</connection>
-    </scm>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -31,11 +27,4 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/TechParaglide/Rollout.io</url>
-        </repository>
-    </distributionManagement>
 </project>

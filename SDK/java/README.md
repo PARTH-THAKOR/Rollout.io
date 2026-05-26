@@ -11,19 +11,17 @@ The Rollout.io Java SDK is an enterprise-grade, high-performance library designe
 
 ## Installation
 
-### Add the GitHub Packages Repository
-Since this SDK is hosted on GitHub Packages, you must configure your Maven environment to resolve dependencies from the `@TechParaglide` registry. Add the following to your `pom.xml`:
+### Add the JitPack Repository
+Since this SDK is distributed via JitPack, add the repository to your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
-        <id>github</id>
-        <name>GitHub Packages</name>
-        <url>https://maven.pkg.github.com/TechParaglide/Rollout.io</url>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
     </repository>
 </repositories>
 ```
-*(Note: Ensure your Maven `settings.xml` is configured to authenticate with GitHub Packages if required by your GitHub organizational settings).*
 
 ### Add the Dependency
 Include the SDK artifact in your `pom.xml`:
@@ -31,7 +29,7 @@ Include the SDK artifact in your `pom.xml`:
 ```xml
 <dependencies>
     <dependency>
-        <groupId>com.rollout.io</groupId>
+        <groupId>com.github.TechParaglide.Rollout.io</groupId>
         <artifactId>sdk-java</artifactId>
         <version>5.0.4</version>
     </dependency>

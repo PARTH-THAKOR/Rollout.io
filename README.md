@@ -268,17 +268,16 @@ if (isFeatureEnabled) {
 
 Detailed implementation schematics available at: `SDK/javascript/README.md`
 
-**Java SDK (`com.rollout.io:sdk-java`)**
+**Java SDK (`com.github.TechParaglide.Rollout.io:sdk-java`)**
 Enterprise-grade SDK built utilizing native `HttpClient` for server-side Java and Spring Boot runtimes.
 
-Since the Java SDK is hosted on GitHub Packages, you must include the repository in your `pom.xml`:
+Since the Java SDK is distributed via JitPack, you must include the repository in your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
-        <id>github</id>
-        <name>GitHub Packages</name>
-        <url>https://maven.pkg.github.com/TechParaglide/Rollout.io</url>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
     </repository>
 </repositories>
 ```
@@ -287,7 +286,7 @@ Then, add the dependency:
 
 ```xml
 <dependency>
-    <groupId>com.rollout.io</groupId>
+    <groupId>com.github.TechParaglide.Rollout.io</groupId>
     <artifactId>sdk-java</artifactId>
     <version>5.0.4</version>
 </dependency>
