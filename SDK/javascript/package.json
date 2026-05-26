@@ -21,7 +21,8 @@
     "url": "git+https://github.com/TechParaglide/Rollout.io.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
   },
   "keywords": [
     "feature-flags",

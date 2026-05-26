@@ -237,6 +237,11 @@ npm start
 **JavaScript SDK (`@techparaglide/sdk-js`)**
 Professional-grade, high-performance SDK designed for web-based rendering environments (Browser & Node.js).
 
+Since the SDK is hosted on GitHub Packages, you must configure the npm registry first:
+```bash
+npm config set "@techparaglide:registry" "https://npm.pkg.github.com/"
+```
+Then, install the SDK:
 ```bash
 npm install @techparaglide/sdk-js@latest
 ```
@@ -261,16 +266,30 @@ if (isFeatureEnabled) {
 }
 ```
 
-Detailed implementation schematics available at: `SDK/javascript/README.txt`
+Detailed implementation schematics available at: `SDK/javascript/README.md`
 
 **Java SDK (`com.rollout.io:sdk-java`)**
 Enterprise-grade SDK built utilizing native `HttpClient` for server-side Java and Spring Boot runtimes.
+
+Since the Java SDK is hosted on GitHub Packages, you must include the repository in your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <name>GitHub Packages</name>
+        <url>https://maven.pkg.github.com/TechParaglide/Rollout.io</url>
+    </repository>
+</repositories>
+```
+
+Then, add the dependency:
 
 ```xml
 <dependency>
     <groupId>com.rollout.io</groupId>
     <artifactId>sdk-java</artifactId>
-    <version>5.0.1</version>
+    <version>5.0.4</version>
 </dependency>
 ```
 
