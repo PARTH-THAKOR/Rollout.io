@@ -19,12 +19,14 @@
     <b>Status: Completed and Deployed</b>
   </p>
 
-  <table align="center" style="border-collapse: collapse; border: 1px solid #e2e8f0; margin-top: 15px;">
+  <table style="width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; margin-top: 15px;">
     <tr>
-      <td style="border: 1px solid #e2e8f0; padding: 3px 20px;"><h5 style="margin: 0; display: inline-block;"><a href="https://rollout.paraglide.in" target="_blank">LIVE PROJECT</a></h5></td>
-      <td style="border: 1px solid #e2e8f0; padding: 3px 20px;"><h5 style="margin: 0; display: inline-block;"><a href="REPORT/Rollout.io%20-%20Project%20Report.pdf">PROJECT REPORT</a></h5></td>
-      <td style="border: 1px solid #e2e8f0; padding: 3px 20px;"><h5 style="margin: 0; display: inline-block;"><a href="SDK/">CLIENT SDKS</a></h5></td>
-      <td style="border: 1px solid #e2e8f0; padding: 3px 20px;"><h5 style="margin: 0; display: inline-block;"><a href="mailto:rollout@paraglide.in">EMAIL SUPPORT</a></h5></td>
+      <td style="border: 1px solid #e2e8f0; padding: 3px 15px; text-align: center; width: 16.66%;"><h5 style="margin: 0; display: inline-block;"><a href="https://rollout.paraglide.in" target="_blank">LIVE PROJECT</a></h5></td>
+      <td style="border: 1px solid #e2e8f0; padding: 3px 15px; text-align: center; width: 16.66%;"><h5 style="margin: 0; display: inline-block;"><a href="REPORT/Rollout.io%20-%20Project%20Report.pdf">PROJECT REPORT</a></h5></td>
+      <td style="border: 1px solid #e2e8f0; padding: 3px 15px; text-align: center; width: 16.66%;"><h5 style="margin: 0; display: inline-block;"><a href="SDK/">CLIENT SDKS</a></h5></td>
+      <td style="border: 1px solid #e2e8f0; padding: 3px 15px; text-align: center; width: 16.66%;"><h5 style="margin: 0; display: inline-block;"><a href="LICENSE-MIT">MIT LICENSE</a></h5></td>
+      <td style="border: 1px solid #e2e8f0; padding: 3px 15px; text-align: center; width: 16.66%;"><h5 style="margin: 0; display: inline-block;"><a href="LICENSE-APACHE">APACHE LICENSE</a></h5></td>
+      <td style="border: 1px solid #e2e8f0; padding: 3px 15px; text-align: center; width: 16.66%;"><h5 style="margin: 0; display: inline-block;"><a href="mailto:rollout@paraglide.in">EMAIL SUPPORT</a></h5></td>
     </tr>
   </table>
 </div>
