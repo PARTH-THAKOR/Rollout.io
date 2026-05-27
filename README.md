@@ -18,8 +18,15 @@
   <p style="font-size: 1.1rem; letter-spacing: 0.5px;">
     <b>Status: Completed and Deployed</b>
   </p>
-  
-  <h1 style="font-size: 3.5rem; font-weight: 800; margin: 15px 0 5px 0;"><a href="https://rollout.paraglide.in" target="_blank">PROJECT IS LIVE</a></h1>
+
+  <table align="center" style="border-collapse: collapse; border: 1px solid #e2e8f0; margin-top: 15px;">
+    <tr>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="https://rollout.paraglide.in" target="_blank"><b>Live</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="REPORT/Rollout.io%20-%20Project%20Report.pdf"><b>Report</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="SDK/"><b>SDKs</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="mailto:rollout@paraglide.in"><b>Email</b></a></td>
+    </tr>
+  </table>
 </div>
 
 ## Overview
@@ -63,6 +70,19 @@ Rollout.io implements a **Zero-Trust System Design** where the `Jwt` token serve
 * Prevents spoofing via client payloads by relying entirely on the security context for identity evaluation.
 
 For a deeper dive into the theoretical foundation and trade-offs of this design pattern, read the complete engineering article: **[Zero-Trust System Design: How We Used JWT as an Immutable Context Boundary in Spring Boot](https://medium.com/@myself.parthsinh/zero-trust-system-design-how-we-used-jwt-as-an-immutable-context-boundary-in-spring-boot-42924aae086f)**.
+
+### Event-Driven Cascading Deletion
+Rollout.io implements an asynchronous, event-driven cascade deletion pipeline using RabbitMQ to guarantee database integrity. When a developer deletes their account, the downstream deletion executes in a non-blocking sequence:
+1. **User Deletion Event**: The Auth Service deletes the user record and publishes a UserDeletedEvent to RabbitMQ.
+2. **Project Cleanup**: The Control Plane Service consumes this event, queries all projects owned by the user, publishes a ProjectDeletedEvent for each, and deletes the projects.
+3. **Environment Cleanup**: The service consumes the project events, identifies nested environments, publishes an EnvironmentDeletedEvent for each, and deletes the environments.
+4. **Flag and Audit Log Purge**: The service consumes the environment events, executing the terminal deletion of all associated flags, rules, and audit logs.
+
+### Centralized Configuration Server
+All microservices in the Rollout.io ecosystem decouple their environment properties and secrets using Spring Cloud Config Server. At boot time:
+* Microservices bootstrap by requesting configurations from the central Config Server (port 4998).
+* The Config Server dynamically clones and serves properties from an external, secure Git repository (Rollout.io-External-Config.git).
+* Any run-time configuration updates are broadcasted across the microservices ecosystem asynchronously using the RabbitMQ message broker.
 
 ## Repository Structure
 
@@ -159,7 +179,8 @@ To configure and view the dashboard:
 ## Quick Start Guide
 
 ### Prerequisites
-Make sure you have the following installed on your machine before starting:
+Make sure your system meets the minimum requirements and has the necessary dependencies installed:
+* **System Memory**: Recommended minimum of **8 GB RAM** (16 GB preferred) due to running multiple Spring Boot microservices, databases, and message brokers concurrently.
 * **Docker & Docker Compose** (Desktop/CLI)
 * **Node.js** (v18.x or above)
 * **Java SDK** (v17 or above)
@@ -367,6 +388,23 @@ We would like to express our deepest gratitude to the individuals and organizati
 * **Prof. Prashant Chaudhari** (Internal Guide) - For his continuous mentorship, technical guidance, and valuable feedback throughout the project lifecycle.
 * **Dr. Komal Anadkat** (Head of Department, IT) - For providing the academic framework and encouragement to pursue industry-standard system design.
 * **Mitra Media Labs** - For providing an excellent internship environment that inspired several core architectural concepts utilized in this ecosystem.
+## Project Files and Directory
+
+| Document / Resource | File Path | Description |
+| :--- | :--- | :--- |
+| Academic Project Report | [REPORT/Rollout.io - Project Report.pdf](REPORT/Rollout.io%20-%20Project%20Report.pdf) | Complete engineering capstone report containing microservice designs, sequence diagrams, and architecture analysis. |
+| Java Integration SDK | [SDK/java/README.md](SDK/java/README.md) | Integration guide, dependency setup, and usage examples for the Java SDK. |
+| JavaScript Integration SDK | [SDK/javascript/README.md](SDK/javascript/README.md) | Integration guide, package details, and usage examples for the JavaScript SDK. |
+| Production Docker Compose | [DEPLOY/docker-compose.yml](DEPLOY/docker-compose.yml) | Configuration for spinning up the production-ready microservices stack including Redis, RabbitMQ, and monitoring. |
+| Development Docker Compose | [SERVER/docker-compose.yml](SERVER/docker-compose.yml) | Configuration for running microservices in development mode. |
+| Postman API Collection | [DEPLOY/Rollout.io - Rest - v5.0.1.postman_collection.json](DEPLOY/Rollout.io%20-%20Rest%20-%20v5.0.1.postman_collection.json) | Centralized Postman collection covering microservices authentication, flag evaluations, and management endpoints. |
+| Contributing Guide | [CONTRIBUTING.md](CONTRIBUTING.md) | Guidelines for reporting issues, contributing code, and setting up local development environment. |
+| Security Policy | [SECURITY.md](SECURITY.md) | Procedures and contact details for reporting security vulnerabilities privately. |
+| Support Guide | [SUPPORT.md](SUPPORT.md) | Available support channels and troubleshooting instructions for the platform. |
+| Code of Conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community guidelines and collaboration standards for students and developers. |
+| License Information (MIT) | [LICENSE-MIT](LICENSE-MIT) | Terms and permissions under the MIT open-source license. |
+| License Information (Apache) | [LICENSE-APACHE](LICENSE-APACHE) | Terms and permissions under the Apache 2.0 open-source license. |
+| Citation File | [CITATION.cff](CITATION.cff) | Metadata citation file for referencing this academic project. |
 
 ## License
 
