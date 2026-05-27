@@ -21,13 +21,15 @@
 
   <table align="center" style="border-collapse: collapse; border: 1px solid #e2e8f0; margin-top: 15px;">
     <tr>
-      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="https://rollout.paraglide.in" target="_blank"><b>Live</b></a></td>
-      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="REPORT/Rollout.io%20-%20Project%20Report.pdf"><b>Report</b></a></td>
-      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="SDK/"><b>SDKs</b></a></td>
-      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="mailto:rollout@paraglide.in"><b>Email</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="https://rollout.paraglide.in" target="_blank" style="text-decoration: none;"><b>LIVE PROJECT</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="REPORT/Rollout.io%20-%20Project%20Report.pdf" style="text-decoration: none;"><b>PROJECT REPORT</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="SDK/" style="text-decoration: none;"><b>CLIENT SDKS</b></a></td>
+      <td style="border: 1px solid #e2e8f0; padding: 10px 20px;"><a href="mailto:rollout@paraglide.in" style="text-decoration: none;"><b>EMAIL SUPPORT</b></a></td>
     </tr>
   </table>
 </div>
+
+---
 
 ## Overview
 
