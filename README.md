@@ -1,7 +1,7 @@
 <div align="center">
   <img src="ASSETS/banner.png" alt="Rollout.io Architecture" width="100%">
 
-  <h1 style="font-size: 3.5rem; font-weight: 800; margin: 15px 0 5px 0;">ROLLOUT.IO</h1>
+  <img src="ASSETS/rollout_title.svg" alt="ROLLOUT.IO" width="75%" style="margin: 15px 0 5px 0;">
 
   <p><b>The Architecture of Instant Change</b></p>
   <p>A centralized, ultra-low latency feature flag and configuration management system. Designed for complex distributed microservices architectures dealing with dynamic rendering and runtime execution layers.</p>
@@ -35,6 +35,10 @@
 
 Rollout.io Remote Config is an enterprise-grade feature management platform that enables engineering teams to decouple deployment from release. By centralizing feature flags and configurations, applications can dynamically control features at runtime without initiating a redeployment sequence. It supports safe and targeted rollouts, instantaneous rollbacks, and synchronized configuration state across distributed systems, dramatically improving reliability in high-availability production environments.
 
+<div align="center">
+  <video src="ASSETS/video.mp4" width="100%" controls></video>
+</div>
+
 ## Live Production Demo
 
 The complete Rollout.io ecosystem has been deployed and is accessible at **[rollout.paraglide.in](http://rollout.paraglide.in)**.
@@ -47,6 +51,14 @@ Through the integrated Nginx edge proxy configuration, all microservices, manage
 * **API Gateway and Documentation**: **[rollout.paraglide.in/gateway/](http://rollout.paraglide.in/gateway/)** - Central entry point containing interactive OpenAPI/Swagger definitions.
 * **Service Registry (Eureka)**: **[rollout.paraglide.in/registry/](http://rollout.paraglide.in/registry/)** - Console displaying active microservice registration and system state.
 * **Grafana Monitoring**: **[rollout.paraglide.in/grafana/](http://rollout.paraglide.in/grafana/)** - Real-time metrics dashboard for observing microservices performance and database access telemetry.
+
+<br/>
+
+<div align="center">
+  <img src="ASSETS/terminal_boot.svg" alt="Rollout.io Ecosystem Boot Sequence" width="100%">
+</div>
+
+<br/>
 
 ## Distributed System Architecture
 
@@ -64,6 +76,14 @@ The ecosystem comprises the following internal microservices and infrastructure 
 * **Control Plane Service**: The administrative backend handling the business logic for feature flag creation, modification, and user targeting.
 * **SDK Service**: A highly optimized, read-heavy API utilizing Redis caching to serve ultra-low latency flag evaluations to client SDKs.
 * **Monitoring & Observability (`port 5001`)**: Integrated Prometheus and Grafana stack for real-time telemetry, metric aggregation, and system health monitoring.
+
+<br/>
+
+<div align="center">
+  <img src="ASSETS/architecture_flow.svg" alt="Rollout.io System Design and Flow" width="100%">
+</div>
+
+<br/>
 
 ### Zero-Trust Context Isolation Pattern
 Rollout.io implements a **Zero-Trust System Design** where the `Jwt` token serves as an immutable context boundary directly in the service layer. Rather than treating the token merely as an edge-validation mechanism at the Gateway, identity is directly extracted and enforced inside downstream microservices and repositories (e.g., `findByIdAndCreatedByUid`).
@@ -107,23 +127,50 @@ All microservices in the Rollout.io ecosystem decouple their environment propert
 * **Project Isolation**: Segregated configuration handling across multiple distinct environments (e.g., Development, Staging, Production).
 * **High-Throughput Telemetry**: Asynchronous usage reporting from SDKs to track flag evaluation metrics without blocking the main execution thread.
 
+## Feature Comparison Matrix
+
+| Capability | Rollout.io | LaunchDarkly | Unleash | Firebase |
+| :--- | :--- | :--- | :--- | :--- |
+| **System Architecture** | Distributed microservices orchestrated via Docker Compose | Monolithic hosted SaaS with optional Relay Proxy | Single-server or managed SaaS | Fully managed serverless backend |
+| **Identity and Access Control** | Zero-Trust JWT enforced at every service layer; repositories bind identity directly (`findByIdAndCreatedByUid`) | API key-based project scoping with optional SSO | API token auth with role-based access control | Firebase Auth with Google Identity Platform |
+| **Flag Value Types** | Boolean, String, Integer, Double, JSON | Boolean, String, Number, JSON | Boolean, String with strategy variants | String, Boolean, Number, JSON |
+| **Targeting Rules** | Attribute-based rules with 7 operators: EQUALS, NOT_EQUALS, CONTAINS, GT, GTE, LT, LTE | Attribute-based targeting with custom rules | Strategy-based targeting with custom constraints | Conditions-based targeting by user property |
+| **Percentage Rollout** | MurmurHash3 deterministic bucketing for consistent user-level percentage rollouts | Consistent hashing for percentage rollouts | Gradual rollout via activation strategies | Percentage rollouts by user property |
+| **Flag Dependency Graph** | Recursive AND/OR dependency tree (RuleNode) with parent-child prerequisite evaluation | Sequential prerequisite dependency chains | No native flag dependency support | No native flag dependency support |
+| **Real-Time Dashboard Updates** | MongoDB Change Streams piped through authenticated WebSocket connections | Webhook notifications and SSE streaming | SSE streaming with webhook support | No real-time dashboard sync |
+| **Cache and Evaluation Latency** | Redis-backed cache with 30s background sync and MongoDB fallback | Edge-cached via Relay Proxy with SDK-side caching | In-memory SDK-side caching with polling | Client-side SDK caching with fetch intervals |
+| **Event-Driven Data Lifecycle** | 4-stage async cascade deletion via RabbitMQ Topic Exchange | Manual deletion; no automated cascade | Manual deletion via API | Manual deletion via Console |
+| **Service Discovery** | Netflix Eureka with auto-registration and dynamic gateway routing | Not applicable; single SaaS endpoint | Not applicable; single-server model | Not applicable; Google-managed |
+| **Configuration Management** | Spring Cloud Config Server with Git-backed properties and RabbitMQ Cloud Bus propagation | SaaS dashboard settings | Environment variables and database config | Firebase Console parameters |
+| **Gateway and Rate Limiting** | Spring Cloud Gateway + Nginx edge proxy with Redis per-user rate limiting | Built-in SaaS rate limiting by tier | No built-in rate limiting | Google Cloud infrastructure-level |
+| **Observability Stack** | Prometheus + Grafana scraping Actuator metrics from all services | Proprietary analytics dashboard | Prometheus-compatible metrics endpoint | Firebase Analytics and Cloud Monitoring |
+| **Client SDKs** | Java (JitPack) and JavaScript (npm) with async telemetry and polling | 25+ language SDKs with streaming and offline mode | 15+ language SDKs with polling | Android, iOS, Web, Unity SDKs |
+| **Deployment Model** | Self-hosted Docker Compose with 14 containers and health checks | SaaS-only with optional Relay Proxy | Self-hosted or managed SaaS | SaaS-only |
+| **Licensing** | Completely free and open-source under dual MIT and Apache 2.0; no paid tiers, no vendor lock-in | Proprietary; enterprise pricing at scale | Open-source core with paid enterprise tier | Free tier with usage-based pricing at scale |
+
 ## Technical Foundation
 
 The platform leverages a modern, highly scalable distributed technology stack:
 
 <div align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=java,spring,react,vite,mongodb,rabbitmq,redis,firebase,prometheus,grafana,docker,git,github,vscode,idea" alt="Tech Stack Icons" />
+    <img src="https://skillicons.dev/icons?i=java,spring,react,vite,mongodb,rabbitmq,redis,firebase,prometheus,grafana,docker,gcp" alt="Tech Stack Icons Row 1" /><br/>
+    <img src="https://skillicons.dev/icons?i=nginx,maven,postman,js,html,css,git,github,vscode,idea,npm,linux" alt="Tech Stack Icons Row 2" style="margin-top: 5px;" />
   </a>
 </div>
 
-* **Frontend Rendering**: React, Vite
-* **Execution Engine**: Java 17, Spring Boot, Spring Cloud, RESTful APIs
+* **Frontend Rendering & Core**: React, Vite, React Router, React Query (TanStack), Zustand, XYFlow (React Flow), JavaScript, HTML5, CSS3
+* **Execution Engine & Microservices**: Java 17, Spring Boot 3.x, Spring Cloud (Eureka Discovery, Config Server, Cloud Bus), RESTful APIs
+* **Reverse Proxy & Routing**: Nginx (Edge Proxy & Gateway Router)
 * **Persistence Layer**: MongoDB
-* **Message Broker**: RabbitMQ
+* **Message Broker & Event-Driven Bus**: RabbitMQ
 * **Caching & Low-Latency Store**: Redis
-* **Telemetry & Observability**: Prometheus, Grafana
-* **Containerization**: Docker, Docker Compose
+* **Authentication & Identity**: Firebase Authentication
+* **Telemetry, Metrics & Observability**: Prometheus, Grafana
+* **Cloud Infrastructure & OS**: Google Cloud Platform (GCP), Linux
+* **Containerization & Deployment**: Docker, Docker Compose
+* **API Documentation & Testing**: Swagger/OpenAPI, Postman Collection
+* **Package Managers & Development Tools**: Maven, npm, Git, GitHub, VS Code, IntelliJ IDEA
 
 ## Application & Dashboard Demos
 
