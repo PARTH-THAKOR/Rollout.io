@@ -1,8 +1,7 @@
 <div align="center">
   <img src="ASSETS/banner.png" alt="Rollout.io Architecture" width="100%">
-
-  <img src="ASSETS/rollout_title.svg" alt="ROLLOUT.IO" width="75%" style="margin: 15px 0 5px 0;">
-
+  <h1 style="font-size: 3.5rem; font-weight: 800; margin: 15px 0 5px 0;">ROLLOUT.IO</h1>
+  
   <p><b>The Architecture of Instant Change</b></p>
   <p>A centralized, ultra-low latency feature flag and configuration management system. Designed for complex distributed microservices architectures dealing with dynamic rendering and runtime execution layers.</p>
 
@@ -34,10 +33,6 @@
 ## Overview
 
 Rollout.io Remote Config is an enterprise-grade feature management platform that enables engineering teams to decouple deployment from release. By centralizing feature flags and configurations, applications can dynamically control features at runtime without initiating a redeployment sequence. It supports safe and targeted rollouts, instantaneous rollbacks, and synchronized configuration state across distributed systems, dramatically improving reliability in high-availability production environments.
-
-<div align="center">
-  <video src="ASSETS/video.mp4" width="100%" controls></video>
-</div>
 
 ## Live Production Demo
 
