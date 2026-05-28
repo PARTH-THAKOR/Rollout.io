@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="100%">
+  <defs>
+    <!-- macOS Dark Terminal style background gradient -->
+    <linearGradient id="window-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c1c1e" />
+      <stop offset="100%" stop-color="#121212" />
+    </linearGradient>
+    
+    <!-- Outer Glow Filter -->
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="15" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    /* Styling for the terminal window */
+    .terminal-body {
+      fill: url(#window-grad);
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 1.2;
+      rx: 10px;
+    }
+    
+    /* macOS-style window controls */
+    .btn-red { fill: #ff5f56; }
+    .btn-yellow { fill: #ffbd2e; }
+    .btn-green { fill: #27c93f; }
+
+    /* Premium Monospace Font Stack with letter-spacing */
+    .term-text {
+      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      font-size: 13.5px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      fill: #f5f5f7;
+      opacity: 0;
+      animation: revealLine 12s infinite;
+      animation-fill-mode: both;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Color Tokens for logs - slightly brighter for contrast */
+    .prefix-sys { fill: #60a5fa; font-weight: 600; }
+    .prefix-eur { fill: #c084fc; font-weight: 600; }
+    .prefix-rmq { fill: #fb923c; font-weight: 600; }
+    .prefix-red { fill: #f87171; font-weight: 600; }
+    .prefix-sdk { fill: #4ade80; font-weight: 600; }
+    .status-ok { fill: #34d399; font-weight: 600; }
+    .value-true { fill: #facc15; font-weight: 600; }
+
+    /* Animated blinking cursor */
+    .cursor {
+      fill: #60a5fa;
+      animation: blink 0.8s infinite;
+    }
+
+    /* Keyframe Animations */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    @keyframes revealLine {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      95%, 100% { opacity: 0; } /* Reset animation */
+    }
+
+    /* Specific delay and timing for each line */
+    .l1 { animation-delay: 0.5s; }
+    .l2 { animation-delay: 2.0s; }
+    .l3 { animation-delay: 3.5s; }
+    .l4 { animation-delay: 5.0s; }
+    .l5 { animation-delay: 6.5s; }
+    .l6 { animation-delay: 8.0s; }
+    .l7 { animation-delay: 9.5s; }
+  </style>
+
+  <!-- Shadow Container -->
+  <rect x="15" y="15" width="770" height="330" rx="10" fill="#000000" opacity="0.45" filter="url(#glow)"/>
+
+  <!-- Terminal Window -->
+  <rect class="terminal-body" x="15" y="15" width="770" height="330" />
+
+  <!-- macOS-style Titlebar -->
+  <path d="M 15 25 A 10 10 0 0 1 25 15 L 775 15 A 10 10 0 0 1 785 25 L 785 45 L 15 45 Z" fill="#2d2d2f" />
+  
+  <!-- Window Control Buttons -->
+  <circle class="btn-red" cx="38" cy="30" r="5.5" />
+  <circle class="btn-yellow" cx="56" cy="30" r="5.5" />
+  <circle class="btn-green" cx="74" cy="30" r="5.5" />
+  
+  <!-- Title text -->
+  <text x="400" y="34" fill="#a1a1a6" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12.5px" font-weight="600" text-anchor="middle">zsh — rollout-shell</text>
+
+  <!-- Code Log Lines inside Terminal Body -->
+  <g transform="translate(35, 85)">
+    <!-- Line 1 -->
+    <text class="term-text l1" x="0" y="0">
+      <tspan class="prefix-sys">[system]</tspan> Initializing Rollout.io Edge Gateway routing on port 80...
+    </text>
+    
+    <!-- Line 2 -->
+    <text class="term-text l2" x="0" y="30">
+      <tspan class="prefix-eur">[eureka]</tspan> Registered ControlPlaneService discovery metadata on port 8080 <tspan class="status-ok">[OK]</tspan>
+    </text>
+
+    <!-- Line 3 -->
+    <text class="term-text l3" x="0" y="60">
+      <tspan class="prefix-rmq">[rabbitmq]</tspan> AMQP channel connected. Broadcasting dynamic configs reloading...
+    </text>
+
+    <!-- Line 4 -->
+    <text class="term-text l4" x="0" y="90">
+      <tspan class="prefix-red">[redis]</tspan> Warm-up completed. Flag caches populated in <tspan class="status-ok">42ms</tspan>
+    </text>
+
+    <!-- Line 5 -->
+    <text class="term-text l5" x="0" y="120">
+      <tspan class="prefix-sdk">[sdk-js]</tspan> Evaluated flag <tspan class="status-ok">'zomato-dark-mode'</tspan> -> <tspan class="value-true">TRUE</tspan> (resolved in 2.1ms, cache hit)
+    </text>
+
+    <!-- Line 6 -->
+    <text class="term-text l6" x="0" y="150">
+      <tspan class="prefix-sdk">[sdk-java]</tspan> User identity context validated. Broadcasted sync <tspan class="status-ok">[12 Nodes Connected]</tspan>
+    </text>
+
+    <!-- Line 7 -->
+    <text class="term-text l7" x="0" y="180">
+      <tspan class="prefix-sys">[system]</tspan> Operational check successful. Ready for configuration changes.
+    </text>
+
+    <!-- Cursor -->
+    <rect class="cursor term-text l7" x="555" y="167" width="8" height="13" />
+  </g>
+</svg>
