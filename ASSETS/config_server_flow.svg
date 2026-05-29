@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="gitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F05032" />
+      <stop offset="100%" stop-color="#F1502F" />
+    </linearGradient>
+    <linearGradient id="configServerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+    <linearGradient id="busGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+    <linearGradient id="microserviceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <!-- Shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <style>
+    .title { font-family: 'Outfit', 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 700; fill: #F8FAFC; }
+    .label { font-family: 'Inter', system-ui, sans-serif; font-size: 11px; fill: #94A3B8; font-weight: 500; }
+    .event-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: bold; fill: #38BDF8; }
+    .arrow-text { font-family: 'Inter', system-ui, sans-serif; font-size: 9px; fill: #64748B; font-weight: 600; text-anchor: middle; }
+    .explanation { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; fill: #94A3B8; }
+  </style>
+
+  <!-- Background Canvas -->
+  <rect width="1000" height="380" rx="16" fill="#0B1329" stroke="#1E293B" stroke-width="2" />
+
+  <!-- Outer Grid Details -->
+  <circle cx="50" cy="50" r="2" fill="#334155" />
+  <circle cx="950" cy="50" r="2" fill="#334155" />
+  <circle cx="50" cy="330" r="2" fill="#334155" />
+  <circle cx="950" cy="330" r="2" fill="#334155" />
+
+  <!-- Connecting Arrows -->
+  <!-- Git Repository -> Config Server -->
+  <path d="M 230 135 L 290 135" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" />
+  <polygon points="290,131 298,135 290,139" fill="#475569" />
+  <text x="260" y="125" class="arrow-text">Secure SSH</text>
+
+  <!-- Config Server -> Spring Cloud Bus (RabbitMQ) -->
+  <path d="M 520 135 L 580 135" fill="none" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" />
+  <polygon points="580,131 588,135 580,139" fill="#475569" />
+  <text x="550" y="125" class="arrow-text">Refresh Event</text>
+
+  <!-- Spring Cloud Bus -> Microservices Cluster -->
+  <path d="M 780 135 L 830 135" fill="none" stroke="#10B981" stroke-width="2" stroke-dasharray="4 4" />
+  <polygon points="830,131 838,135 830,139" fill="#10B981" />
+  <text x="805" y="125" class="arrow-text" style="fill: #10B981;">Broadcast</text>
+
+
+  <!-- STEP 1: EXTERNAL GIT SECURE SOURCE -->
+  <g transform="translate(30, 60)" filter="url(#shadow)">
+    <rect width="200" height="150" rx="10" fill="url(#cardBg)" stroke="#F05032" stroke-width="1.5" />
+    <rect width="200" height="5" rx="2.5" fill="url(#gitGrad)" />
+    <text x="15" y="28" class="title">1. Secure Git Config</text>
+    <text x="15" y="48" class="label">Properties Repository</text>
+    
+    <rect x="15" y="65" width="170" height="40" rx="4" fill="#020617" stroke="#1E293B" />
+    <text x="22" y="80" class="label" style="font-size: 8px; fill: #FCA5A5;">EXTERNAL STORAGE</text>
+    <text x="22" y="94" class="event-tag" style="fill: #F05032;">application-dev.yml</text>
+    
+    <text x="15" y="132" class="label" style="font-size: 10px;">Encrypted Secrets Cache</text>
+  </g>
+
+  <!-- STEP 2: SPRING CLOUD CONFIG SERVER -->
+  <g transform="translate(300, 60)" filter="url(#shadow)">
+    <rect width="220" height="150" rx="10" fill="url(#cardBg)" stroke="#3B82F6" stroke-width="1.5" />
+    <rect width="220" height="5" rx="2.5" fill="url(#configServerGrad)" />
+    <text x="15" y="28" class="title">2. Config Server</text>
+    <text x="15" y="48" class="label">Port: 4998 (Central Registry)</text>
+    
+    <text x="15" y="75" font-family="'Inter', sans-serif" font-size="11px" fill="#E2E8F0">🛡️ Serves bootstrap properties</text>
+    <text x="15" y="93" font-family="'Inter', sans-serif" font-size="11px" fill="#E2E8F0">🔄 Fetches from Git dynamically</text>
+    <text x="15" y="125" class="label" style="font-size: 9px; fill: #38BDF8;">Spring Cloud Config</text>
+  </g>
+
+  <!-- STEP 3: RABBITMQ BUS PROPAGATION -->
+  <g transform="translate(590, 60)" filter="url(#shadow)">
+    <rect width="190" height="150" rx="10" fill="url(#cardBg)" stroke="#F59E0B" stroke-width="1.5" />
+    <rect width="190" height="5" rx="2.5" fill="url(#busGrad)" />
+    <text x="15" y="28" class="title">3. Cloud Bus</text>
+    <text x="15" y="48" class="label">Broker: RabbitMQ AMQP</text>
+    
+    <rect x="15" y="65" width="160" height="40" rx="4" fill="#020617" stroke="#1E293B" />
+    <text x="22" y="80" class="label" style="font-size: 8px; fill: #FDE68A;">BUS EXCHANGES</text>
+    <text x="22" y="94" class="event-tag" style="fill: #F59E0B;">springCloudBusTopic</text>
+    
+    <text x="15" y="132" class="label" style="font-size: 10px;">Broadcasts property updates</text>
+  </g>
+
+  <!-- STEP 4: DISTRIBUTED MICROSERVICES -->
+  <g transform="translate(840, 60)" filter="url(#shadow)">
+    <rect width="130" height="150" rx="10" fill="url(#cardBg)" stroke="#10B981" stroke-width="1.5" />
+    <rect width="130" height="5" rx="2.5" fill="url(#microserviceGrad)" />
+    <text x="15" y="28" class="title">4. Services</text>
+    <text x="15" y="48" class="label">Target Cluster</text>
+    
+    <text x="15" y="80" font-family="'Inter', sans-serif" font-size="11px" fill="#34D399" font-weight="700">Auth</text>
+    <text x="15" y="98" font-family="'Inter', sans-serif" font-size="11px" fill="#34D399" font-weight="700">ControlPlane</text>
+    <text x="15" y="116" font-family="'Inter', sans-serif" font-size="11px" fill="#34D399" font-weight="700">SDK Engine</text>
+  </g>
+
+  <!-- Legend Detail -->
+  <g transform="translate(30, 260)" filter="url(#shadow)">
+    <rect width="940" height="75" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+    <circle cx="30" cy="37.5" r="10" fill="#10B981" />
+    
+    <!-- Title -->
+    <text x="55" y="32" font-family="'Outfit', 'Inter', sans-serif" font-size="13px" font-weight="700" fill="#F8FAFC">Centralized &amp; Dynamic Environment Operations:</text>
+    
+    <!-- Multi-line explanation -->
+    <text x="55" y="48" font-family="'Inter', sans-serif" font-size="11px" fill="#94A3B8">Configuration properties are dynamically loaded at startup and can be refreshed across the cluster at runtime</text>
+    <text x="55" y="62" font-family="'Inter', sans-serif" font-size="11px" fill="#94A3B8">without service redeployment by utilizing the asynchronous Spring Cloud Bus propagation channel.</text>
+  </g>
+</svg>

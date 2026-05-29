@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="gradientRoot" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+    <linearGradient id="gradientAND" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="gradientCoreActive" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="boxBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <!-- Shadow -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <style>
+    .node-title { font-family: 'Outfit', 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 700; fill: #F8FAFC; }
+    .node-label { font-family: 'Inter', system-ui, sans-serif; font-size: 11px; fill: #94A3B8; font-weight: 500; }
+    .operator-text { font-family: 'Outfit', 'Inter', sans-serif; font-size: 12px; font-weight: 800; fill: #FFFFFF; text-anchor: middle; }
+    .status-badge { font-family: 'Inter', sans-serif; font-size: 9px; font-weight: bold; fill: #FFFFFF; }
+    .arrow-line-active { stroke: #10B981; stroke-width: 2; fill: none; stroke-dasharray: 4 4; }
+  </style>
+
+  <!-- Background Canvas -->
+  <rect width="1000" height="380" rx="16" fill="#0B1329" stroke="#1E293B" stroke-width="2" />
+
+  <!-- Outer Grid Details -->
+  <circle cx="50" cy="50" r="2" fill="#334155" />
+  <circle cx="950" cy="50" r="2" fill="#334155" />
+  <circle cx="50" cy="330" r="2" fill="#334155" />
+  <circle cx="950" cy="330" r="2" fill="#334155" />
+
+  <!-- Connector Lines -->
+  <!-- Dependent to AND Gate -->
+  <path d="M 500 115 L 500 135" class="arrow-line-active" />
+  <polygon points="497,135 500,142 503,135" fill="#10B981" />
+
+  <!-- AND Gate to Core Flags / Rules -->
+  <path d="M 480 160 Q 230 160 230 200" class="arrow-line-active" />
+  <polygon points="227,200 230,207 233,200" fill="#10B981" />
+
+  <path d="M 500 180 L 500 200" class="arrow-line-active" />
+  <polygon points="497,200 500,207 503,200" fill="#10B981" />
+
+  <path d="M 520 160 Q 770 160 770 200" class="arrow-line-active" />
+  <polygon points="767,200 770,207 773,200" fill="#10B981" />
+
+
+  <!-- DEPENDENT FLAG (ROOT) -->
+  <g transform="translate(370, 35)" filter="url(#shadow)">
+    <rect width="260" height="80" rx="10" fill="url(#boxBg)" stroke="#8B5CF6" stroke-width="2" />
+    <rect width="260" height="5" rx="2.5" fill="url(#gradientRoot)" />
+    <text x="15" y="28" class="node-title">checkout-v2-release</text>
+    <text x="15" y="48" class="node-label" fill="#D8B4FE">Type: Dependent Flag</text>
+    <text x="15" y="65" font-family="'Inter', sans-serif" font-size="11px" font-weight="700" fill="#A78BFA">Prerequisite Check Enforced</text>
+  </g>
+
+  <!-- AND OPERATOR GATEWAY -->
+  <g transform="translate(475, 135)">
+    <circle cx="25" cy="25" r="20" fill="url(#gradientAND)" filter="url(#cardShadow)" />
+    <text x="25" y="29" class="operator-text">AND</text>
+  </g>
+
+  <!-- CORE FLAG A (LEFT) -->
+  <g transform="translate(115, 200)" filter="url(#shadow)">
+    <rect width="230" height="80" rx="10" fill="url(#boxBg)" stroke="#10B981" stroke-width="2" />
+    <rect width="230" height="5" rx="2.5" fill="url(#gradientCoreActive)" />
+    <text x="15" y="28" class="node-title">payment-service-v2</text>
+    <text x="15" y="48" class="node-label">Type: Core Flag (Independent)</text>
+    <rect x="15" y="56" width="60" height="16" rx="3" fill="#065F46" />
+    <text x="21" y="67" class="status-badge" fill="#34D399">PASS (True)</text>
+  </g>
+
+  <!-- CORE FLAG B (MIDDLE) -->
+  <g transform="translate(385, 200)" filter="url(#shadow)">
+    <rect width="230" height="80" rx="10" fill="url(#boxBg)" stroke="#10B981" stroke-width="2" />
+    <rect width="230" height="5" rx="2.5" fill="url(#gradientCoreActive)" />
+    <text x="15" y="28" class="node-title">auth-service-v3</text>
+    <text x="15" y="48" class="node-label">Type: Core Flag (Independent)</text>
+    <rect x="15" y="56" width="60" height="16" rx="3" fill="#065F46" />
+    <text x="21" y="67" class="status-badge" fill="#34D399">PASS (True)</text>
+  </g>
+
+  <!-- RULE NODE (RIGHT) -->
+  <g transform="translate(655, 200)" filter="url(#shadow)">
+    <rect width="230" height="80" rx="10" fill="url(#boxBg)" stroke="#10B981" stroke-width="2" />
+    <rect width="230" height="5" rx="2.5" fill="url(#gradientCoreActive)" />
+    <text x="15" y="28" class="node-title">RuleNode: Beta Segment</text>
+    <text x="15" y="48" class="node-label">Condition: user.group == "beta"</text>
+    <rect x="15" y="56" width="60" height="16" rx="3" fill="#065F46" />
+    <text x="21" y="67" class="status-badge" fill="#34D399">PASS (True)</text>
+  </g>
+
+  <!-- Footer explanation banner -->
+  <g transform="translate(40, 335)">
+    <rect width="920" height="28" rx="6" fill="#1E293B" stroke="#334155" stroke-width="1" />
+    <circle cx="15" cy="14" r="4" fill="#10B981" />
+    <text x="28" y="18" font-family="'Inter', sans-serif" font-size="11px" fill="#94A3B8">Architectural Constraint: <tspan fill="#F8FAFC" font-weight="700">Dependent Flags</tspan> can only evaluate prerequisites targeting <tspan fill="#10B981" font-weight="700">Core Flags</tspan> or Rules (Depth limit = 1).</text>
+  </g>
+</svg>

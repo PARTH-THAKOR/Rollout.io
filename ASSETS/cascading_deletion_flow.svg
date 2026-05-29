@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="100%" height="100%">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="step1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+    <linearGradient id="step2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="step3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="step4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0F172A" stop-opacity="0.9" />
+    </linearGradient>
+    
+    <!-- Shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <style>
+    .title { font-family: 'Outfit', 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 700; fill: #F8FAFC; }
+    .label { font-family: 'Inter', system-ui, sans-serif; font-size: 11px; fill: #94A3B8; font-weight: 500; }
+    .event-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: bold; fill: #38BDF8; }
+    .arrow-text { font-family: 'Inter', system-ui, sans-serif; font-size: 10px; fill: #64748B; font-weight: 600; text-anchor: middle; }
+    .queue-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: bold; fill: #F43F5E; }
+  </style>
+
+  <!-- Background Canvas -->
+  <rect width="1000" height="380" rx="16" fill="#0B1329" stroke="#1E293B" stroke-width="2" />
+
+  <!-- Outer Grid Details -->
+  <circle cx="50" cy="50" r="2" fill="#334155" />
+  <circle cx="950" cy="50" r="2" fill="#334155" />
+  <circle cx="50" cy="330" r="2" fill="#334155" />
+  <circle cx="950" cy="330" r="2" fill="#334155" />
+
+  <!-- Connecting Arrows -->
+  <!-- Step 1 -> Step 2 -->
+  <path d="M 245 135 L 285 135" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 3" />
+  <polygon points="285,132 291,135 285,138" fill="#475569" />
+  
+  <!-- Step 2 -> Step 3 -->
+  <path d="M 485 135 L 525 135" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 3" />
+  <polygon points="525,132 531,135 525,138" fill="#475569" />
+
+  <!-- Step 3 -> Step 4 -->
+  <path d="M 725 135 L 765 135" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 3" />
+  <polygon points="765,132 771,135 765,138" fill="#475569" />
+
+
+  <!-- STEP 1: USER DELETION -->
+  <g transform="translate(45, 60)" filter="url(#shadow)">
+    <rect width="200" height="150" rx="10" fill="url(#cardBg)" stroke="#EF4444" stroke-width="1.5" />
+    <rect width="200" height="5" rx="2.5" fill="url(#step1Grad)" />
+    <text x="15" y="28" class="title">1. User Deletion</text>
+    <text x="15" y="48" class="label">Triggered by: Auth Service</text>
+    
+    <rect x="15" y="65" width="170" height="40" rx="4" fill="#020617" stroke="#1E293B" />
+    <text x="22" y="80" class="label" style="font-size: 9px; fill: #FCA5A5;">PUBLISHES EVENT</text>
+    <text x="22" y="96" class="event-tag" style="fill: #EF4444;">UserDeletedEvent</text>
+    
+    <text x="15" y="132" class="label" style="font-size: 10px;">Purges User Credentials</text>
+  </g>
+
+  <!-- STEP 2: PROJECT CLEANUP -->
+  <g transform="translate(285, 60)" filter="url(#shadow)">
+    <rect width="200" height="150" rx="10" fill="url(#cardBg)" stroke="#F59E0B" stroke-width="1.5" />
+    <rect width="200" height="5" rx="2.5" fill="url(#step2Grad)" />
+    <text x="15" y="28" class="title">2. Project Purge</text>
+    <text x="15" y="48" class="label">Triggered by: ControlPlane</text>
+    
+    <rect x="15" y="65" width="170" height="40" rx="4" fill="#020617" stroke="#1E293B" />
+    <text x="22" y="80" class="label" style="font-size: 9px; fill: #FDE68A;">PUBLISHES EVENT</text>
+    <text x="22" y="96" class="event-tag" style="fill: #F59E0B;">ProjectDeletedEvent</text>
+    
+    <text x="15" y="132" class="label" style="font-size: 10px;">Purges Associated Projects</text>
+  </g>
+
+  <!-- STEP 3: ENVIRONMENT CLEANUP -->
+  <g transform="translate(525, 60)" filter="url(#shadow)">
+    <rect width="200" height="150" rx="10" fill="url(#cardBg)" stroke="#3B82F6" stroke-width="1.5" />
+    <rect width="200" height="5" rx="2.5" fill="url(#step3Grad)" />
+    <text x="15" y="28" class="title">3. Environment Purge</text>
+    <text x="15" y="48" class="label">Triggered by: ControlPlane</text>
+    
+    <rect x="15" y="65" width="170" height="40" rx="4" fill="#020617" stroke="#1E293B" />
+    <text x="22" y="80" class="label" style="font-size: 9px; fill: #BFDBFE;">PUBLISHES EVENT</text>
+    <text x="22" y="96" class="event-tag" style="fill: #3B82F6;">EnvDeletedEvent</text>
+    
+    <text x="15" y="132" class="label" style="font-size: 10px;">Purges Active Environments</text>
+  </g>
+
+  <!-- STEP 4: FLAGS & AUDIT PURGE -->
+  <g transform="translate(755, 60)" filter="url(#shadow)">
+    <rect width="200" height="150" rx="10" fill="url(#cardBg)" stroke="#10B981" stroke-width="1.5" />
+    <rect width="200" height="5" rx="2.5" fill="url(#step4Grad)" />
+    <text x="15" y="28" class="title">4. Terminal Purge</text>
+    <text x="15" y="48" class="label">Triggered by: ControlPlane</text>
+    
+    <rect x="15" y="65" width="170" height="40" rx="4" fill="#020617" stroke="#1E293B" />
+    <text x="22" y="80" class="label" style="font-size: 9px; fill: #A7F3D0;">TERMINAL ACTION</text>
+    <text x="22" y="96" class="event-tag" style="fill: #10B981;">Flags &amp; Audit Purged</text>
+    
+    <text x="15" y="132" class="label" style="font-size: 10px;">Purges Associated Flags</text>
+  </g>
+
+  <!-- Legend Detail -->
+  <g transform="translate(45, 260)" filter="url(#shadow)">
+    <rect width="910" height="75" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+    <circle cx="30" cy="37.5" r="10" fill="#3B82F6" />
+    
+    <!-- Title -->
+    <text x="55" y="32" font-family="'Outfit', 'Inter', sans-serif" font-size="13px" font-weight="700" fill="#F8FAFC">Asynchronous Event-Driven Cascade Pipeline:</text>
+    
+    <!-- Multi-line explanation to prevent overflow -->
+    <text x="55" y="48" font-family="'Inter', sans-serif" font-size="11px" fill="#94A3B8">Using RabbitMQ Topic Exchanges, the deletion cascades sequentially without blocking user requests.</text>
+    <text x="55" y="62" font-family="'Inter', sans-serif" font-size="11px" fill="#94A3B8">This guarantees eventual datastore consistency even if individual services encounter transient outages.</text>
+  </g>
+</svg>
