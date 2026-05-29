@@ -88,6 +88,11 @@ Rollout.io implements a **Zero-Trust System Design** where the `Jwt` token serve
 
 For a deeper dive into the theoretical foundation and trade-offs of this design pattern, read the complete engineering article: **[Zero-Trust System Design: How We Used JWT as an Immutable Context Boundary in Spring Boot](https://medium.com/@myself.parthsinh/zero-trust-system-design-how-we-used-jwt-as-an-immutable-context-boundary-in-spring-boot-42924aae086f)**.
 
+<div align="center">
+  <img src="ASSETS/zero_trust_flow.svg" alt="Rollout.io Zero-Trust Identity Context Propagation Flow" width="100%">
+</div>
+
+
 ### Event-Driven Cascading Deletion
 Rollout.io implements an asynchronous, event-driven cascade deletion pipeline using RabbitMQ to guarantee database integrity. When a developer deletes their account, the downstream deletion executes in a non-blocking sequence:
 1. **User Deletion Event**: The Auth Service deletes the user record and publishes a UserDeletedEvent to RabbitMQ.
@@ -95,11 +100,50 @@ Rollout.io implements an asynchronous, event-driven cascade deletion pipeline us
 3. **Environment Cleanup**: The service consumes the project events, identifies nested environments, publishes an EnvironmentDeletedEvent for each, and deletes the environments.
 4. **Flag and Audit Log Purge**: The service consumes the environment events, executing the terminal deletion of all associated flags, rules, and audit logs.
 
+<div align="center">
+  <img src="ASSETS/cascading_deletion_flow.svg" alt="Rollout.io Event-Driven Cascading Deletion Flow" width="100%">
+</div>
+
 ### Centralized Configuration Server
 All microservices in the Rollout.io ecosystem decouple their environment properties and secrets using Spring Cloud Config Server. At boot time:
 * Microservices bootstrap by requesting configurations from the central Config Server (port 4998).
 * The Config Server dynamically clones and serves properties from an external, secure Git repository (Rollout.io-External-Config.git).
 * Any run-time configuration updates are broadcasted across the microservices ecosystem asynchronously using the RabbitMQ message broker.
+
+<div align="center">
+  <img src="ASSETS/config_server_flow.svg" alt="Rollout.io Centralized Configuration Server Lifecycle" width="100%">
+</div>
+
+### Consistent Hashing & Percentage Rollout Resolution
+To deliver deterministic user-level percentage rollouts (e.g., serving a beta feature to 25% of users) without storing state on the server or sync bottlenecks, Rollout.io uses a math-based distribution model.
+* **Deterministic Distribution**: We hash the combination of the `userId` and the unique `flagKey` using **MurmurHash3 (32-bit)**. 
+* **State-Free Bucketing**: Modulo division of the hash value by `100` yields a bucket index between `0` and `99`. A user is served the enabled variation if their bucket index is less than the configured rollout threshold.
+* **Consistency Guaranteed**: A user with a specific ID always lands in the exact same bucket for a given flag across multiple sessions, devices, and service reboots.
+
+<div align="center">
+  <img src="ASSETS/hashing_rollout.svg" alt="Rollout.io Consistent Hashing and Percentage Rollout Algorithm" width="100%">
+</div>
+
+### Runtime Contextual Targeting Rules
+To enable precise segmentation (such as releasing features only to internal QA emails, users in India, or mobile devices) without network latency, Rollout.io resolves rules dynamically on the client side:
+* **Context Payload**: The Client SDK supplies a runtime map of user attributes (e.g., `email`, `country`, `device`) when evaluating flags.
+* **In-Memory Operators**: The SDK service processes the configuration rules downloaded during synchronization, validating the context map against logical operators (`EQUALS`, `CONTAINS`, `GT`, `LT`, etc.) in-memory.
+* **Deterministic Segmentation**: If the context satisfies the condition rules, the targeted variation is enabled instantly with zero additional network overhead.
+
+<div align="center">
+  <img src="ASSETS/runtime_targeting_flow.svg" alt="Rollout.io Runtime Targeting Rule Resolution Flow" width="100%">
+</div>
+
+### Dynamic Flag Dependency Resolution
+Rollout.io implements a strict graph-based prerequisite validation pipeline governed by structural system constraints:
+* **Core Flags vs. Dependent Flags**: 
+  * **Core Flags** represent standard independent toggles and cannot specify any prerequisite dependencies.
+  * **Dependent Flags** can define logical conditions targeting other Core Flags or runtime user attributes (`RuleNode` segments) via `AND` / `OR` gateways.
+* **Strict Depth Boundary (Max Depth = 1)**: Dependent flags can **only** depend directly on Core Flags. Nesting dependent flags inside other dependent flags (Dependent-to-Dependent chaining) is strictly prohibited at the database schema layer. This eliminates circular dependency risks and ensures instantaneous, deterministic traversal.
+
+<div align="center">
+  <img src="ASSETS/flag_dependency_dag.svg" alt="Rollout.io Dynamic Flag Dependency Tree (DAG)" width="100%">
+</div>
 
 ## Repository Structure
 
@@ -203,6 +247,17 @@ To view the interface and test endpoints directly:
 
 <div align="center">
   <img src="ASSETS/apigateway.png" alt="API Gateway Documentation Interface" width="100%">
+</div>
+
+## Service Registry & Discovery with Netflix Eureka
+
+To support dynamic scaling, load balancing, and zero-downtime routing, all microservices in the Rollout.io ecosystem register themselves with the centralized **Netflix Eureka Service Registry** (operating on port `5000` / `/registry/` path).
+
+* **Dynamic Service Mapping**: Microservices locate each other dynamically via service names instead of static IP addresses, facilitating seamless container orchestration.
+* **Heartbeat & Health Monitoring**: Eureka tracks active heartbeats of all active instances, enabling Spring Cloud Gateway to route client traffic exclusively to healthy nodes.
+
+<div align="center">
+  <img src="ASSETS/eureka.png" alt="Netflix Eureka Service Registry Dashboard" width="100%">
 </div>
 
 ## Telemetry & Metrics Monitoring with Grafana
@@ -378,6 +433,29 @@ if (isNewCheckoutEnabled) {
 ```
 
 Detailed implementation schematics available at: `SDK/java/README.md`
+## Architectural Decision Records (ADRs)
+
+To document the technical direction and engineering trade-offs made during development, the following architectural decisions were established:
+
+### ADR-001: Document-Oriented Storage (MongoDB) for Dynamic Rule Trees
+* **Context**: Feature flags range from simple booleans to highly nested rules involving complex prerequisite flag dependency trees (represented as recursive `RuleNode` structures). Relational schemas would require extensive joins, recursive queries, or object-relational mapping overhead.
+* **Decision**: Adopt **MongoDB** as the primary datastore for the Control Plane and SDK services.
+* **Consequences**: Enables schema flexibility for complex targeting rules (JSON values, multi-operator rules) and direct storage of recursive graphs. Leveraging MongoDB Change Streams also allows real-time UI synchronization via WebSockets.
+
+### ADR-002: Zero-Trust Identity Context Propagation
+* **Context**: Standard gateway routing often authenticates requests at the edge and forwards identity via plain custom headers (e.g., `X-User-ID`), creating a vulnerability vector where downstream services might accept spoofed headers.
+* **Decision**: Forward the raw **JWT token** downstream and parse/validate user context directly inside the microservices, binding identity directly to DB operations (e.g., `findByIdAndCreatedByUid`).
+* **Consequences**: Effectively eliminates IDOR (Insecure Direct Object Reference) vulnerabilities, ensuring services remain secure even if internal network isolation is breached.
+
+### ADR-003: Double-Buffered Low-Latency Cache (Redis + MongoDB)
+* **Context**: Client SDK flag evaluation requires sub-5ms response times. Direct database reads under high concurrent traffic would cause service degradation.
+* **Decision**: Implement a read-heavy **Redis cache** layer in front of the SDK service, using background scheduler syncs alongside transactional cache evictions.
+* **Consequences**: Evaluation latency is reduced to `<3ms` for cache hits. If Redis is unavailable, the SDK service gracefully falls back to MongoDB, ensuring high availability with slightly higher latency.
+
+### ADR-004: Asynchronous Deletion Cascades via RabbitMQ
+* **Context**: Deleting a primary resource (e.g., user account or project) requires cleaning up environments, feature flags, dependency trees, and audit logs. Synchronous API cascades introduce tight coupling and risk partial failures.
+* **Decision**: Execute all downstream cleanup operations asynchronously using **RabbitMQ topic exchanges** with consumer-based retry queues.
+* **Consequences**: Guarantees eventual consistency across service boundaries, keeps UI delete actions fast and non-blocking, and prevents orphaned records.
 
 ## Future Scope / Roadmap
 
